@@ -16,7 +16,7 @@
 
 The `@webgpu/types` reference in the declarations supports dependency typing; it does not indicate a WebGPU rendering backend. Three.js remains external to the library bundle, while the static demo bundles its own runtime dependencies.
 
-The local desktop browser checks have exercised all four layers and all 32 gallery recipes. That result is not a verified Safari, Firefox, mobile-device, or GPU compatibility matrix. Record the browser version, OS, GPU/backend, recipe, viewport, and relevant controls when reporting a new environment. Do not infer support solely from a browser's name or nominal WebGL2 availability; device limits and graphics drivers can affect results.
+The local desktop browser checks have exercised all four layers and all 44 gallery recipes. That result is not a verified Safari, Firefox, mobile-device, or GPU compatibility matrix. Record the browser version, OS, GPU/backend, recipe, viewport, and relevant controls when reporting a new environment. Do not infer support solely from a browser's name or nominal WebGL2 availability; device limits and graphics drivers can affect results.
 
 ## Application integration and cleanup
 

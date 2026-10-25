@@ -1,6 +1,7 @@
 import type { FiveApp } from '../src/index.js';
 
-export type ExampleCategory = 'Scientific' | 'Data' | 'Cinematic' | 'Business' | 'Analytics';
+export const exampleCategories = ['Space', 'Biology', 'Climate', 'Energy', 'Cities', 'Engineering', 'Business', 'Analytics', 'Scientific', 'Data', 'Cinematic'] as const;
+export type ExampleCategory = typeof exampleCategories[number];
 export interface ExampleControl {
   id: string;
   label: string;

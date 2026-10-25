@@ -1,8 +1,10 @@
 # Changelog
 
-## Unreleased — 0.1.0-alpha.1
+## Unreleased
 
-The first public alpha is being prepared. This entry describes the intended release contents and does not mean a GitHub release or npm package has already been published. The API remains experimental.
+## 0.1.0-alpha.1 — 2026-10-25
+
+First GitHub alpha. The API remains experimental; npm publication is a separate milestone.
 
 ### Library
 
@@ -13,7 +15,8 @@ The first public alpha is being prepared. This entry describes the intended rele
 
 ### Examples
 
-- Interactive playground and 32 runnable recipes: ten Business, ten Analytics, four Scientific, four Data, and four Cinematic.
+- Interactive playground and 44 runnable recipes: two each in Space, Biology, Climate, Energy, Cities, and Engineering; ten Business; ten Analytics; four Scientific; four Data; and four Cinematic.
+- Twelve domain scenes: orbital systems, stellar loops, neural pathways, vascular transport, jet belts, ocean gyres, renewable dispatch, fusion geometry, transit, urban airflow, acoustic modes, and turbine wakes.
 - Animated business scenes using revenue rivers, conversion gates, profit flows, supply networks, utilization gauges, portfolio trajectories, budget petals, and profit terrain.
 - Search/filter navigation, live parameters, source inspection, standalone URLs, PNG capture, synthetic-data tables, current-view CSV export, and a downloadable source project.
 - Explicit quantitative encodings and model assumptions; decorative motion leaves analytic readouts unchanged.

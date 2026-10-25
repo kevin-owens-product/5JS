@@ -8,7 +8,7 @@ During the alpha, fixes target the latest alpha and current default branch. Olde
 
 Use this repository's **Security → Report a vulnerability** button to send a private report to the maintainer. Include the affected version or commit, reproduction steps using synthetic data, the impact, and any suggested fix. Do not post credentials, private data, or an exploit publicly in an issue.
 
-Private vulnerability reporting must be enabled in repository settings before the first public release. If the report button is unavailable, do not use public issues for confidential details; the reporting setup must be completed first. Ordinary rendering bugs and feature requests can use public issues.
+Private vulnerability reporting is enabled for [kevin-owens-product/5JS](https://github.com/kevin-owens-product/5JS/security/advisories/new). If the report button is unavailable, do not use public issues for confidential details; the reporting setup must be completed first. Ordinary rendering bugs and feature requests can use public issues.
 
 ## Scope
 

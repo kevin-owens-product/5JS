@@ -1,8 +1,10 @@
 # 5js
 
-An experimental TypeScript library for composing scientific, data, and cinematic visualizations on Three.js. The 0.1.0-alpha.1 API supplies a shared scene lifecycle and four visualization layers, plus an interactive playground and 32 examples.
+An experimental TypeScript library for composing scientific, data, and cinematic visualizations on Three.js. The 0.1.0-alpha.1 API supplies a shared scene lifecycle and four visualization layers, plus an interactive playground and 44 examples.
 
-This MIT-licensed alpha is being prepared for its first public release. It has not been published to npm; `private: true` prevents accidental registry publication. Naming rights and registry acceptance have not been established.
+This MIT-licensed alpha is experimental open-source software. It has not been published to npm; `private: true` prevents accidental registry publication. Naming rights and registry acceptance have not been established.
+
+[Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
 
 Documentation: [API reference](docs/API.md) · [Example guide](examples/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](CONTRIBUTING.md) · [Release guide](docs/RELEASING.md).
 
@@ -23,7 +25,7 @@ Open http://127.0.0.1:5185. The playground includes live parameters, palettes, c
 
 ## Example library
 
-Open http://127.0.0.1:5185/examples/ for **32 runnable recipes**, including **20 business and analytics examples** alongside scientific visualization, structured data, and cinematic composition. The ten Business scenes include luminous revenue rivers, a conversion reactor, an attribution network, a profit engine, a factory circuit, an inventory constellation, and a continuous break-even terrain. Their motion makes flow and relationships visible while exact synthetic-data calculations remain inspectable in live metrics, tables, and current-view CSV exports. The ten Analytics recipes cover cohorts, segmentation, distributions, experiments, and data quality. Search and filter the gallery, open any example, change its live parameters, inspect its actual TypeScript source, or launch its standalone view. The [example guide](examples/README.md) lists every recipe and explains how to add your own.
+Open http://127.0.0.1:5185/examples/ for **44 runnable recipes**, including **20 business and analytics examples** alongside twelve new Space, Biology, Climate, Energy, Cities, and Engineering scenes, plus scientific visualization, structured data, and cinematic composition. The ten Business scenes include luminous revenue rivers, a conversion reactor, an attribution network, a profit engine, a factory circuit, an inventory constellation, and a continuous break-even terrain. Their motion makes flow and relationships visible while exact synthetic-data calculations remain inspectable in live metrics, tables, and current-view CSV exports. The ten Analytics recipes cover cohorts, segmentation, distributions, experiments, and data quality. Search and filter the gallery, open any example, change its live parameters, inspect its actual TypeScript source, or launch its standalone view. The [example guide](examples/README.md) lists every recipe and explains how to add your own.
 
 The Business scenes use example-only helpers for tubes, ribbons, rings, surfaces, glow, and animated path tracers. These are implemented in `examples/shared/chart.ts`; they do not add factories to the public library API. Tracers are illustrative motion, not new transactions or observations. Each recipe states which geometry actually encodes the data.
 

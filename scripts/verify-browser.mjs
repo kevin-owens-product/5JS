@@ -52,7 +52,7 @@ try {
       assert.equal(pageErrors.length, 0, `${check.name}: uncaught browser error(s): ${pageErrors.join('\n')}`);
       if (check.name === 'examples') {
         const counts = results.match(/ALL (\d+)\/(\d+) EXAMPLE BROWSER CHECKS PASSED/);
-        assert.ok(counts && Number(counts[1]) >= 32 && counts[1] === counts[2], 'Every gallery recipe must pass.');
+        assert.ok(counts && Number(counts[1]) >= 44 && counts[1] === counts[2], 'Every gallery recipe must pass.');
       } else {
         assert.match(results, /ALL \d+ BROWSER CHECKS PASSED/);
       }

@@ -1,6 +1,6 @@
 # 5js API reference
 
-This reference describes the 0.1.0-alpha.1 API. The package is local and unpublished; install a built checkout using the [local setup instructions](../README.md#build-and-use-the-library). Imports below assume that local package is installed as `fivejs`.
+This reference describes the 0.1.0-alpha.1 API. The source is public on GitHub; the package is not published to npm; install a built checkout using the [local setup instructions](../README.md#build-and-use-the-library). Imports below assume that local package is installed as `fivejs`.
 
 The public entry point is [src/index.ts](../src/index.ts). It exports `createFive`, four layer factories, and their TypeScript interfaces. Gallery recipes and `examples/shared/chart.ts` are example utilities, not public package exports.
 

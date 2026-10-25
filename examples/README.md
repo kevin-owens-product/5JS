@@ -1,13 +1,13 @@
 # 5js example library
 
-Thirty-two editable recipes include twenty business and analytics examples, plus particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer.
+Forty-four editable recipes span eleven categories, including twenty business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer.
 
 ## Run locally
 
 From the project root:
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
@@ -27,6 +27,18 @@ For a production build, run `npm run build:demo`, then `npm run preview`; the ga
 
 | Recipe and source | Category | Learning concept |
 | --- | --- | --- |
+| [Orbital resonance loom](space/orbital-resonance.ts) | Space | Prescribed period ratios, elliptical paths, and a woven phase comparison |
+| [Stellar magnetic ballet](space/stellar-magnetic-field.ts) | Space | Nested twisted loops and directional tracers around a sphere |
+| [Neural signal atlas](biology/neural-connectome.ts) | Biology | A bilateral graph, branching dendrites, and adjustable hemisphere bridges |
+| [Vascular transport forest](biology/vascular-flow.ts) | Biology | Conserved binary flow splits and tube cross-sectional area encoding |
+| [Jet-stream atlas](climate/jet-stream.ts) | Climate | Parametric spherical bands with adjustable latitude meanders |
+| [Ocean gyre observatory](climate/ocean-gyres.ts) | Climate | Layered counter-rotating curves and a basin cutaway |
+| [Renewable dispatch network](energy/grid-dispatch.ts) | Energy | Proportional supply allocation, conserved MW, and visible shortfalls |
+| [Fusion chamber cutaway](energy/fusion-chamber.ts) | Energy | Closed toroidal helices, integer winding counts, and a cutaway shell |
+| [Transit pulse](cities/transit-pulse.ts) | Cities | Synthetic headway and capacity calculations with schematic train motion |
+| [Urban wind canopy](cities/urban-canopy.ts) | Cities | Deterministic district geometry and illustrative air paths |
+| [Acoustic mode chamber](engineering/acoustic-chamber.ts) | Engineering | A sampled signed cosine field, node planes, and threshold visibility |
+| [Turbine wake sculptor](engineering/turbine-wake.ts) | Engineering | Expanding helical geometry and independent rotor animation |
 | [Revenue landscape](business/revenue-landscape.ts) | Business | Luminous revenue rivers; exact monthly crest heights and an uplift scenario |
 | [Conversion funnel](business/conversion-funnel.ts) | Business | A conversion reactor with count-proportional gate areas and attrition branches |
 | [Subscription bridge](business/subscription-bridge.ts) | Business | An orbital MRR exchange; balance-ring areas, change streams, and exact NRR |
@@ -72,10 +84,20 @@ Factory gauges map the inner turn to 0–100% utilization and the outer turn to 
 
 The break-even terrain evaluates the profit formula between its 36 tabulated price/volume samples. Its gold contour marks zero profit, with moving lights used only to reveal the surface. Budget petals have equal angular spans: their footprint area viewed from above is proportional to actual expense, a blue outline marks planned expense, and the outer-edge height relative to the plan plane shows signed variance. The sloped interior is a visual connection, not an additional metric.
 
+## Reading the domain scenes
+
+The twelve Space, Biology, Climate, Energy, Cities, and Engineering recipes use synthetic or idealized models, not measured datasets. Each recipe's `dataNote`, legend, metrics, and table explain its assumptions and units. Readouts describe the implemented geometry or calculation; they do not establish scientific validation. Tracer density, glow, and playback speed are presentation choices unless an encoding explicitly states otherwise.
+
+Space scenes prescribe orbital periods and twisted stellar loops: ellipse parameters advance uniformly, rather than following a gravity solver, and the stellar curve uses `r = L sin²θ` plus an authored twist. Biology scenes build a synthetic bilateral graph and a transport tree. The tree conserves flow at each split and uses `radius ∝ sqrt(flow)` so branch cross-sectional area encodes flow; decorative terminal loops have fixed width. Neither scene represents anatomical or patient data.
+
+Climate paths are authored globe bands and basin loops, not weather or ocean predictions. The fusion chamber uses closed integer-winding toroidal curves, not computed magnetic fields. Renewable dispatch calculates `served = min(demand, available supply)` and allocates MW proportionally; its tube areas encode dispatched MW and its district arcs encode served demand. It does not solve electrical power flow.
+
+Transit calculates departures, headway, and capacity from synthetic train counts, speed, and route length; its animation runs at 60× clock time. The urban canopy's air paths are illustrative, independent of its building-height table. The acoustic chamber samples a normalized cosine product with exact node planes, without a physical frequency or dB scale. Turbine wakes are expanding geometric helices, without aerodynamic or power predictions. Inspect these formulas in the source before adapting a scene to real observations.
+
 ## Project map
 
 - [catalog.ts](catalog.ts) imports recipes and defines their gallery order.
-- [types.ts](types.ts) defines `ExampleDefinition`, `ExampleInstance`, and slider controls.
+- [types.ts](types.ts) defines `ExampleDefinition`, `ExampleInstance`, slider controls, and the category list.
 - [gallery/main.ts](gallery/main.ts) runs the gallery and standalone viewer.
 - [gallery/runtime.ts](gallery/runtime.ts) mounts recipes, frames cameras, and releases instances.
 - [gallery/sources.ts](gallery/sources.ts) loads the actual recipe files as raw text.
@@ -129,11 +151,13 @@ import aurora from './cinematic/aurora-wave.js';
 
 Keep the ID unique and identical to the filename: source lookup uses that correspondence. Use `.js` import specifiers in TypeScript, matching the existing modules. Metadata supplies the card, viewer, filters, and standalone route; no new HTML file is needed.
 
+The current categories are Space, Biology, Climate, Energy, Cities, Engineering, Business, Analytics, Scientific, Data, and Cinematic. Place a recipe in the matching lowercase directory. To introduce another category, extend `exampleCategories` in `types.ts` and add its directory to the raw-source glob in `gallery/sources.ts`, then register the recipe in `catalog.ts`. Update the catalog documentation and expected example/category counts in the checks. A directory omitted from the source glob can render a scene while leaving its source viewer unavailable.
+
 ## Controls and lifecycle
 
 Return one to three meaningful controls from `setup`. Each control needs a unique ID, label, numeric bounds, positive step, initial value, and `apply(value)`. Match initial values to the constructed layers and keep them on the slider's step grid. Call `layer.set()` for supported live changes, or edit the layer's ordinary Three.js object transform.
 
-An optional control `format(value)` presents a percentage, currency, or category label instead of a raw slider number. An optional instance `readout()` supplies metric cards, legend entries, and a table; the viewer refreshes these after every control change. Compute the chart and readout from the same rows so filtering cannot leave stale summaries. The [shared chart helper](shared/chart.ts) supplies the geometry and animation used by analytical and Business recipes. It belongs to the examples project and is not exported by the public `fivejs` package.
+An optional control `format(value)` presents a percentage, currency, or category label instead of a raw slider number. An optional instance `readout()` supplies metric cards, legend entries, and a table; the viewer refreshes these after every control change. Compute the chart and readout from the same rows so filtering cannot leave stale summaries. The [shared chart helper](shared/chart.ts) supplies geometry and animation used by analytical, Business, and domain recipes. It belongs to the examples project and is not exported by the public `fivejs` package.
 
 The shared viewer supplies playback speed, bloom, auto-orbit, and pause. New instances start from recipe defaults. Structural options such as particle count generally require a new layer; see the library API before exposing them as controls.
 
@@ -184,7 +208,7 @@ Gallery thumbnails are actual WebGL renders of these recipes. Startup uses one t
 
 **Explore the source**, **Copy recipe**, and **Download .ts** expose the actual TypeScript module used by the viewer. They preserve the recipe defaults; moving sliders does not rewrite the module or serialize the current camera. PNG capture records the current canvas image, including chart-axis labels but excluding HTML metric cards and the table. **Download data CSV** exports the current table after filters and scenario controls; it preserves numeric values and adds context columns for the example, data notes, period/view caption, and selected controls. Model-generated scenarios are labeled in the recipe and table.
 
-An individual `.ts` download depends on its relative library imports, shared example types, and any example helpers it uses. Use it within this project, or adapt those imports in your application. **Download examples** provides the project with its library source and shared runner. **Copy link** copies the local example URL, not a hosted deployment.
+An individual `.ts` download depends on its relative library imports, shared example types, and any example helpers it uses. Use it within this project, or adapt those imports in your application. **Download examples** provides the project with its library source and shared runner. **Copy link** copies the current example URL: a localhost address remains local, while a deployed gallery produces its deployed URL.
 
 ## Interpretation and checks
 
@@ -196,4 +220,4 @@ The Lorenz example precomputes 18,000 trajectory samples using fourth-order Rung
 
 Run `npm run typecheck` and `npm test` after adding a recipe. CPU tests should cover useful invariants, live controls, zero-delta pause behavior, and resource disposal. Also inspect its real browser render, portrait framing, control extremes, and standalone URL.
 
-Open `/tests/examples-browser.html` to verify all 32 gallery recipes in WebGL2, including control boundaries, PNG pixels, analytic readouts, and geometry/texture cleanup.
+Open `/tests/examples-browser.html` to verify all 44 gallery recipes in WebGL2, including control boundaries, PNG pixels, analytic readouts, and geometry/texture cleanup.

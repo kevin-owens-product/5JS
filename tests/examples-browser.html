@@ -141,16 +141,18 @@
     }
 
     try {
-      const [{ createFive }, { examples }, { mountExample }] = await bounded(Promise.all([
+      const [{ createFive }, { examples }, { mountExample }, { exampleCategories }, { sourceFor }] = await bounded(Promise.all([
         import('/src/index.ts'),
         import('/examples/catalog.ts'),
         import('/examples/gallery/runtime.ts'),
+        import('/examples/types.ts'),
+        import('/examples/gallery/sources.ts'),
       ]), 'Module imports', 15_000);
 
       total = examples.length;
-      assert(examples.length >= 32, `Expected at least 32 recipes; found ${examples.length}.`);
+      assert(examples.length >= 44, `Expected at least 44 recipes; found ${examples.length}.`);
       const ids = new Set();
-      const categories = new Map([['Scientific', 0], ['Data', 0], ['Cinematic', 0], ['Business', 0], ['Analytics', 0]]);
+      const categories = new Map(exampleCategories.map(category => [category, 0]));
       for (const example of examples) {
         assert(typeof example.id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(example.id), 'Every recipe needs a stable lowercase ID.');
         assert(!ids.has(example.id), `Duplicate recipe ID: ${example.id}`);
@@ -160,8 +162,10 @@
         assert([example.title, example.summary, example.description].every(value => typeof value === 'string' && value.trim()), `${example.id}: incomplete display metadata.`);
         assert(example.camera.length === 3 && example.camera.every(Number.isFinite), `${example.id}: invalid camera coordinates.`);
         assert(typeof example.setup === 'function', `${example.id}: setup is missing.`);
+        assert(sourceFor(example.id).length > 100 && sourceFor(example.id).includes(example.id), `${example.id}: actual recipe source is missing.`);
       }
       assert(categories.get('Business') >= 10 && categories.get('Analytics') >= 10, 'Expected at least ten Business and ten Analytics recipes.');
+      for (const domain of ['Space', 'Biology', 'Climate', 'Energy', 'Cities', 'Engineering']) assert(categories.get(domain) >= 2, `${domain}: expected at least two domain examples.`);
       lines.push(`PASS · Catalog: ${total} unique IDs; ${[...categories].map(([name,count])=>`${name} ${count}`).join(', ')}.`);
 
       current = 'empty renderer baseline';
@@ -200,8 +204,8 @@
           validateReadout(mounted.readout());
         }
         let motionProof = '';
-        if (example.category === 'Business') {
-          const readoutBeforeMotion = JSON.stringify(mounted.readout());
+        if (['Business', 'Space', 'Biology', 'Climate', 'Energy', 'Cities', 'Engineering'].includes(example.category)) {
+          const readoutBeforeMotion = JSON.stringify(mounted.readout?.());
           for (const layer of mounted.layers) layer.update(0, .537);
           await afterFrames(2, `${current}: motion frame`);
           const moved = await capturePixels(`${current}: motion capture`);
@@ -211,7 +215,7 @@
           await afterFrames(2, `${current}: pause frame`);
           const frozen = await capturePixels(`${current}: pause capture`);
           assert(visiblePixels(frozen.pixels, moved.pixels) === 0, `${current}: effects move despite zero delta.`);
-          assert(JSON.stringify(mounted.readout()) === readoutBeforeMotion, `${current}: presentation motion changed the business data.`);
+          assert(JSON.stringify(mounted.readout?.()) === readoutBeforeMotion, `${current}: presentation motion changed the scenario data.`);
           motionProof = ` · motion ${movingPixels} pixels; pause verified`;
         }
         const controls = mounted.controls ?? [];
