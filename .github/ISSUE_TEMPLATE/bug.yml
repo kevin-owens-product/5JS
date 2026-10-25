@@ -1,0 +1,30 @@
+name: Bug report
+description: Report an error in rendering, calculations, controls, or documentation.
+title: "[Bug] "
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: Include the expected behavior and actual result.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Reproduction
+      description: Give an example ID or minimal code, exact settings, and steps to reproduce. Use synthetic data and remove credentials or personal information.
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: 5js version or commit, Three.js version, browser/version, operating system, and GPU if relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Logs or screenshots
+      description: Include relevant console errors or an image if available.

@@ -1,0 +1,65 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>5js browser verification</title>
+<style>body{background:#101818;color:#d6ffd7;font:15px/1.7 monospace;padding:28px}#fixture{width:320px;height:240px}pre{white-space:pre-wrap}</style>
+<h1>5js browser verification</h1><pre id="results">Running real WebGL2 lifecycle checks…</pre><div id="fixture"></div>
+<script type="module">
+import { createFive, particleField, networkGraph, terrain, hypercube } from '/src/index.ts';
+const results = document.querySelector('#results');
+const container = document.querySelector('#fixture');
+const checks = [];
+let app;
+function assert(condition, message) { if (!condition) throw new Error(message); checks.push('PASS · ' + message); results.textContent = checks.join('\n'); }
+function afterFrames(app, count=4) { return new Promise(resolve => { const stop=app.onFrame(() => { if (--count === 0) {stop();resolve();} }); }); }
+function throws(fn) { try {fn();return false;} catch {return true;} }
+try {
+  app = createFive({container, paused:true, autoRotate:false, pixelRatio:1, bloom:0.4});
+  const fields = [particleField({count:1000}), networkGraph({nodeCount:30}), terrain({resolution:16}), hypercube({dimensions:5})];
+  for(const layer of fields) app.add(layer);
+  await afterFrames(app);
+  assert(app.stats.points >= 1032 && app.stats.drawCalls > 5, 'All four layer types render together through the real post-processing pipeline');
+  assert(app.stats.time === 0, 'Paused scene time remains frozen');
+  const firstTime=app.stats.time;
+  app.setPaused(false); await afterFrames(app,8);
+  assert(app.stats.time > firstTime, 'Play advances the shared scene clock');
+  app.setPaused(true); const pausedTime=app.stats.time; await afterFrames(app);
+  assert(app.stats.time === pausedTime, 'Pause stops the clock without stopping rendering');
+  app.setPaused(false); app.setSpeed(0); await afterFrames(app);
+  assert(app.stats.time === pausedTime, 'Zero playback speed freezes all layers');
+  app.setBloom(0); await afterFrames(app);
+  const noBloomCalls=app.stats.drawCalls;
+  app.setBloom(0.8); await afterFrames(app);
+  assert(app.stats.drawCalls > noBloomCalls, 'Bloom toggle enables actual render passes');
+  fields[0].set({mode:'wave', colorA:'#fff'});
+  fields[1].set({edgeOpacity:0.5});
+  fields[2].set({height:3, wireframe:true});
+  fields[3].set({dimensions:4});
+  await afterFrames(app);
+  assert(fields[3].count===16, 'Live 4D/5D geometry replacement reaches the renderer');
+  const blob=await app.capture();
+  const bitmap=await createImageBitmap(blob);
+  assert(blob.type==='image/png' && blob.size>1000 && bitmap.width===320 && bitmap.height===240, 'PNG export contains a decodable full-size canvas');
+  bitmap.close();
+  container.style.width='400px'; container.style.height='200px'; await afterFrames(app,8);
+  assert(app.renderer.domElement.width===400 && app.camera.aspect===2, 'ResizeObserver updates canvas and camera aspect');
+  assert(throws(()=>app.setSpeed(-1)) && throws(()=>app.setBloom(NaN)), 'Scene settings reject invalid values');
+  const baselineGeometry=app.renderer.info.memory.geometries;
+  app.add(fields[0]);
+  assert(app.scene.children.length===4, 'Adding the same owned layer twice is idempotent');
+  app.remove(fields[0]); await afterFrames(app);
+  assert(app.renderer.info.memory.geometries < baselineGeometry && throws(()=>app.add(fields[0])), 'Removal frees geometry and prevents reuse of a retired layer');
+  app.clear(); await afterFrames(app);
+  assert(app.scene.children.length===0 && app.renderer.info.memory.geometries<=1, 'Clear releases every layer geometry');
+  const other = createFive({container,paused:true});
+  const layer = particleField({count:10}); app.add(layer);
+  assert(throws(()=>other.add(layer)), 'A layer cannot silently migrate between scene owners');
+  other.dispose();
+  app.dispose(); app.dispose();
+  assert(container.querySelectorAll('canvas').length===0 && throws(()=>app.setSpeed(1)), 'Dispose is idempotent, removes canvases, and rejects later mutation');
+  results.textContent=checks.join('\n')+'\n\nALL '+checks.length+' BROWSER CHECKS PASSED';
+  document.title='PASS — 5js browser verification';
+} catch(error) {
+  results.textContent=checks.join('\n')+'\nFAIL · '+error.stack;
+  document.title='FAIL — 5js browser verification';
+  console.error(error);
+  app?.dispose();
+}
+</script></html>

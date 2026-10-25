@@ -1,0 +1,14 @@
+node_modules/
+dist/
+demo-dist/
+*.tgz
+public/examples/*.zip
+.DS_Store
+.env
+.env.*
+!.env.example
+*.log
+artifacts/*
+!artifacts/business-motion-reactor.jpg
+public/LICENSE
+public/THIRD_PARTY_NOTICES.md

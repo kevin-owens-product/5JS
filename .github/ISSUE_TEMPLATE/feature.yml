@@ -1,0 +1,23 @@
+name: Feature request
+description: Suggest a visualization capability, example, or API improvement.
+title: "[Feature] "
+body:
+  - type: textarea
+    id: need
+    attributes:
+      label: What are you trying to build?
+      description: Describe the use case and what the current library cannot do.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposed behavior
+      description: An API sketch, reference image, or small synthetic dataset helps.
+    validations:
+      required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives and constraints
+      description: Include data size, performance requirements, browser support, or workarounds where relevant.

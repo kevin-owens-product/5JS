@@ -1,0 +1,74 @@
+{
+  "name": "fivejs",
+  "version": "0.1.0-alpha.1",
+  "description": "Composable scientific, data, and cinematic visualizations on Three.js",
+  "private": true,
+  "type": "module",
+  "sideEffects": false,
+  "main": "./dist/fivejs.js",
+  "module": "./dist/fivejs.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/fivejs.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES.md",
+    "CHANGELOG.md",
+    "docs/API.md",
+    "docs/COMPATIBILITY.md"
+  ],
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "build": "tsc --noEmit && vite build && tsc -p tsconfig.lib.json",
+    "build:demo": "npm run prepare:public && npm run package:examples && vite build --config vite.demo.config.ts",
+    "preview": "vite preview --config vite.demo.config.ts --host 127.0.0.1",
+    "test:types": "tsc tests/consumer.mts --module NodeNext --moduleResolution NodeNext --target es2022 --strict --noEmit",
+    "package:examples": "python3 scripts/package-examples.py",
+    "prepack": "npm run build",
+    "prepare:public": "node scripts/prepare-public.mjs",
+    "test:package": "node scripts/verify-package.mjs",
+    "test:browser": "node scripts/verify-browser.mjs"
+  },
+  "peerDependencies": {
+    "three": "^0.180.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.64.1",
+    "three": "^0.180.0",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0",
+    "vite": "^7.1.0"
+  },
+  "dependencies": {
+    "@types/three": "^0.180.0"
+  },
+  "license": "MIT",
+  "author": "Kevin Owens",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "keywords": [
+    "threejs",
+    "visualization",
+    "webgl",
+    "typescript",
+    "data-visualization",
+    "scientific-visualization"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevin-owens-product/5JS.git"
+  },
+  "homepage": "https://kevin-owens-product.github.io/5JS/",
+  "bugs": {
+    "url": "https://github.com/kevin-owens-product/5JS/issues"
+  }
+}

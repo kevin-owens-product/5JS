@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RUNNING — 5js example browser verification</title>
+  <style>
+    body { margin: 0; padding: 28px; background: #101818; color: #d6ffd7; font: 14px/1.6 ui-monospace, monospace; }
+    h1 { font-size: 22px; margin: 0 0 12px; }
+    p { color: #a8bcbd; max-width: 900px; }
+    #results { white-space: pre-wrap; overflow-wrap: anywhere; }
+    #fixture { width: 480px; height: 320px; max-width: none; outline: 1px solid #304445; }
+    #previews { display: grid; grid-template-columns: repeat(auto-fit, 180px); gap: 12px; margin-top: 20px; }
+    figure { margin: 0; }
+    figure img { display: block; width: 180px; height: 120px; background: #070a0e; border: 1px solid #304445; }
+    figcaption { font-size: 11px; }
+    body[data-status="fail"] #results { color: #ffb3b3; }
+  </style>
+</head>
+<body data-status="running">
+  <h1>5js example browser verification</h1>
+  <p>Real WebGL2 rendering, PNG pixel verification, control boundaries, and resource cleanup for every gallery recipe. The scene stays paused; rendering continues.</p>
+  <pre id="results" role="status" aria-live="polite">Loading the example catalog…</pre>
+  <div id="fixture"></div>
+  <div id="previews" aria-label="Verified recipe captures"></div>
+  <script type="module">
+    const results = document.querySelector('#results');
+    const fixture = document.querySelector('#fixture');
+    const previews = document.querySelector('#previews');
+    const lines = [];
+    const abort = new AbortController();
+    let app;
+    let mounted;
+    let finished = false;
+    let shuttingDown = false;
+    let current = 'module imports';
+    let passed = 0;
+    let total = 0;
+
+    function assert(condition, message) {
+      if (!condition) throw new Error(message);
+    }
+
+    function progress(message) {
+      if (!finished) results.textContent = [...lines, '', `RUNNING · ${message}`].join('\n');
+    }
+
+    function fail(error) {
+      if (finished) return;
+      finished = true;
+      clearTimeout(watchdog);
+      abort.abort(error);
+      document.body.dataset.status = 'fail';
+      document.title = 'FAIL — 5js example browser verification';
+      results.textContent = [...lines, '', `FAIL · ${current}`, error?.stack ?? String(error), '', `${passed}/${total} RECIPES PASSED`].join('\n');
+      console.error('5js example browser verification failed:', error);
+      try { mounted?.dispose?.(); } catch (cleanupError) { console.error(cleanupError); }
+      try { app?.dispose(); } catch (cleanupError) { console.error(cleanupError); }
+    }
+
+    const watchdog = setTimeout(() => fail(new Error('The complete browser verification exceeded its 180-second limit.')), 180_000);
+    window.addEventListener('error', event => fail(event.error ?? new Error(event.message)));
+    window.addEventListener('unhandledrejection', event => fail(event.reason));
+
+    function bounded(promise, label, milliseconds = 8_000) {
+      return new Promise((resolve, reject) => {
+        const stop = () => settle(reject, abort.signal.reason ?? new Error(`${label} aborted.`));
+        const timer = setTimeout(() => settle(reject, new Error(`${label} exceeded ${milliseconds / 1000} seconds.`)), milliseconds);
+        function settle(callback, value) {
+          clearTimeout(timer);
+          abort.signal.removeEventListener('abort', stop);
+          callback(value);
+        }
+        abort.signal.addEventListener('abort', stop, { once: true });
+        if (abort.signal.aborted) settle(reject, abort.signal.reason);
+        promise.then(value => settle(resolve, value), error => settle(reject, error));
+      });
+    }
+
+    function afterFrames(count, label) {
+      return new Promise((resolve, reject) => {
+        let unsubscribe = () => {};
+        let settled = false;
+        const stop = () => finish(abort.signal.reason ?? new Error(`${label} aborted.`));
+        const timer = setTimeout(() => finish(new Error(`${label}: no complete render frames within 8 seconds.`)), 8_000);
+        function finish(error) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          unsubscribe();
+          abort.signal.removeEventListener('abort', stop);
+          error ? reject(error) : resolve();
+        }
+        abort.signal.addEventListener('abort', stop, { once: true });
+        if (abort.signal.aborted) { finish(abort.signal.reason); return; }
+        unsubscribe = app.onFrame(() => { if (--count === 0) finish(); });
+      });
+    }
+
+    async function capturePixels(label) {
+      const blob = await bounded(app.capture(), `${label}: PNG encoding`);
+      assert(blob.type === 'image/png' && blob.size > 100, `${label}: capture is not a nonempty PNG.`);
+      const bitmap = await bounded(createImageBitmap(blob), `${label}: PNG decoding`);
+      try {
+        assert(bitmap.width === 480 && bitmap.height === 320, `${label}: unexpected PNG size ${bitmap.width}×${bitmap.height}.`);
+        const canvas = document.createElement('canvas');
+        canvas.width = bitmap.width; canvas.height = bitmap.height;
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        assert(context, `${label}: a 2D canvas could not be created.`);
+        context.drawImage(bitmap, 0, 0);
+        return { pixels: context.getImageData(0, 0, canvas.width, canvas.height).data, preview: canvas.toDataURL('image/png') };
+      } finally {
+        bitmap.close();
+      }
+    }
+
+    function visiblePixels(pixels, background) {
+      assert(pixels.length === background.length, 'Background and recipe dimensions differ.');
+      let changed = 0;
+      for (let index = 0; index < pixels.length; index += 4) {
+        const difference = Math.max(
+          Math.abs(pixels[index] - background[index]),
+          Math.abs(pixels[index + 1] - background[index + 1]),
+          Math.abs(pixels[index + 2] - background[index + 2]),
+        );
+        if (difference > 10 && pixels[index + 3] > 0) changed++;
+      }
+      return changed;
+    }
+
+    function validateReadout(readout) {
+      assert(readout.metrics.length >= 1, `${current}: no metrics.`);
+      assert(readout.metrics.every(metric => typeof metric.value === 'string' && !/NaN|Infinity/.test(metric.value)), `${current}: invalid metric.`);
+      assert(readout.table.columns.length > 0 && typeof readout.table.caption === 'string', `${current}: table metadata missing.`);
+      assert(readout.table.rows.every(row => row.length === readout.table.columns.length && row.every(value => typeof value === 'string' || Number.isFinite(value))), `${current}: malformed table.`);
+    }
+
+    function midpoint(control) {
+      const steps = Math.round(((control.max - control.min) / 2) / control.step);
+      return Math.min(control.max, Math.max(control.min, Number((control.min + steps * control.step).toPrecision(12))));
+    }
+
+    try {
+      const [{ createFive }, { examples }, { mountExample }] = await bounded(Promise.all([
+        import('/src/index.ts'),
+        import('/examples/catalog.ts'),
+        import('/examples/gallery/runtime.ts'),
+      ]), 'Module imports', 15_000);
+
+      total = examples.length;
+      assert(examples.length >= 32, `Expected at least 32 recipes; found ${examples.length}.`);
+      const ids = new Set();
+      const categories = new Map([['Scientific', 0], ['Data', 0], ['Cinematic', 0], ['Business', 0], ['Analytics', 0]]);
+      for (const example of examples) {
+        assert(typeof example.id === 'string' && /^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(example.id), 'Every recipe needs a stable lowercase ID.');
+        assert(!ids.has(example.id), `Duplicate recipe ID: ${example.id}`);
+        ids.add(example.id);
+        assert(categories.has(example.category), `${example.id}: unsupported category ${example.category}.`);
+        categories.set(example.category, categories.get(example.category) + 1);
+        assert([example.title, example.summary, example.description].every(value => typeof value === 'string' && value.trim()), `${example.id}: incomplete display metadata.`);
+        assert(example.camera.length === 3 && example.camera.every(Number.isFinite), `${example.id}: invalid camera coordinates.`);
+        assert(typeof example.setup === 'function', `${example.id}: setup is missing.`);
+      }
+      assert(categories.get('Business') >= 10 && categories.get('Analytics') >= 10, 'Expected at least ten Business and ten Analytics recipes.');
+      lines.push(`PASS · Catalog: ${total} unique IDs; ${[...categories].map(([name,count])=>`${name} ${count}`).join(', ')}.`);
+
+      current = 'empty renderer baseline';
+      progress(current);
+      app = createFive({ container: fixture, background: '#070a0e', paused: true, autoRotate: false, pixelRatio: 1, bloom: 0.45 });
+      app.renderer.debug.onShaderError = (gl, program, vertexShader, fragmentShader) => {
+        throw new Error(`WebGL shader failed: ${gl.getProgramInfoLog(program)}\nVertex: ${gl.getShaderInfoLog(vertexShader)}\nFragment: ${gl.getShaderInfoLog(fragmentShader)}`);
+      };
+      app.renderer.domElement.addEventListener('webglcontextlost', () => {
+        if (!shuttingDown) fail(new Error('The WebGL context was lost during verification.'));
+      });
+      await afterFrames(2, current);
+      const baselineMemory = app.renderer.info.memory.geometries;
+      const baselineTextures = app.renderer.info.memory.textures;
+      assert(baselineMemory <= 1, `Empty renderer owns ${baselineMemory} geometries; expected at most one fullscreen geometry.`);
+      const background = await capturePixels(current);
+
+      for (const example of examples) {
+        current = example.id;
+        progress(`${current}: mount and render`);
+        app.resetCamera(example.camera, example.target ?? [0, 0, 0]);
+        app.setBloom(example.bloom);
+        app.setPaused(true);
+        const pausedTime = app.stats.time;
+        mounted = mountExample(example, app, true);
+        assert(mounted.layers.length > 0, `${current}: setup added no owned layers.`);
+        await afterFrames(2, `${current}: initial render`);
+        assert(app.stats.time === pausedTime, `${current}: rendering advanced the paused scene clock.`);
+        assert(app.stats.objects > 0 && app.stats.drawCalls > 0, `${current}: the renderer submitted no visible objects.`);
+        const capture = await capturePixels(current);
+        const changed = visiblePixels(capture.pixels, background.pixels);
+        assert(changed >= 64, `${current}: PNG appears empty (${changed} pixels differ from the empty background).`);
+
+        if (example.category === 'Business' || example.category === 'Analytics') {
+          assert(typeof mounted.readout === 'function', `${current}: missing analytical readout.`);
+          validateReadout(mounted.readout());
+        }
+        let motionProof = '';
+        if (example.category === 'Business') {
+          const readoutBeforeMotion = JSON.stringify(mounted.readout());
+          for (const layer of mounted.layers) layer.update(0, .537);
+          await afterFrames(2, `${current}: motion frame`);
+          const moved = await capturePixels(`${current}: motion capture`);
+          const movingPixels = visiblePixels(moved.pixels, capture.pixels);
+          assert(movingPixels >= 12, `${current}: no visible particle motion (${movingPixels} pixels).`);
+          for (const layer of mounted.layers) layer.update(1000, 0);
+          await afterFrames(2, `${current}: pause frame`);
+          const frozen = await capturePixels(`${current}: pause capture`);
+          assert(visiblePixels(frozen.pixels, moved.pixels) === 0, `${current}: effects move despite zero delta.`);
+          assert(JSON.stringify(mounted.readout()) === readoutBeforeMotion, `${current}: presentation motion changed the business data.`);
+          motionProof = ` · motion ${movingPixels} pixels; pause verified`;
+        }
+        const controls = mounted.controls ?? [];
+        assert(controls.length >= 1 && controls.length <= 3, `${current}: expected one to three live controls.`);
+        const controlIds = new Set();
+        for (const control of controls) {
+          assert(typeof control.id === 'string' && control.id.length > 0 && !controlIds.has(control.id), `${current}: empty or repeated control ID ${control.id}.`);
+          controlIds.add(control.id);
+          assert([control.min, control.max, control.step, control.value].every(Number.isFinite), `${current}/${control.id}: nonfinite control metadata.`);
+          assert(control.min <= control.value && control.value <= control.max && control.step > 0, `${current}/${control.id}: invalid range, step, or initial value.`);
+          assert(typeof control.apply === 'function', `${current}/${control.id}: apply callback is missing.`);
+          for (const [label, value] of [['midpoint', midpoint(control)], ['minimum', control.min], ['maximum', control.max]]) {
+            progress(`${current}: ${control.id} ${label} (${value})`);
+            control.apply(value);
+            if (mounted.readout) validateReadout(mounted.readout());
+            await afterFrames(2, `${current}/${control.id}/${label}`);
+            assert(app.stats.time === pausedTime && app.stats.objects > 0, `${current}/${control.id}: paused rendering stopped or the scene emptied.`);
+          }
+          control.apply(control.value);
+          await afterFrames(2, `${current}/${control.id}: restore default`);
+        }
+
+        mounted.dispose();
+        mounted.dispose();
+        mounted = undefined;
+        await afterFrames(2, `${current}: disposal`);
+        const remaining = app.renderer.info.memory.geometries;
+        assert(app.renderer.info.memory.textures <= baselineTextures, `${current}: leaked textures (${app.renderer.info.memory.textures}; baseline ${baselineTextures}).`);
+        assert(app.scene.children.length === 0 && app.stats.objects === 0, `${current}: disposal left scene children behind.`);
+        assert(remaining <= baselineMemory && remaining <= 1, `${current}: leaked geometry (${remaining} remaining; baseline ${baselineMemory}).`);
+
+        const figure = document.createElement('figure');
+        const image = document.createElement('img'); image.src = capture.preview; image.alt = `${example.title}: verified WebGL capture`;
+        const caption = document.createElement('figcaption'); caption.textContent = `PASS · ${example.id}`;
+        figure.append(image, caption); previews.append(figure);
+        passed++;
+        lines.push(`PASS · ${example.id} · ${changed.toLocaleString()} visible pixels · ${controls.length} controls × 3 values · cleanup ${remaining} geometries${motionProof}`);
+      }
+
+      shuttingDown = true;
+      app.dispose();
+      assert(fixture.querySelectorAll('canvas').length === 0, 'Final renderer disposal left a canvas behind.');
+      finished = true;
+      clearTimeout(watchdog);
+      document.body.dataset.status = 'pass';
+      document.title = 'PASS — 5js example browser verification';
+      results.textContent = [...lines, '', `ALL ${passed}/${total} EXAMPLE BROWSER CHECKS PASSED`].join('\n');
+    } catch (error) {
+      // If a watchdog/context error already finished the run, retain its original cause.
+      if (!finished) fail(error);
+    }
+  </script>
+</body>
+</html>
