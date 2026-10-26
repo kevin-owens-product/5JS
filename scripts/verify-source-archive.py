@@ -103,6 +103,19 @@ class SourceArchiveChecks(unittest.TestCase):
                 self.assertIn(name, result.stderr)
                 path.write_bytes(original)
 
+    def test_includes_authored_guides_and_generator_but_omits_generated_routes(self):
+        included = {"connectors/content/types.ts", "connectors/content/databases.ts", "connectors/render.ts",
+                    "connectors/client.ts", "connectors/style.css", "scripts/generate-connector-pages.ts"}
+        excluded = {"connectors/index.html", "connectors/postgresql/index.html", "connectors/.local/private.ts"}
+        for name in included | excluded:
+            path = self.project / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("HARMLESS_GUIDE_CANARY\n")
+        result = self.build()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue(included <= self.names())
+        self.assertFalse(excluded & self.names())
+
     def test_rejects_file_symlink_without_replacing_previous_archive(self):
         self.assertEqual(self.build().returncode, 0)
         archive = self.project / "public/examples/5js-examples.zip"

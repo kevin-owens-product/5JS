@@ -28,17 +28,19 @@
     "typecheck": "tsc --noEmit && tsc -p packages/connectors/tsconfig.json --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.lib.json",
-    "build:demo": "npm run prepare:public && npm run package:examples && vite build --config vite.demo.config.ts",
+    "build:demo": "npm run prepare:connectors && npm run prepare:public && npm run package:examples && vite build --config vite.demo.config.ts && tsx scripts/verify-connector-build.ts",
     "preview": "vite preview --config vite.demo.config.ts --host 127.0.0.1",
     "test:types": "tsc tests/consumer.mts --module NodeNext --moduleResolution NodeNext --target es2022 --strict --noEmit",
     "package:examples": "python3 scripts/package-examples.py",
     "prepack": "npm run build",
     "prepare:public": "node scripts/prepare-public.mjs",
     "test:package": "node scripts/verify-package.mjs && npm run test:connectors:package",
-    "test:browser": "node scripts/verify-browser.mjs",
+    "test:browser": "npm run prepare:connectors && node scripts/verify-browser.mjs",
     "build:connectors": "tsc -p packages/connectors/tsconfig.json",
     "demo:connectors": "npm run build:connectors && tsx packages/connectors/examples/server.ts",
-    "test:connectors:package": "npm run build:connectors && node scripts/verify-connectors.mjs"
+    "test:connectors:package": "npm run build:connectors && node scripts/verify-connectors.mjs",
+    "prepare:connectors": "tsx scripts/generate-connector-pages.ts",
+    "predev": "npm run prepare:connectors"
   },
   "peerDependencies": {
     "three": "^0.180.0"

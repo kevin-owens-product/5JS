@@ -21,6 +21,10 @@ The connector demo runs at [http://127.0.0.1:5190](http://127.0.0.1:5190). It us
 
 For the main Motif site, run `npm run dev` and open the [decision lab](http://127.0.0.1:5185/#decision-lab). Its conversion, retention and product workflows connect seven fictional JSON source snapshots, including 36 accounts, sessions, checkouts, usage, support, interviews and features. Explore 3D evidence scenes, filter records, inspect exact source values and download an investigation brief. These workflows use real JSON connectors with synthetic records; they are not connected to live provider accounts. The original playground is at `/demo/playground.html`, and the example gallery remains at `/examples/`.
 
+The [connector directory](http://127.0.0.1:5185/connectors/) provides **45 source-specific guides** at `/connectors/<slug>/`, covering 44 factories and all 39 catalog entries. MySQL and MariaDB have separate guides for their shared adapter. Each guide includes setup, exact TypeScript samples with copy/download controls, supported operations, runtime/limits, provider documentation and related source/outcome links. The static page text and code remain readable without JavaScript; browser enhancements do not execute samples or collect credentials.
+
+In the full repository, `npm run dev` and `npm run build:demo` generate these pages from `connectors/content/*.ts` using `scripts/generate-connector-pages.ts`. Use `npm run prepare:connectors` after content edits for an explicit refresh. The source ZIP includes the authored guides, renderer, client and generator; generated HTML is ignored and recreated. The packed package artifact contains the adapter build and this reference, not the website source.
+
 For a separate local application, build first and install the package by filesystem path, adjusting the path for your checkout:
 
 ```sh

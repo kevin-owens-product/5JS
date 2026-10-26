@@ -1,0 +1,77 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RUNNING — Motif connector guide checks</title>
+<style>body{font:13px system-ui;background:#0a1012;color:#d2e6c3;margin:24px}iframe{display:block;width:1120px;height:850px;border:1px solid #486245;max-width:none}pre{white-space:pre-wrap;line-height:1.8}</style>
+<h1>Motif connector directory and landing pages</h1><pre id="results">Loading connector guides…</pre><iframe id="site" title="Connector guide under test"></iframe>
+<script type="module">
+import { guides } from '/connectors/content/index.ts';
+const frame=document.getElementById('site'),results=document.getElementById('results');let passed=0;const failures=[];
+const doc=()=>frame.contentDocument,win=()=>frame.contentWindow,el=id=>doc().getElementById(id);
+const assert=(value,message)=>{if(!value)throw new Error(message)};
+async function until(predicate,timeout=12000){const start=performance.now();while(!predicate()){if(performance.now()-start>timeout)throw new Error('Timed out waiting for connector UI');await new Promise(resolve=>setTimeout(resolve,30))}}
+async function load(path){frame.src=path;await new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject});await until(()=>doc().documentElement.dataset.connectorReady==='true')}
+async function check(name,work){try{await work();passed++;results.textContent+=`\nPASS ${name}`}catch(error){failures.push(name);results.textContent+=`\nFAIL ${name}: ${error.stack||error}`}}
+const visible=()=>[...doc().querySelectorAll('[data-source-card]')].filter(card=>!card.hidden);
+function search(value){el('source-search').value=value;el('source-search').dispatchEvent(new (win().Event)('input',{bubbles:true}))}
+try{
+results.textContent='';
+await check('All 45 routes contain their own title, code and source guidance without JavaScript',async()=>{
+  for(const guide of guides){
+    const response=await fetch(`/connectors/${guide.slug}/`);assert(response.ok,`${guide.slug} did not return HTML`);
+    const html=new DOMParser().parseFromString(await response.text(),'text/html');
+    assert(html.title===`${guide.name} connector — TypeScript guide | Motif`,`${guide.slug}: wrong title`);
+    assert(html.querySelector('h1').textContent===guide.headline,`${guide.slug}: missing static headline`);
+    assert(html.querySelector('#code-source').textContent===guide.sample.code,`${guide.slug}: static code changed`);
+    assert(!html.querySelector('#panel-source').hidden&&!html.querySelector('#panel-result').hidden,`${guide.slug}: no-JS sample hidden`);
+    assert(html.querySelector('#boundaries li'),`${guide.slug}: scope limits absent`);
+  }
+});
+await load('/connectors/');
+await check('Directory lists every source and filters by real categories',()=>{
+  assert(visible().length===45,'Expected 45 guides');doc().querySelector('[data-category="Database"]').click();assert(visible().length===16,'Expected 16 database guides');
+  search('MariaDB');assert(visible().some(card=>card.href.endsWith('/mariadb/')),'MariaDB guide not discoverable');assert(new URL(win().location.href).searchParams.get('category')==='Database','Category missing from URL');
+  search('no-such-source-zzzz');assert(!el('no-results').hidden,'Missing empty search state');el('reset-sources').click();assert(visible().length===45&&!win().location.search,'Reset did not clear search scope');
+});
+await check('Search links survive direct navigation and markup stays inert',async()=>{
+  await load('/connectors/?category=Application&q=Shopify');assert(visible().length===1&&visible()[0].href.endsWith('/shopify/'),'Shared search did not restore');
+  search('<img src=x onerror=alert(1)>');assert(visible().length===0,'Unexpected markup match');assert(!doc().querySelector('#source-controls img'),'Search interpreted markup');
+});
+await load('/connectors/postgresql/');
+await check('Source and result tabs support keyboard selection and readable exact code',()=>{
+  const source=el('tab-source'),result=el('tab-result');assert(!el('panel-source').hidden&&el('panel-result').hidden,'Initial panel state wrong');
+  source.focus();source.dispatchEvent(new (win().KeyboardEvent)('keydown',{key:'ArrowRight',bubbles:true}));
+  assert(doc().activeElement===result&&result.getAttribute('aria-selected')==='true','Keyboard tab selection failed');assert(el('panel-source').hidden&&!el('panel-result').hidden,'Result panel not selected');
+  result.dispatchEvent(new (win().KeyboardEvent)('keydown',{key:'Home',bubbles:true}));assert(doc().activeElement===source&&!el('panel-source').hidden,'Home did not restore first tab');
+});
+await check('Copy exports the exact source bytes and reports clipboard failure honestly',async()=>{
+  const descriptor=Object.getOwnPropertyDescriptor(win().navigator,'clipboard');let copied;
+  try{
+    Object.defineProperty(win().navigator,'clipboard',{configurable:true,value:{writeText:async value=>{copied=value}}});
+    doc().querySelector('[data-copy="code-source"]').click();await until(()=>copied!==undefined);assert(copied===guides.find(guide=>guide.slug==='postgresql').sample.code,'Copied source was modified');
+    el('tab-result').click();Object.defineProperty(win().navigator,'clipboard',{configurable:true,value:{writeText:async()=>{throw new Error('Denied in fixture')}}});
+    doc().querySelector('[data-copy="code-result"]').click();await until(()=>el('copy-status').textContent.includes('unavailable'));assert(doc().activeElement.tagName==='PRE','Fallback did not focus selectable code');
+  }finally{if(descriptor)Object.defineProperty(win().navigator,'clipboard',descriptor);else delete win().navigator.clipboard}
+  el('tab-source').click();
+});
+await check('Code download contains source text and a TypeScript filename',async()=>{
+  let blob,filename;const create=win().URL.createObjectURL,click=win().HTMLAnchorElement.prototype.click;
+  try{win().URL.createObjectURL=value=>{blob=value;return 'blob:guide-test'};win().HTMLAnchorElement.prototype.click=function(){filename=this.download};doc().querySelector('[data-download="code-source"]').click();assert(filename===guides.find(guide=>guide.slug==='postgresql').sample.filename,'Wrong download name');assert(await blob.text()===el('code-source').textContent,'Download changed source code')}
+  finally{win().URL.createObjectURL=create;win().HTMLAnchorElement.prototype.click=click}
+});
+await check('Provider, related-guide and outcome links retain context',()=>{
+  assert(el('workflow').querySelector('a').getAttribute('href')==='../../?outcome=conversion#decision-lab','Wrong outcome destination');
+  assert(el('workflow').textContent.includes('fictional JSON snapshots'),'Fixture boundary missing');
+  assert(doc().querySelectorAll('.related [data-source-card]').length===3,'Related sources missing');
+  assert([...el('resources').querySelectorAll('a')].every(link=>link.protocol==='https:'),'Unsafe resource link');
+});
+await check('375px guide keeps prose, tabs, code controls and result pane within the viewport',async()=>{
+  frame.style.width='375px';frame.style.height='820px';await new Promise(resolve=>setTimeout(resolve,80));
+  assert(doc().documentElement.scrollWidth<=win().innerWidth+1,'Guide has horizontal overflow');
+  for(const selector of ['h1','.connection-map','.sample-tabs','.code-window','.workflow']){const rect=doc().querySelector(selector).getBoundingClientRect();assert(rect.left>=-1&&rect.right<=win().innerWidth+1,`${selector} escapes viewport`)}
+  assert(doc().querySelector('.code-window pre').scrollWidth>doc().querySelector('.code-window pre').clientWidth,'Expected long code to scroll within the pane');
+  el('tab-result').click();assert(!el('panel-result').hidden,'Mobile result tab inaccessible');
+});
+await check('375px directory remains searchable without horizontal overflow',async()=>{
+  await load('/connectors/');assert(doc().documentElement.scrollWidth<=win().innerWidth+1,'Directory has horizontal overflow');search('Parquet');assert(visible().some(card=>card.href.endsWith('/parquet/')),'Mobile search lost a file guide');
+});
+}catch(error){failures.push('Harness');results.textContent+=`\nFAIL Harness: ${error.stack||error}`}
+results.textContent+=`\n${failures.length?'FAILED '+failures.length:'ALL '+passed+' PRESSURE CHECKS PASSED'}`;document.title=(failures.length?'FAIL':'PASS')+' — Motif connector guide checks';
+</script></html>
