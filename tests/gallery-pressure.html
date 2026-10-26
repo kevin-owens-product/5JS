@@ -44,6 +44,24 @@ await check('20 close/reopen cycles release old canvases',async()=>{
   el('close').click();await until(()=>!el('viewer').open&&el('stage').querySelectorAll('canvas').length===0,'Close left a canvas');
  }
 });
+await check('Analytics gets a full stage with controls before expandable methodology',async()=>{
+ await open('correlation-matrix');await wait(150);
+ const stage=el('stage').getBoundingClientRect(), controls=el('example-controls').getBoundingClientRect(), notes=el('methodology');
+ assert(stage.height>=470,'Analytics stage is compressed');
+ assert(notes&&!notes.open&&!notes.hidden,'Methodology must be present and collapsed');
+ assert(controls.top<notes.getBoundingClientRect().top,'Long methodology pushes controls out of view');
+ assert(notes.compareDocumentPosition(el('scene-speed')) & win().Node.DOCUMENT_POSITION_PRECEDING,'Keyboard reading order differs from the visible control order');
+ notes.open=true;assert(el('data-note').textContent.includes('constant 99.9% uptime'),'Encoding notes unavailable');notes.open=false;
+});
+await check('Correlation focus updates signed and undefined values without clearing the source matrix',async()=>{
+ const pair=el('control-pair');
+ pair.value='14';pair.dispatchEvent(new (win().Event)('input',{bubbles:true}));
+ assert(el('metrics').textContent.includes('Undefined')&&el('metrics').textContent.includes('Satisfaction × Uptime %'),'Constant pair did not update');
+ assert(el('data-table').tBodies[0].rows.length===21,'Pair selection replaced the complete matrix');
+ pair.value='3';pair.dispatchEvent(new (win().Event)('input',{bubbles:true}));
+ assert(el('metrics').querySelector('strong').textContent.startsWith('-'),'Negative pair lost its sign');
+ assert(pair.getAttribute('aria-valuetext')==='Visits × Satisfaction','Selected pair is not exposed accessibly');
+});
 await check('375px layout has a usable stage and no horizontal overflow',async()=>{
  frame.style.width='375px';await open('grid-dispatch');await wait(250);
  const r=el('stage').getBoundingClientRect(),d=el('viewer');
@@ -79,4 +97,9 @@ await check('WebGL2 failure leaves an explanation and readable source',async()=>
 });
 results.textContent=checks.join('\n')+'\n\n'+(failures.length?`${failures.length} PRESSURE CHECKS FAILED`:`ALL ${checks.length} PRESSURE CHECKS PASSED`);
 document.title=(failures.length?'FAIL':'PASS')+' — 5js gallery pressure verification';
+if(!failures.length && new URLSearchParams(location.search).get('review')==='mobile') {
+ frame.style.width='375px';frame.style.height='900px';
+ await load('/examples/#correlation-matrix',false);
+ await until(()=>el('viewer').dataset.status==='ready','Mobile review scene failed');
+}
 </script></html>

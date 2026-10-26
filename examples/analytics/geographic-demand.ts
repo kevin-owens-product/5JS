@@ -27,28 +27,101 @@ export function calculateGeographicDemand(settings: DemandSettings = { region: 0
   return { rows, orders: rows.reduce((sum, row) => sum + row.orders, 0), revenue: rows.reduce((sum, row) => sum + row.revenue, 0) };
 }
 
+/** Small deterministic Delaunay mesh in the displayed degree-coordinate plane. */
+function triangulate(points: { x: number; z: number }[]): number[][] {
+  if (points.length < 3) return [];
+  const vertices = [...points, { x: -100, z: -100 }, { x: 100, z: -100 }, { x: 0, z: 100 }];
+  let triangles = [[points.length, points.length + 1, points.length + 2]];
+  function contains(triangle: number[], index: number) {
+    const p = vertices[index], a = vertices[triangle[0]], b = vertices[triangle[1]], c = vertices[triangle[2]];
+    const ax = a.x - p.x, az = a.z - p.z, bx = b.x - p.x, bz = b.z - p.z, cx = c.x - p.x, cz = c.z - p.z;
+    const determinant = (ax * ax + az * az) * (bx * cz - bz * cx) - (bx * bx + bz * bz) * (ax * cz - az * cx) + (cx * cx + cz * cz) * (ax * bz - az * bx);
+    const orientation = (b.x - a.x) * (c.z - a.z) - (b.z - a.z) * (c.x - a.x);
+    return orientation > 0 ? determinant > 1e-10 : determinant < -1e-10;
+  }
+  for (let i = 0; i < points.length; i++) {
+    const bad = triangles.filter(triangle => contains(triangle, i));
+    const boundary = new Map<string, { edge: [number, number]; count: number }>();
+    for (const triangle of bad) for (let j = 0; j < 3; j++) {
+      const edge: [number, number] = [triangle[j], triangle[(j + 1) % 3]], key = [...edge].sort((a, b) => a - b).join(':');
+      const current = boundary.get(key);
+      if (current) current.count++; else boundary.set(key, { edge, count: 1 });
+    }
+    triangles = triangles.filter(triangle => !bad.includes(triangle));
+    for (const { edge, count } of boundary.values()) if (count === 1) triangles.push([...edge, i]);
+  }
+  return triangles.filter(triangle => triangle.every(index => index < points.length));
+}
+
 const example: ExampleDefinition = {
   id: 'geographic-demand', title: 'Geographic demand', category: 'Analytics',
-  summary: 'Place synthetic city orders on a longitude–latitude grid.',
-  description: 'Column height encodes monthly orders; X and Z encode longitude and latitude in degrees. Region and minimum-volume filters preserve positions. A modeled demand change scales counts before the volume filter is applied.',
-  tags: ['Geography', 'Demand', 'Spatial data'], difficulty: 'Intermediate', accent: '#e6bc7d',
-  camera: [8, 7, 12], target: [0, 2, 0], bloom: 0,
-  dataNote: 'Synthetic one-month orders for 12 fictional cities at illustrative longitude/latitude coordinates. Modeled orders = round(baseline orders × (1 + uplift / 100)); revenue = modeled orders × fixed city AOV in USD. Minimum orders filters the modeled count. X is −125° to −65° longitude, Z 25° to 50° latitude, Y 0–12,000 orders. Linear degree spacing is not a geographic distance projection, area map, or real demand dataset.',
+  summary: 'Explore a triangulated demand topography anchored to exact city coordinates.',
+  description: 'A faceted demand canopy rises from a longitude–latitude lattice. Every city is an exact height anchor; luminous contour traces reveal the interpolated surface between them. Filter regions, raise the minimum-order plane, or model a demand change to reshape the canopy and inspect the cities that remain.',
+  tags: ['Demand topography', 'Triangulated surface', 'Spatial filters'], difficulty: 'Advanced', accent: '#e6bc7d',
+  camera: [8.4, 8.4, 10.8], target: [0, 1.9, 0], bloom: .26,
+  dataNote: 'Synthetic one-month orders for 12 fictional cities at illustrative longitude/latitude coordinates. Modeled orders = round(baseline orders × (1 + uplift / 100)); revenue = modeled orders × fixed city AOV in USD. Minimum orders filters the modeled count. X is −125° to −65° longitude, Z 25° to 50° latitude, Y 0–12,000 orders. Terrain vertices are the displayed city values; triangles interpolate between them and are not additional demand observations or a spatial forecast. Mesh edges are not transport routes. Contour tracers scan order levels without changing values. Linear degree spacing is not a geographic distance projection, area map, or real demand dataset.',
   setup(app) {
     const settings: DemandSettings = { region: 0, uplift: 0, minimumOrders: 0 };
     let state = calculateGeographicDemand(settings);
     const x = (longitude: number) => -4.7 + (longitude + 125) / 60 * 9.4;
     const z = (latitude: number) => -2.6 + (latitude - 25) / 25 * 5.2;
     const draw = (chart: ChartBuilder) => {
+      type P = [number, number, number];
       chart.frame({ x: [-4.7, 4.7], y: [0, 5], z: [-2.6, 2.6], xLabel: 'Longitude (degrees)', yLabel: 'Monthly orders', zLabel: 'Latitude (degrees)',
         xTicks: [-125, -110, -95, -80, -65].map(value => ({ value: x(value), label: `${Math.abs(value)}°W` })),
         zTicks: [25, 30, 35, 40, 45, 50].map(value => ({ value: z(value), label: `${value}°N` })),
         yTicks: [0, 4000, 8000, 12000].map(value => ({ value: value / 2400, label: `${value / 1000}k` })) });
-      for (const row of state.rows) {
-        chart.bar({ x: x(row.longitude), z: z(row.latitude), value: row.orders / 2400, width: 0.3, depth: 0.3, color: COLORS[row.region - 1] });
-        chart.label(row.city, [x(row.longitude), row.orders / 2400 + 0.2, z(row.latitude)], 0.2, COLORS[row.region - 1]);
+      const map = DEMAND_CITIES.map(row => ({ x: x(row.longitude), z: z(row.latitude) }));
+      for (const triangle of triangulate(map)) {
+        const points: P[] = triangle.map(index => [map[index].x, 0, map[index].z]);
+        chart.surface([[points[0], points[1]], [points[2], points[2]]], [['#163343', '#163343'], ['#163343', '#163343']], .42);
+        chart.line([...points, points[0]], '#335064', .35);
+      }
+      const anchors = state.rows.map(row => ({ x: x(row.longitude), z: z(row.latitude) }));
+      const triangles = triangulate(anchors), edges = new Map<string, { a: P; b: P; count: number }>();
+      for (const triangle of triangles) {
+        const points: P[] = triangle.map(index => [anchors[index].x, state.rows[index].orders / 2400, anchors[index].z]);
+        const hues = triangle.map(index => COLORS[state.rows[index].region - 1]);
+        chart.surface([[points[0], points[1]], [points[2], points[2]]], [[hues[0], hues[1]], [hues[2], hues[2]]], .48);
+        for (let i = 0; i < 3; i++) {
+          const key = [triangle[i], triangle[(i + 1) % 3]].sort((a, b) => a - b).join(':');
+          const edge = edges.get(key);
+          if (edge) edge.count++; else edges.set(key, { a: points[i], b: points[(i + 1) % 3], count: 1 });
+        }
+        for (const orders of [2000, 4000, 6000, 8000, 10000]) {
+          const level = orders / 2400, intersections: P[] = [];
+          for (let i = 0; i < 3; i++) {
+            const a = points[i], b = points[(i + 1) % 3];
+            if ((a[1] < level && b[1] >= level) || (b[1] < level && a[1] >= level)) {
+              const t = (level - a[1]) / (b[1] - a[1]);
+              intersections.push([a[0] + (b[0] - a[0]) * t, level + .01, a[2] + (b[2] - a[2]) * t]);
+            }
+          }
+          if (intersections.length === 2) {
+            chart.line(intersections, '#c9e7f5', .5);
+            chart.flow(intersections, { color: '#c8f3ff', count: 22, size: .022, speed: .1, spread: 0, seed: orders + triangle[0] });
+          }
+        }
+      }
+      for (const edge of edges.values()) {
+        chart.line([edge.a, edge.b], '#a0ccd9', .28);
+        if (edge.count === 1) chart.surface([[[edge.a[0], 0, edge.a[2]], edge.a], [[edge.b[0], 0, edge.b[2]], edge.b]], [['#183748', '#74b9bc'], ['#183748', '#74b9bc']], .09);
+      }
+      const threshold = settings.minimumOrders / 2400;
+      chart.surface([[[-4.6, threshold, -2.5], [4.6, threshold, -2.5]], [[-4.6, threshold, 2.5], [4.6, threshold, 2.5]]], [['#b1833c', '#b1833c'], ['#e0b260', '#e0b260']], settings.minimumOrders ? .045 : 0);
+      if (settings.minimumOrders) {
+        chart.line([[-4.6, threshold, 2.5], [4.6, threshold, 2.5]], '#efca89', .8);
+        chart.label(`FILTER PLANE · ${settings.minimumOrders.toLocaleString('en-US')} ORDERS`, [0, threshold + .22, 2.65], .2, '#efca89');
+      }
+      for (let index = 0; index < state.rows.length; index++) {
+        const row = state.rows[index], hue = COLORS[row.region - 1], peak: P = [x(row.longitude), row.orders / 2400, z(row.latitude)];
+        chart.tube([[peak[0], .015, peak[2]], peak], hue, .014, .6);
+        chart.flow([[peak[0], .025, peak[2]], peak], { color: hue, count: 45, size: .022, speed: .13, spread: .02, seed: 50 + index });
+        chart.point(peak, hue, .055); chart.glow(peak, hue, .35);
+        chart.label(row.city, [peak[0], peak[1] + .23, peak[2]], .18, hue);
       }
       if (state.rows.length === 0) chart.label('No cities meet this filter', [0, 2.5, 0], 0.3);
+      chart.label('CITY KNOTS · INTERPOLATED CANOPY', [0, 5.55, -.6], .23, '#b9d8e7');
     };
     const layer = createChartLayer(draw); app.add(layer);
     const refresh = () => { state = calculateGeographicDemand(settings); layer.redraw(draw); };

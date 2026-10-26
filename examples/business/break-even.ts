@@ -37,11 +37,11 @@ export function calculateBreakEvenGrid(input: BreakEvenInput) {
 const usd = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });
 const example: ExampleDefinition = {
   id: 'break-even', title: 'Break-even landscape', category: 'Business',
-  summary: 'A continuous profit terrain exposes the boundary between growth and loss.',
-  description: 'Explore a continuous operating-profit landscape. Cyan ridges rise above zero; magenta valleys fall below it. Gold particles trace the exact break-even contour, while moving contour lights reveal the shape without changing any values. Change costs and watch the entire boundary move.',
+  summary: 'Cut through a profit landscape with exact break-even walls and reference slices.',
+  description: 'Explore a cutaway operating-profit landscape. Cyan and magenta terrain rises above or drops below a visible zero plane, with all 36 tabulated scenarios marked on the surface. A gold curtain follows the break-even boundary; $50-price and 1,500-unit cross-sections expose the slopes. Change costs to reshape the terrain while light guides trace exact profit contours.',
   tags: ['Profit terrain', 'Zero contour', 'Sensitivity'], difficulty: 'Advanced', accent: '#7ce8d7',
-  camera: [10, 8, 14], target: [0, .65, 0], bloom: .5, previewTime: 4,
-  dataNote: 'Synthetic USD/month and units/month. At each price/volume pair: profit = volume × (price−unit cost) − fixed cost. Prices are $20…$70 and volumes 0…2,500. Gold markers use the exact continuous break-even volume; readout rounds required units upward. Prices ≤ unit cost have no positive-volume break-even when fixed cost is positive. The dense surface evaluates this same formula between the 36 table samples; it is a sensitivity surface, not a demand forecast. Cyan/magenta indicate positive/negative profit. Moving contour particles are presentation only; their speed and density do not encode profitability or likelihood.',
+  camera: [10.2, 6.5, 12.2], target: [0, 0, 0], bloom: .38, previewTime: 4,
+  dataNote: 'Synthetic USD/month and units/month. At each price/volume pair: profit = volume × (price−unit cost) − fixed cost. Prices are $20…$70 and volumes 0…2,500. Gold markers use the exact continuous break-even volume; readout rounds required units upward. Prices ≤ unit cost have no positive-volume break-even when fixed cost is positive. The dense surface evaluates this same formula between the 36 marked table samples; height uses a fixed $30,000 per world unit. Cyan/magenta indicate positive/negative profit. Side walls and the $50-price / 1,500-unit slice curtains span from zero to the modeled profit. The gold curtain projects the exact zero-profit boundary to the reference floor; its depth is a layout choice, not a loss amount. The terrain is a sensitivity surface, not a demand forecast. Moving contour particles are presentation only; their speed and density do not encode profitability or likelihood.',
   setup(app) {
     let input: BreakEvenInput = { fixedCost: 25_000, unitCost: 25 };
     let model = calculateBreakEvenGrid(input);
@@ -51,14 +51,15 @@ const example: ExampleDefinition = {
     const color = (profit: number) => profit > 0 ? '#55ebcd' : profit < 0 ? '#ed6bb5' : '#ffe293';
     function draw(chart: ChartBuilder) {
       type P = [number, number, number];
-      chart.frame({ x: [-4.5, 4.5], y: [-3.5, 5], z: [-2.5, 2.5],
-        xTicks: [0, 1_000, 2_000, 2_500].map(value => ({ value: x(value), label: value.toLocaleString('en-US') })),
-        yTicks: [-90_000, 0, 90_000, 150_000].map(value => ({ value: y(value), label: `$${value / 1_000}k` })),
-        zTicks: [20, 40, 70].map(value => ({ value: z(value), label: `$${value}` })),
+      const floor = -3.5;
+      chart.frame({ x: [-4.5, 4.5], y: [floor, 5], z: [-2.5, 2.5],
+        xTicks: [0, 500, 1_000, 1_500, 2_000, 2_500].map(value => ({ value: x(value), label: value.toLocaleString('en-US') })),
+        yTicks: [-90_000, -30_000, 0, 60_000, 120_000, 150_000].map(value => ({ value: y(value), label: `$${value / 1_000}k` })),
+        zTicks: [20, 40, 50, 70].map(value => ({ value: z(value), label: `$${value}` })),
         xLabel: 'Units / month', yLabel: 'Operating profit USD', zLabel: 'Unit price' });
       const profitAt = (price: number, volume: number) => volume * (price - input.unitCost) - input.fixedCost;
       const rows: P[][] = [], colors: string[][] = [];
-      const low = new Color('#3d1a65'), loss = new Color('#ee64a8');
+      const low = new Color('#5d205f'), loss = new Color('#f36cb4');
       const zero = new Color('#153c50'), gain = new Color('#49d9c4'), peak = new Color('#b5f5b0');
       for (let p = 0; p <= 40; p++) {
         const price = 20 + p / 40 * 50;
@@ -72,21 +73,59 @@ const example: ExampleDefinition = {
         }
         rows.push(positions); colors.push(shades);
       }
-      chart.surface(rows, colors, .82);
-      // Fine wire isolines emphasize the analytic surface rather than isolated columns.
-      for (let p = 0; p <= 40; p += 4) chart.line(rows[p].map(point => [point[0], point[1] + .008, point[2]]), '#89dbdd', .2);
-      for (let v = 0; v <= 50; v += 5) chart.line(rows.map(row => [row[v][0], row[v][1] + .008, row[v][2]]), '#89dbdd', .2);
-      for (const volume of [0, 500, 1000, 1500, 2000, 2500]) chart.line([[x(volume), 0, -2.5], [x(volume), 0, 2.5]], '#a5b5c9', .14);
-      chart.surface([[[-4.5, 0, -2.5], [4.5, 0, -2.5]], [[-4.5, 0, 2.5], [4.5, 0, 2.5]]], [['#5d7a8d', '#5d7a8d'], ['#5d7a8d', '#5d7a8d']], .045);
-      // Contours solve volume = (profit + fixed cost) / (price - unit cost).
+      // Keep the exact 41 × 51 analytical mesh; the surrounding walls expose its height.
+      chart.surface(rows, colors, .72);
+      const zeroPlane: P[][] = [[[-4.5, 0, -2.5], [4.5, 0, -2.5]], [[-4.5, 0, 2.5], [4.5, 0, 2.5]]];
+      chart.surface(zeroPlane, [['#426379', '#426379'], ['#426379', '#426379']], .065);
+      chart.line([[-4.5, 0, -2.5], [4.5, 0, -2.5], [4.5, 0, 2.5], [-4.5, 0, 2.5], [-4.5, 0, -2.5]], '#9bb8c5', .55);
+      for (const volume of BREAK_EVEN_VOLUMES) chart.line([[x(volume), 0, -2.5], [x(volume), 0, 2.5]], '#8faab8', .18);
+      for (const price of BREAK_EVEN_PRICES) chart.line([[-4.5, 0, z(price)], [4.5, 0, z(price)]], '#8faab8', .18);
+      chart.label('ZERO PROFIT PLANE', [-3.05, .2, -2.85], .2, '#c2d4dd');
+
+      // Perimeter curtains show the signed distance from zero, without a fictitious solid base.
+      for (const boundary of [rows[0], rows[40], rows.map(row => row[0]), rows.map(row => row[50])]) {
+        const wall: P[][] = boundary.map(point => [[point[0], 0, point[2]], point]);
+        chart.surface(wall, boundary.map(point => [color(point[1]), color(point[1])]), .16);
+        chart.line(boundary, '#b9d4e3', .44);
+      }
+      for (let p = 0; p <= 40; p += 4) chart.line(rows[p].map(point => [point[0], point[1] + .008, point[2]]), '#b2d5df', .23);
+      for (let v = 0; v <= 50; v += 5) chart.line(rows.map(row => [row[v][0], row[v][1] + .008, row[v][2]]), '#b2d5df', .23);
+
+      // Two fixed reference cross-sections use points on the same formula and zero plane.
+      const priceSlice: P[] = Array.from({ length: 51 }, (_, i) => [x(i * 50), y(profitAt(50, i * 50)), z(50)]);
+      const volumeSlice: P[] = Array.from({ length: 41 }, (_, i) => [x(1500), y(profitAt(20 + i * 1.25, 1500)), z(20 + i * 1.25)]);
+      for (const section of [priceSlice, volumeSlice]) {
+        const fabric: P[][] = section.map(point => [[point[0], 0, point[2]], point]);
+        chart.surface(fabric, fabric.map(() => ['#384c7b', '#b4c8ff']), .18);
+        chart.tube(section, '#bfd2ff', .022, .85);
+        chart.flow(section, { color: '#d7e1ff', count: 60, speed: .055, size: .026, spread: 0, seed: section === priceSlice ? 69 : 93 });
+      }
+      chart.label('$50 PRICE SLICE', [4.8, priceSlice.at(-1)![1] + .28, z(50)], .17, '#d4deff');
+      chart.label('1,500 UNITS SLICE', [x(1500), volumeSlice.at(-1)![1] + .32, 2.85], .17, '#d4deff');
+
+      // All 36 exported grid cases have an exact surface anchor and a zero-plane projection.
+      for (const row of model.rows) {
+        const anchor: P = [x(row.volume), y(row.profit), z(row.price)];
+        const reference = row.price === 50 || row.volume === 1500;
+        chart.line([[anchor[0], 0, anchor[2]], anchor], color(row.profit), reference ? .42 : .2);
+        chart.point(anchor, reference ? '#e2eaff' : color(row.profit), reference ? .045 : .031);
+        chart.point([anchor[0], 0, anchor[2]], '#8faab8', .018);
+      }
+
+      // Isolines solve volume = (profit + fixed cost) / (price - unit cost).
       // Split at undefined / out-of-domain points to avoid crossing an asymptote.
-      for (const contour of [-60000, -30000, 0, 30000, 60000, 90000, 120000]) {
+      for (let contour = -90000; contour <= 150000; contour += 15000) {
         let segment: P[] = [];
         const flush = () => {
           if (segment.length >= 2) {
             const gold = contour === 0, hue = gold ? '#ffe293' : color(contour);
-            chart.tube(segment, hue, gold ? .035 : .009, gold ? .95 : .55);
-            chart.flow(segment, { color: hue, count: gold ? 280 : 75, speed: gold ? .09 : .045, size: gold ? .045 : .025, spread: gold ? .025 : .008, seed: contour + 60037 });
+            if (gold) {
+              const curtain: P[][] = segment.map(point => [[point[0], floor, point[2]], [point[0], 0, point[2]]]);
+              chart.surface(curtain, curtain.map(() => ['#674d27', '#ffd387']), .13);
+              chart.line(segment.map(point => [point[0], floor + .01, point[2]]), '#d5aa65', .42);
+            }
+            chart.tube(segment, hue, gold ? .042 : .012, gold ? .95 : .62);
+            chart.flow(segment, { color: hue, count: gold ? 180 : 60, speed: gold ? .08 : .045, size: gold ? .036 : .025, spread: 0, seed: contour + 90037 });
           }
           segment = [];
         };
@@ -94,17 +133,23 @@ const example: ExampleDefinition = {
           const price = 20 + i / 240 * 50;
           const volume = (contour + input.fixedCost) / (price - input.unitCost);
           if (!Number.isFinite(volume) || volume < 0 || volume > 2500) { flush(); continue; }
-          segment.push([x(volume), y(contour) + .025, z(price)]);
+          segment.push([x(volume), y(contour), z(price)]);
         }
         flush();
+        // At this level the isoline also crosses the entire zero-margin price slice.
+        if (contour === -input.fixedCost && input.unitCost >= 20 && input.unitCost <= 70) {
+          chart.line([[-4.5, y(contour), z(input.unitCost)], [4.5, y(contour), z(input.unitCost)]], color(contour), .62);
+        }
       }
       for (const row of model.thresholds) if (row.exactUnits !== null && row.exactUnits <= 2500) {
-        const p: P = [x(row.exactUnits), .045, z(row.price)];
-        chart.glow(p, '#ffe293', .38); chart.point(p, '#fff0b7', .055);
+        const point: P = [x(row.exactUnits), 0, z(row.price)];
+        chart.line([[point[0], floor, point[2]], point], '#d4a75f', .5);
+        chart.glow(point, '#ffe293', .16); chart.point(point, '#fff0b7', .06);
+        chart.point([point[0], floor, point[2]], '#bc8e4e', .025);
       }
-      chart.label('BREAK-EVEN CONTOUR', [-1.2, .35, -3.1], .25, '#ffe293');
-      chart.label('LOSS', [-3.1, -2.5, 2.4], .26, '#ed6bb5');
-      chart.label('PROFIT', [3.45, 3.5, -2.8], .26, '#6bf2d3');
+      chart.label('EXACT BREAK-EVEN BOUNDARY', [1.1, floor + .35, -.35], .23, '#ffe293');
+      chart.label('LOSS', [-4.6, y(-input.fixedCost) - .35, -2.7], .23, '#ed6bb5');
+      chart.label('PROFIT', [4.15, y(profitAt(70, 2500)) + .32, 2.75], .23, '#6bf2d3');
     }
     const layer = createChartLayer(draw); app.add(layer);
     function change(patch: Partial<BreakEvenInput>) { const next = { ...input, ...patch }; const result = calculateBreakEvenGrid(next); input = next; model = result; layer.redraw(draw); }
