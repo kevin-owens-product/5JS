@@ -6,11 +6,13 @@ import { cameraFor, cameraScale, downloadBlob, makeRenderer, mountExample } from
 import type { MountedExample } from './runtime.js';
 import { sourceFor } from './sources.js';
 import { dataCsv } from './dataExport.js';
+import { mountOutcomeUI } from './outcomes.js';
 import './style.css';
 
 const standalone = location.pathname.endsWith('/run.html');
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
-const categories = ['All', ...exampleCategories];
+const categories = ['All', 'Decisions', ...exampleCategories];
+const categoryCount = (category: string) => category === 'All' ? examples.length : examples.filter(example => category === 'Decisions' ? Boolean(example.outcome) : example.category === category).length;
 const icon = (name: string) => {
   const paths: Record<string, string> = {
     arrow: '<path d="M5 11 11 5M5 5h6v6"/>',
@@ -28,17 +30,18 @@ const number = (n: number) => String(n).padStart(2, '0');
 document.getElementById('app')!.innerHTML = `
 <header class="topbar"><a class="brand" href="../" aria-label="5js playground">5<span>js</span></a><span class="brand-divider"></span><a class="brand-section" href="./">Example library</a><nav aria-label="Main navigation"><a href="../">Playground ${icon('arrow')}</a><a class="download-all" href="./5js-examples.zip" download>Download examples ${icon('down')}</a></nav></header>
 <main id="gallery" ${standalone ? 'hidden' : ''}>
-  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE 5JS COLLECTION · V0.1.0-ALPHA.1</div><h1>Start somewhere<br><span>extraordinary.</span></h1><p>Small, working examples for big visual ideas.<br>Explore a scene. Change a parameter. Make it your own.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
-  <section class="collection" aria-label="Example collection"><div class="collection-tools"><div class="filters" role="group" aria-label="Filter by category">${categories.map((category,i)=>`<button data-filter="${category}" aria-pressed="${i===0}" class="filter ${i===0?'selected':''}">${category}<span>${category==='All'?examples.length:examples.filter(x=>x.category===category).length}</span></button>`).join('')}</div><label class="search">${icon('search')}<input type="search" id="search" placeholder="Find an idea…" aria-label="Search examples" autocomplete="off"><kbd>/</kbd></label></div><div class="collection-meta"><span id="result-count" role="status">${examples.length} examples</span><span>REAL RENDERS. EDITABLE RECIPES.</span></div>
-  <div class="cards" id="cards">${examples.map((example,i)=>`<article class="card" data-card="${example.id}" style="--accent:${example.accent}"><a class="card-link" href="#${example.id}" aria-label="Open ${example.title}"><div class="card-image"><img id="preview-${example.id}" alt="" width="480" height="300" hidden><span class="preview-state" id="preview-state-${example.id}">Preparing live preview</span><span class="card-no">${number(i+1)}</span><span class="card-open">${icon('arrow')}</span><span class="card-discipline">${example.category}</span></div><div class="card-body"><div class="card-title"><h2>${example.title}</h2><span>${icon('arrow')}</span></div><p>${example.summary}</p><div class="card-tags">${example.tags.slice(0,2).map(tag=>`<span>${tag}</span>`).join('')}<span class="difficulty">${example.difficulty}</span></div></div></a></article>`).join('')}</div>
+  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE 5JS COLLECTION · V0.1.0-ALPHA.1</div><h1>Make the next<br><span>move clearer.</span></h1><p>Explore a pattern. Follow the linked evidence.<br>Turn an interesting view into a better decision.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
+  <section class="collection" aria-label="Example collection"><div class="collection-tools"><div class="filters" role="group" aria-label="Filter by category">${categories.map((category,i)=>`<button data-filter="${category}" aria-pressed="${i===0}" class="filter ${i===0?'selected':''}">${category}<span>${categoryCount(category)}</span></button>`).join('')}</div><label class="search">${icon('search')}<input type="search" id="search" placeholder="Find an idea…" aria-label="Search examples" autocomplete="off"><kbd>/</kbd></label></div><div class="collection-meta"><span id="result-count" role="status">${examples.length} examples</span><span>REAL RENDERS. EDITABLE RECIPES.</span></div>
+  <div class="cards" id="cards">${examples.map((example,i)=>`<article class="card" data-card="${example.id}" style="--accent:${example.accent}"><a class="card-link" href="#${example.id}" aria-label="Open ${example.title}"><div class="card-image"><img id="preview-${example.id}" alt="" width="480" height="300" hidden><span class="preview-state" id="preview-state-${example.id}">Preparing live preview</span><span class="card-no">${number(i+1)}</span><span class="card-open">${icon('arrow')}</span><span class="card-discipline">${example.outcome ? 'DECISION WORKFLOW' : example.category}</span></div><div class="card-body"><div class="card-title"><h2>${example.title}</h2><span>${icon('arrow')}</span></div><p>${example.summary}</p><div class="card-tags">${example.tags.slice(0,2).map(tag=>`<span>${tag}</span>`).join('')}<span class="difficulty">${example.difficulty}</span></div></div></a></article>`).join('')}</div>
   <div class="empty" id="empty" hidden><h2>No examples match that search.</h2><p>Try “particles”, “graph”, or another category.</p><button id="clear-search">Reset filters</button></div></section>
   <section class="closing-note"><div><span class="eyebrow">BUILT TO BE TAKEN APART</span><h2>The interesting part is what you change.</h2></div><p>Every example includes the recipe that powers it, a standalone view, and a few useful controls. The downloadable project includes the shared runner and library source.</p></section>
   <footer><span>5js · Built on Three.js · WebGL2</span><span><a href="../LICENSE">MIT license</a> · <a href="../THIRD_PARTY_NOTICES.md">Third-party notices</a></span></footer>
 </main>
 <dialog id="viewer" class="viewer ${standalone?'standalone':''}" aria-labelledby="viewer-title"><header class="viewer-header"><div><span class="eyebrow" id="viewer-category"></span><h2 id="viewer-title"></h2></div><div class="viewer-nav"><button id="previous" aria-label="Previous example">←</button><span id="viewer-index"></span><button id="next" aria-label="Next example">→</button><button id="close" aria-label="Close example">${icon('close')}</button>${standalone?'<a href="./" class="back-link">All examples ↗</a>':''}</div></header>
-<div class="viewer-content"><section class="stage" aria-label="Interactive example"><div id="stage"></div><div class="stage-top"><span>LIVE EXAMPLE</span><span>DRAG TO ORBIT · SCROLL TO ZOOM</span></div><div class="stage-error" id="stage-error" hidden></div><div class="stage-bottom"><button id="play" class="round-button" aria-label="Pause animation">${icon('pause')}</button><span id="fps" class="stage-stat">— FPS</span><span id="primitives" class="stage-stat"></span><div class="stage-actions"><button id="reset" aria-label="Reset camera" title="Reset camera">${icon('reset')}</button><button id="capture" aria-label="Save PNG" title="Save PNG">${icon('down')} PNG</button></div></div></section>
-<aside class="example-info"><span class="eyebrow">INSIDE THE EXAMPLE</span><p class="description" id="description"></p><div class="example-controls" id="example-controls"></div><div class="shared-controls"><label for="scene-speed">Playback speed <output id="scene-speed-value">1.00×</output></label><input id="scene-speed" type="range" min="0" max="2" step="0.05" value="1"><label for="scene-bloom">Bloom <output id="scene-bloom-value"></output></label><input id="scene-bloom" type="range" min="0" max="2" step="0.01"><label class="orbit-label"><input id="orbit" type="checkbox"> Auto-orbit camera</label></div><details class="methodology" id="methodology" hidden><summary>How to read this scene</summary><p class="data-note" id="data-note"></p></details><a id="standalone-link" class="standalone-link" target="_blank" rel="noopener">Open standalone ${icon('arrow')}</a></aside></div>
-<section id="data-panel" class="data-panel" aria-label="Example data and metrics" hidden><div class="data-heading"><span class="eyebrow">SYNTHETIC DATA · CURRENT VIEW</span><button id="download-data">Download data CSV</button></div><div id="metrics" class="metrics" aria-live="polite"></div><div id="legend" class="chart-legend"></div><details id="data-details"><summary>Inspect the data <span id="data-row-count"></span></summary><div class="data-table-wrap" tabindex="0" aria-label="Scrollable data table"><table id="data-table"></table></div></details></section><details class="source-section" id="source-section"><summary>${icon('code')} Explore the source <span>TYPESCRIPT RECIPE</span></summary><div class="source-tools"><span>This is the module running above. Shared types, chart helpers, and runner are in the download.</span><button id="copy-source">Copy recipe</button><button id="download-source">Download .ts</button><button id="copy-link">Copy link</button></div><pre tabindex="0" aria-label="Example TypeScript source"><code id="source"></code></pre></details></dialog>
+<section id="outcome-heading" class="outcome-heading" aria-label="Decision context" hidden></section>
+<div class="viewer-content"><section class="stage" aria-label="Interactive example"><div id="stage"></div><div id="entity-tooltip" class="entity-tooltip" hidden></div><div class="stage-top"><span>LIVE EXAMPLE</span><span>DRAG TO ORBIT · SCROLL TO ZOOM</span></div><div class="stage-error" id="stage-error" hidden></div><div class="stage-bottom"><button id="play" class="round-button" aria-label="Pause animation">${icon('pause')}</button><span id="fps" class="stage-stat">— FPS</span><span id="primitives" class="stage-stat"></span><div class="stage-actions"><button id="reset" aria-label="Reset camera" title="Reset camera">${icon('reset')}</button><button id="capture" aria-label="Save PNG" title="Save PNG">${icon('down')} PNG</button></div></div></section>
+<aside class="example-info"><div id="outcome-tabs" class="outcome-tabs" hidden></div><section id="record-inspector" class="record-inspector" hidden></section><span class="eyebrow">INSIDE THE EXAMPLE</span><p class="description" id="description"></p><div class="example-controls" id="example-controls"></div><div class="shared-controls"><label for="scene-speed">Playback speed <output id="scene-speed-value">1.00×</output></label><input id="scene-speed" type="range" min="0" max="2" step="0.05" value="1"><label for="scene-bloom">Bloom <output id="scene-bloom-value"></output></label><input id="scene-bloom" type="range" min="0" max="2" step="0.01"><label class="orbit-label"><input id="orbit" type="checkbox"> Auto-orbit camera</label></div><details class="methodology" id="methodology" hidden><summary>How to read this scene</summary><p class="data-note" id="data-note"></p></details><a id="standalone-link" class="standalone-link" target="_blank" rel="noopener">Open standalone ${icon('arrow')}</a></aside></div>
+<section id="outcome-workspace" class="outcome-workspace" aria-label="Evidence and action workspace" hidden></section><section id="data-panel" class="data-panel" aria-label="Example data and metrics" hidden><div class="data-heading"><span class="eyebrow">SYNTHETIC DATA · CURRENT VIEW</span><button id="download-data">Download data CSV</button></div><div id="metrics" class="metrics" aria-live="polite"></div><div id="legend" class="chart-legend"></div><details id="data-details"><summary>Inspect the data <span id="data-row-count"></span></summary><div class="data-table-wrap" tabindex="0" aria-label="Scrollable data table"><table id="data-table"></table></div></details></section><details class="source-section" id="source-section"><summary>${icon('code')} Explore the source <span>TYPESCRIPT RECIPE</span></summary><div class="source-tools"><span>This is the module running above. Shared types, chart helpers, and runner are in the download.</span><button id="copy-source">Copy recipe</button><button id="download-source">Download .ts</button><button id="copy-link">Copy link</button></div><pre tabindex="0" aria-label="Example TypeScript source"><code id="source"></code></pre></details></dialog>
 <div id="toast" class="toast" role="status" hidden></div>`;
 
 const requestedCategory = new URLSearchParams(location.search).get('category');
@@ -50,7 +53,7 @@ function filter(syncUrl = true) {
   const query=get<HTMLInputElement>('search').value.toLowerCase().trim();
   let count=0;
   for(const example of examples) {
-    const matches=(category==='All'||example.category===category) && `${example.title} ${example.summary} ${example.tags.join(' ')} ${example.category} ${example.description}`.toLowerCase().includes(query);
+    const matches=(category==='All'||(category==='Decisions'?Boolean(example.outcome):example.category===category)) && `${example.title} ${example.summary} ${example.tags.join(' ')} ${example.category} ${example.description}`.toLowerCase().includes(query);
     document.querySelector<HTMLElement>(`[data-card="${example.id}"]`)!.hidden=!matches;
     if(matches) count++;
   }
@@ -82,6 +85,7 @@ let app: FiveApp | undefined;
 let mounted: MountedExample | undefined;
 let active: ExampleDefinition | undefined;
 let stopStats: (()=>void)|undefined;
+let stopOutcome: (()=>void)|undefined;
 let resizeObserver: ResizeObserver|undefined;
 let paused=reducedMotion;
 let previousScale=1;
@@ -90,10 +94,10 @@ let opening=false;
 function updatePlayback() { app?.setPaused(paused); get('play').innerHTML=icon(paused?'play':'pause');get('play').setAttribute('aria-label',paused?'Play animation':'Pause animation'); }
 function fitCamera() { if(!app||!active)return; const box=get('stage').getBoundingClientRect(); app.resetCamera(cameraFor(active,box.width,box.height),active.target);previousScale=cameraScale(active,box.width,box.height); }
 function cleanup() {
-  const observer=resizeObserver, stop=stopStats, instance=mounted, renderer=app;
-  resizeObserver=undefined;stopStats=undefined;mounted=undefined;app=undefined;active=undefined;
+  const observer=resizeObserver, stop=stopStats, outcome=stopOutcome, instance=mounted, renderer=app;
+  resizeObserver=undefined;stopStats=undefined;stopOutcome=undefined;mounted=undefined;app=undefined;active=undefined;
   const errors:unknown[]=[];
-  for(const release of [()=>observer?.disconnect(),()=>stop?.(),()=>instance?.dispose?.(),()=>renderer?.dispose()]) {
+  for(const release of [()=>outcome?.(),()=>observer?.disconnect(),()=>stop?.(),()=>instance?.dispose?.(),()=>renderer?.dispose()]) {
     try { release(); } catch(error) { errors.push(error); }
   }
   if(errors.length) {
@@ -136,6 +140,7 @@ function show(example: ExampleDefinition) {
   get('data-panel').hidden=true;
   dialog.classList.remove('has-data');
   try {
+    stopOutcome?.(); stopOutcome=undefined;
     mounted?.dispose?.(); mounted=undefined;
     active=example;
     document.title=`${example.title} · 5js examples`;
@@ -181,6 +186,7 @@ function show(example: ExampleDefinition) {
       label.append(output);row.append(label,input);controls.append(row);
       input.addEventListener('input',()=>{try{control.apply(Number(input.value));const precision=String(control.step).split('.')[1]?.length??0;output.value=control.format?.(Number(input.value))??Number(input.value).toFixed(precision);if(control.format)input.setAttribute('aria-valuetext',control.format(Number(input.value)));refreshReadout();}catch(error){notify(error instanceof Error?error.message:'Unable to update this setting.');}});
     }
+    if(mounted.connected) stopOutcome=mountOutcomeUI(example.title,mounted.connected,app);
     dialog.dataset.status='ready';
   } catch(error) {
     get('stage-error').textContent=`This example could not start. ${error instanceof Error?error.message:'WebGL2 may be unavailable.'}`;

@@ -1,6 +1,6 @@
 # 5js example library
 
-Forty-four editable recipes span eleven categories, including twenty business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. This visual refresh redesigns seventeen scenes: all ten Analytics recipes, four Data recipes, two Scientific recipes, and the Business break-even landscape. The other twenty-seven were reviewed and retained.
+Forty-seven editable recipes span eleven categories, including twenty-three business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. Three new decision workflows connect source records to proposed investigations. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. The preceding visual refresh redesigned seventeen of the original forty-four scenes: the original ten Analytics recipes, four Data recipes, two Scientific recipes, and the Business break-even landscape. The other twenty-seven original scenes were reviewed and retained.
 
 ## Run locally
 
@@ -19,7 +19,7 @@ Open one recipe directly with `/examples/run.html?example=id`, for example:
 http://127.0.0.1:5185/examples/run.html?example=orbital-garden
 ```
 
-The gallery supports category filters, text search, keyboard navigation, live controls, pause, camera reset, PNG capture, and source inspection. Every category uses the same larger stage, including scenes with metrics and tables. Expand **How to read this scene** to inspect a recipe’s units, encodings, and assumptions; these notes start collapsed so controls remain easy to reach. Reduced-motion preferences start animation paused. Rendering requires WebGL2.
+The gallery supports category filters, text search, keyboard navigation, live controls, pause, camera reset, PNG capture, and source inspection. **Decisions** filters the three connected workflows across Business and Analytics; it is a collection filter, not a twelfth category. Every category uses the same larger stage, including scenes with metrics and tables. Expand **How to read this scene** to inspect a recipe’s units, encodings, and assumptions; these notes start collapsed so controls remain easy to reach. Connected workflows keep these settings under **Scenario & display**. Reduced-motion preferences start animation paused. Rendering requires WebGL2.
 
 For a production build, run `npm run build:demo`, then `npm run preview`; the gallery remains at `/examples/`.
 
@@ -27,6 +27,9 @@ For a production build, run `npm run build:demo`, then `npm run preview`; the ga
 
 | Recipe and source | Category | Learning concept |
 | --- | --- | --- |
+| [Checkout recovery lab](business/checkout-recovery.ts) | Business | Inspect recorded blockers and propose owner investigations with explicit recovery assumptions |
+| [Customer impact review](business/customer-health.ts) | Business | Prioritize capacity-limited customer reviews from observed abandonment and linked service evidence |
+| [Evidence to roadmap](analytics/evidence-to-roadmap.ts) | Analytics | Trace supporting, mixed, and contradicting interviews into measurable proposed tests |
 | [Orbital resonance loom](space/orbital-resonance.ts) | Space | Prescribed period ratios, elliptical paths, and a woven phase comparison |
 | [Stellar magnetic ballet](space/stellar-magnetic-field.ts) | Space | Nested twisted loops and directional tracers around a sphere |
 | [Neural signal atlas](biology/neural-connectome.ts) | Biology | A bilateral graph, branching dendrites, and adjustable hemisphere bridges |
@@ -74,9 +77,39 @@ For a production build, run `npm run build:demo`, then `npm run preview`; the ga
 
 The stable recipe ID is its filename without `.ts`. Display titles can change without breaking saved routes: **Budget tension field**, for example, keeps the ID `budget-variance`.
 
+## Connected decision workflows
+
+Select **Decisions**, or open `/examples/?category=Decisions`, to start with a practical question. These three recipes share one deterministic fixture of **99 records**: six customers, fifteen people (twelve customer participants and three internal owners), three products, three services, twelve interviews, thirty-six sessions, and twenty-four checkouts. All names, quotes, behavior, and values are fictional. The seven entity kinds use stable IDs and linked relationships rather than independent chart-only summaries.
+
+| Workflow | Question and interpretation |
+| --- | --- |
+| **Checkout recovery lab** · Recover failed checkouts | Which recorded checkout blockers should an owner investigate first? Abandoned baskets rank by observed amount. The green value is amount × an explicit recovery-fraction assumption; it is not observed recovery, a forecast, or expected revenue. Completed baskets are excluded from exposure. |
+| **Customer impact review** · Prioritize customer reviews | Which customers should named owners review within the available capacity? The queue ranks abandoned-session count, then annual customer value, then ID. Active sessions are not treated as abandonment. Annual value is counted once per affected account and is exposure, not lost revenue, churn probability, or expected recovery. Capacity limits the proposed worklist, not observed exposure. |
+| **Evidence to roadmap** · Turn evidence into a test | What should be investigated or tested next? Twelve interviews cover checkout interruptions, setup friction, and status interpretation. Supporting, mixed, and contradicting records remain visible by default. Counts distinguish interviews, participants, and customers. Evidence for a problem does not validate a proposed solution; task baselines still need measurement before comparison. |
+
+Use the workflow as a sequence from evidence to a reviewable next step:
+
+1. Select a visible node, or use the searchable **Follow the evidence** record list with the keyboard. Hover identifies chart targets; dragging still orbits the camera. **Scenario & display** holds cohort and presentation controls.
+2. Read **Inspect record** for source fields, evidence basis, and stable IDs. Follow **Linked records** to the customer, person, product, service, checkout, interview, or session. Sessions show ordered event timelines; interviews show their complete, explicitly fictional quotes. **Back** retraces selections. **Browse all 99 records** exposes the full fixture even when a scenario filter narrows the scene.
+3. Examine **Propose a measurable action**. Every proposal names an internal owner and states its rationale, measure, observed baseline, success criterion, guardrail, caveat, and exact evidence IDs. Expand its evidence to check conflicting as well as supporting records. These are proposed investigations, not completed work or automated recommendations to accept.
+4. Choose **Pin as evidence** on records and **Add to brief** on proposals, then **Download investigation brief**. The Markdown file includes the selected scope, action details, source IDs, fields, quotes, timelines, and assumptions. If controls change, a saved action keeps its earlier scope until you choose **Update brief with this scope**. Brief selections live only in the current viewer; download before closing or switching recipes.
+
+The viewer produces a local file. It does not contact customers, send messages, create external tasks, or write to CRM, analytics, research, or issue-tracking systems. No real customers or production data are connected. Moving guides trace existing relationships; they do not create new sessions or imply causal links.
+
+## Adapt a connected workflow
+
+The adapter boundary lives in [connected/types.ts](connected/types.ts), [connected/fixture.ts](connected/fixture.ts), and [connected/explorer.ts](connected/explorer.ts). These are example-project utilities, not additions to the four public `fivejs` layer factories.
+
+- `createConnectedData()` supplies a fresh deterministic `ConnectedDataset`. Replace that source with a validated snapshot or an application adapter while preserving the calculation grain: one session belongs to one customer, person, and product; one checkout belongs to one session; interviews retain their participant and source-session IDs.
+- `buildEntityRecords(data)` normalizes the domain data into `EntityRecord[]`: stable IDs, kind, label, summary, fields, related-ID links, evidence with a stated basis, and optional timelines. Use an equivalent mapper for another domain. Validate source freshness, keys, relationships, units, and missing outcomes before calculating a workflow; the fixture mapper is not a general data-quality validator.
+- `createOutcomeExplorer({ records, view, targets, onSelect, initialId })` connects the model to the viewer. `view()` returns the current question, summary, scope, candidate record IDs, and `OutcomeAction[]`. `targets()` supplies record IDs with scene positions; `onSelect()` redraws emphasis. The explorer validates unique IDs and resolved record links. Its shared selection drives both the scene and inspector, and `refresh()` reconciles selection after cohort changes.
+- Return `connected: explorer` from the recipe instance, add an `outcome` label to its definition, and keep `readout()`, geometry, candidates, and actions derived from the same filtered records. Dispose the explorer in the instance cleanup; app-owned layers remain the runner's responsibility. The shared [outcome UI](gallery/outcomes.ts) and [brief formatter](connected/brief.ts) handle inspection and local export.
+
+The present evidence-basis types and shared viewer/brief copy explicitly describe synthetic observations and fictional interviews. Adapting this to real records also requires accurate provenance labels and copy, appropriate access handling, and application-owned loading/error states. Replacing fixture arrays alone does not provide a production connector, live refresh, authentication, or external-action execution.
+
 ## Reading the animated business scenes
 
-The ten Business recipes combine exact scenario calculations with animated spatial compositions. Their controls update the data, geometry, metrics, and table together. Playback advances illustrative light tracers; it does not create new observations or change financial totals. Pause, playback speed, and reduced-motion settings apply to those tracers.
+The ten original Business recipes combine exact scenario calculations with animated spatial compositions; the two additional connected workflows are described above. Their controls update the data, geometry, metrics, and table together. Playback advances illustrative light tracers; it does not create new observations or change financial totals. Pause, playback speed, and reduced-motion settings apply to those tracers.
 
 Read each recipe's encoding note before comparing sizes. Revenue river crests use a fixed dollar height, and their monthly knots are the actual samples. Conversion gate **interior area** is proportional to people, so radius follows the square root of the count. Marketing and unit-economics **tube cross-sectional area** is proportional to USD. Subscription balance rings and change tubes use two separately stated scales. Particle number, speed, glow size, and decorative hub positions do not represent people, transactions, or elapsed business time.
 
@@ -88,7 +121,7 @@ Budget petals have equal angular spans: their footprint area viewed from above i
 
 ## Reading the Analytics observatories
 
-All ten Analytics scenes use fixed synthetic observations or explicit scenario formulas. Controls recompute the current geometry, metrics, and table together. Animated guides expose relationships and reading order; they do not add observations, establish statistical significance, or change the data during playback.
+The ten original Analytics scenes use fixed synthetic observations or explicit scenario formulas; **Evidence to roadmap** adds the connected workflow described above. Controls recompute the current geometry, metrics, and table together. Animated guides expose relationships and reading order; they do not add observations, establish statistical significance, or change the data during playback.
 
 **Correlation matrix** links three views. Cyan upper strands show positive Pearson correlations and coral lower strands show negative ones; strand width and floor-tile lightness increase with `|r|`. Tower positions are categorical, and each tower trace is normalized within its own variable and trailing window. **Explore a pair** selects two variables for the observation chamber: X and Y show their raw units, while depth follows day order. The trailing-window control uses 12–36 days. **Minimum network |r|** filters strands and floor cells, but the selected pair's observations and coefficient remain inspectable even below the cutoff. Constant 99.9% uptime yields **Undefined**, never zero; undefined cells are retained, with gray marking them outside the focus highlight. The gold focus accent and moving lights are presentation, not another measure. Correlation does not imply causation.
 
@@ -132,6 +165,8 @@ Transit calculates departures, headway, and capacity from synthetic train counts
 - [gallery/runtime.ts](gallery/runtime.ts) mounts recipes, frames cameras, and releases instances.
 - [gallery/sources.ts](gallery/sources.ts) loads the actual recipe files as raw text.
 - [shared/chart.ts](shared/chart.ts) supplies example-only geometry, text, flow animation, and resource ownership.
+- [connected/types.ts](connected/types.ts), [connected/fixture.ts](connected/fixture.ts), and [connected/explorer.ts](connected/explorer.ts) define the linked-record model, fictional source, and shared selection contract.
+- [gallery/outcomes.ts](gallery/outcomes.ts) renders linked records and proposals; [connected/brief.ts](connected/brief.ts) exports the local investigation brief.
 - [../src/index.ts](../src/index.ts) exports the 5js library; [../README.md](../README.md) documents its API.
 
 Recipe modules avoid browser globals at import time. The shared chart helper draws camera-facing text labels only when a browser canvas is available; Node tests exercise the same numeric geometry without text textures. Their `setup(app)` functions can run against a small app substitute in CPU tests; browser work belongs in the shared runner.
@@ -242,7 +277,7 @@ An individual `.ts` download depends on its relative library imports, shared exa
 
 ## Interpretation and checks
 
-All twenty Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted; rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Tables and metric readouts update with the controls.
+All twenty-three Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted; rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Connected proposals preserve evidence and assumptions without claiming validated impact. Tables and metric readouts update with the controls.
 
 Data examples use synthetic graphs and coordinates. Vortex and wave examples use analytic visual patterns; they do not solve fluid dynamics or the wave equation. Cinematic scenes are stylized compositions.
 
@@ -250,6 +285,10 @@ The Lorenz example precomputes 18,000 trajectory samples using fourth-order Rung
 
 Run `npm run typecheck` and `npm test` after adding a recipe. CPU tests should cover useful invariants, live controls, zero-delta pause behavior, and resource disposal. Also inspect its real browser render, portrait framing, control extremes, and standalone URL.
 
-Open `/tests/examples-browser.html` to verify all 44 gallery recipes in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
+Open `/tests/examples-browser.html` to verify all 47 gallery recipes in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
 
 For visual review, open **http://127.0.0.1:5185/tests/examples-browser.html?review=1** with the development server running. After all checks pass, the page shows contact sheets made from the actual WebGL captures. Use **Previous page** and **Next page** to review 12 scenes at a time across four pages. These are default-scene captures, not screenshots of every control combination. Inspect normal viewers and portrait layouts separately for framing, labels, and useful interactions; a pixel-change assertion cannot establish visual quality.
+
+Open `/tests/connected-pressure.html` to exercise linked inspection, keyboard tabs and focus, scoped brief exports, selection reconciliation, cleanup, a 375px layout, and empty-state recovery. It runs in the CI browser suite. The empty-state check uses an explicitly injected fixture because the authored production filter combinations all contain records.
+
+For connected workflows, also select a chart node and a keyboard-list entry, follow linked sessions and interviews, change the cohort, pin a record, add a proposal, and inspect the downloaded Markdown brief. Confirm that its owner, evidence IDs, saved scope, measure, baseline, success criterion, and guardrail match the selected proposal. The CPU suite checks fixture integrity and useful workflow invariants, including distinct-customer counting, retained counter-evidence, filtered source validity, selection emphasis, pause, and disposal.

@@ -1,0 +1,236 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RUNNING — 5js connected workflow pressure verification</title>
+<style>
+  body { background:#101818; color:#d6ffd7; font:14px/1.6 monospace; padding:20px; }
+  pre { white-space:pre-wrap; }
+  iframe { width:1100px; height:820px; border:1px solid #62746a; max-width:100%; }
+</style>
+<h1>5js connected workflow pressure verification</h1>
+<p>Real gallery checks for linked records, keyboard tabs, scoped investigation briefs, cleanup, and phone layout. The final empty-cohort case uses an explicitly injected fixture.</p>
+<pre id="results">Starting connected workflow checks…</pre>
+<iframe id="gallery" title="Connected gallery under test"></iframe>
+<script type="module">
+// This document also hosts an isolated empty-cohort fixture. Current authored
+// production cohorts are all nonempty; injecting one tests the UI contract honestly.
+if (new URLSearchParams(location.search).get('fixture') === 'empty') {
+  document.body.innerHTML = '<div id="app"></div>';
+  const [{ findExample }, { createOutcomeExplorer }] = await Promise.all([
+    import('/examples/catalog.ts'), import('/examples/connected/explorer.ts'),
+  ]);
+  const recipe = findExample('evidence-to-roadmap'), setup = recipe.setup;
+  recipe.setup = app => {
+    const layers = [];
+    const context = new Proxy(app, { get(target, key) {
+      if (key === 'add') return layer => { layers.push(layer); return target.add(layer); };
+      return Reflect.get(target, key);
+    } });
+    const instance = setup(context), source = instance.connected;
+    let empty = false, explorer;
+    explorer = createOutcomeExplorer({
+      records: source.records, initialId: source.selectedId ?? undefined,
+      view: () => empty ? { question: 'Injected empty-cohort UI fixture', summary: 'No source records meet this test-only cohort.', scope: 'Explicit harness injection; not a production filter result.', candidates: [], actions: [] } : source.view(),
+      targets: () => empty ? [] : source.targets(),
+      onSelect: () => { if (explorer?.selectedId) source.select(explorer.selectedId); },
+    });
+    return { ...instance, connected: explorer,
+      controls: [...instance.controls, { id: 'test-empty', label: 'Test-only empty cohort', min:0, max:1, step:1, value:0,
+        apply(value) { empty = value === 1; layers.forEach(layer => { layer.object.visible = !empty; }); explorer.refresh(); } }],
+      readout: () => empty ? { metrics:[{label:'Fixture records',value:'0'}], table:{caption:'Injected empty cohort',columns:['Record ID'],rows:[]} } : instance.readout(),
+      dispose() { explorer.dispose(); instance.dispose?.(); },
+    };
+  };
+  await import('/examples/gallery/main.ts');
+} else {
+  const results = document.querySelector('#results'), frame = document.querySelector('iframe');
+  const checks = [], failures = [], errors = [];
+  const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+  const doc = () => frame.contentDocument, win = () => frame.contentWindow;
+  const el = id => doc().getElementById(id);
+  const assert = (condition, message) => { if (!condition) throw new Error(message); };
+  let finished = false;
+  const watchdog = setTimeout(() => finish('Harness exceeded its 240-second deadline.'), 240000);
+  function finish(fatal) {
+    if (finished) return;
+    finished = true; clearTimeout(watchdog);
+    if (fatal) { failures.push(fatal); checks.push('FAIL · ' + fatal); }
+    if (errors.length) { failures.push(...errors); checks.push(...errors.map(error => 'FAIL · iframe error: ' + error)); }
+    results.textContent = checks.join('\n') + '\n\n' + (failures.length ? `${failures.length} PRESSURE CHECKS FAILED` : `ALL ${checks.length} PRESSURE CHECKS PASSED`);
+    document.title = (failures.length ? 'FAIL' : 'PASS') + ' — 5js connected workflow pressure verification';
+    document.body.dataset.status = failures.length ? 'fail' : 'pass';
+  }
+  async function until(fn, message, timeout = 15000) {
+    const end = performance.now() + timeout;
+    while (performance.now() < end) { if (fn()) return; await wait(30); }
+    throw new Error(message);
+  }
+  async function check(name, fn) {
+    if (finished) return;
+    try { await fn(); checks.push('PASS · ' + name); }
+    catch (error) { failures.push(name + ': ' + error.message); checks.push('FAIL · ' + name + ': ' + error.message); }
+    results.textContent = checks.join('\n');
+  }
+  async function load(url, previews = false) {
+    await Promise.race([
+      new Promise(resolve => { frame.addEventListener('load', resolve, { once:true }); frame.src = url; }),
+      wait(30000).then(() => { throw new Error('Iframe load timeout: ' + url); }),
+    ]);
+    win().addEventListener('error', event => errors.push(event.message || 'Uncaught iframe error'));
+    win().addEventListener('unhandledrejection', event => errors.push(String(event.reason)));
+    await until(() => el('cards'), 'Gallery did not initialize');
+    if (previews) await until(() => doc().body.dataset.previews === 'ready', 'Gallery previews did not finish', 120000);
+  }
+  async function open(id) {
+    if (win().location.hash === '#' + id && el('viewer')?.open) {
+      el('close').click(); await until(() => !el('viewer').open && el('stage').querySelectorAll('canvas').length === 0, 'Viewer did not clean up before remount');
+    }
+    win().location.hash = id;
+    await until(() => el('viewer')?.dataset.example === id && el('viewer').dataset.status === 'ready' && el('viewer').open, 'Scene did not mount: ' + id);
+  }
+  const dispatch = (node, type) => node.dispatchEvent(new (win().Event)(type, { bubbles:true }));
+  function control(id, value) { const input = el('control-' + id); assert(input, 'Missing control ' + id); input.value = String(value); dispatch(input, 'input'); }
+  function search(value) { el('entity-search').value = value; dispatch(el('entity-search'), 'input'); }
+  function type(value) { el('entity-kind').value = value; dispatch(el('entity-kind'), 'change'); }
+  const rows = () => [...el('entity-list').querySelectorAll('button[data-entity-id]')];
+  const selectedId = () => el('record-inspector').dataset.entityId;
+  function choose(id, parent = el('entity-list')) {
+    const button = [...parent.querySelectorAll('button[data-entity-id]')].find(item => item.dataset.entityId === id);
+    assert(button, 'Missing selectable record ' + id); button.click();
+    assert(selectedId() === id, 'Inspector selection did not follow ' + id);
+    assert(!el('record-inspector').hidden, 'Explicit record selection left inspector hidden');
+    assert(doc().activeElement?.id === 'record-title', 'Record selection did not move keyboard focus to the inspector heading');
+  }
+  function key(node, value) { node.dispatchEvent(new (win().KeyboardEvent)('keydown', { key:value, bubbles:true, cancelable:true })); }
+  function allRecords() { if (el('browse-all-entities').getAttribute('aria-pressed') !== 'true') el('browse-all-entities').click(); type(''); search(''); }
+  async function briefText() {
+    const originalURL = win().URL.createObjectURL, originalClick = win().HTMLAnchorElement.prototype.click;
+    let captured, filename;
+    win().URL.createObjectURL = blob => { captured = blob; return originalURL.call(win().URL, blob); };
+    win().HTMLAnchorElement.prototype.click = function() {
+      if (this.download.endsWith('-brief.md')) { filename = this.download; return; }
+      return originalClick.call(this);
+    };
+    try {
+      assert(!el('download-brief').disabled, 'Brief download was unexpectedly disabled'); el('download-brief').click();
+      assert(captured && filename?.endsWith('-brief.md'), 'Download did not create the actual Markdown blob');
+      assert(captured.type.startsWith('text/markdown'), 'Wrong brief MIME type');
+      return await captured.text();
+    } finally { win().URL.createObjectURL = originalURL; win().HTMLAnchorElement.prototype.click = originalClick; }
+  }
+  const scopeLine = text => text.split('\n').find(line => line.includes('Scope at selection:')) ?? '';
+  try {
+    await load('/examples/?category=Decisions', true);
+    await check('Decisions contains exactly the three connected workflows', async () => {
+      const selected = doc().querySelector('[data-filter][aria-pressed="true"]');
+      assert(selected?.dataset.filter === 'Decisions', 'Decisions URL filter was not selected');
+      assert(el('result-count').textContent === '3 examples', 'Decisions count differs from three');
+      const cards = [...el('cards').querySelectorAll('[data-card]')].filter(card => !card.hidden).map(card => card.dataset.card).sort();
+      assert(cards.join(',') === ['checkout-recovery','customer-health','evidence-to-roadmap'].sort().join(','), 'Wrong decision cards');
+    });
+    await check('Selection follows checkout → session timeline → fictional interview, with Back navigation', async () => {
+      await open('checkout-recovery'); choose('checkout:01:01');
+      choose('session:01:01', el('record-inspector'));
+      const timeline = el('record-inspector').querySelectorAll('.session-timeline li');
+      assert(timeline.length >= 6 && [...timeline].some(item => item.textContent.includes('Payment response timed out')), 'Linked session events are absent');
+      choose('interview:01:01', el('record-inspector'));
+      assert(el('record-inspector').textContent.includes('Fictional interview') && el('record-inspector').textContent.includes('I did not finish this checkout'), 'Fictional source quote is missing');
+      el('record-inspector').querySelector('.inspector-top button').click();
+      assert(selectedId() === 'session:01:01', 'Back did not restore the linked session');
+    });
+    await check('All 99 records can be searched and filtered across seven entity kinds', async () => {
+      allRecords(); assert(rows().length === 99, 'Full fixture does not expose 99 records');
+      const counts = { customer:6, person:15, product:3, service:3, interview:12, session:36, checkout:24 };
+      for (const [kind, count] of Object.entries(counts)) { type(kind); assert(rows().length === count, kind + ' filter count is wrong'); }
+      type('interview'); search('interview:03:02'); assert(rows().length === 1, 'Stable-ID search did not isolate an interview');
+      choose('interview:03:02'); assert(el('record-inspector').textContent.includes('contradicts'), 'Contradicting interview lost its stance');
+      search('<img src=x onerror=alert(1)>'); assert(rows().length === 0 && !el('entity-list').querySelector('img'), 'Search interpreted markup');
+      allRecords(); assert(rows().length === 99, 'Clearing record filters did not restore the fixture');
+    });
+    await check('Sidebar tabs have associated panels and support arrow/Home/End keys', async () => {
+      const inspect = el('inspect-record-tab'), scenario = el('scenario-display-tab');
+      assert(inspect.getAttribute('aria-controls') === 'record-inspector' && scenario.getAttribute('aria-controls') === 'scenario-panel', 'Tabs lack correct controlled panels');
+      assert(el('scenario-panel').getAttribute('role') === 'tabpanel' && el('scenario-panel').getAttribute('aria-labelledby') === scenario.id, 'Scenario tabpanel is not labelled');
+      inspect.focus(); key(inspect, 'ArrowRight');
+      assert(doc().activeElement === scenario && scenario.getAttribute('aria-selected') === 'true' && !el('scenario-panel').hidden && el('record-inspector').hidden, 'Right arrow did not activate and focus Scenario');
+      key(scenario, 'Home'); assert(doc().activeElement === inspect && !el('record-inspector').hidden, 'Home did not return to Inspect');
+      key(inspect, 'End'); assert(doc().activeElement === scenario && !el('scenario-panel').hidden, 'End did not activate Scenario');
+      key(scenario, 'ArrowLeft'); assert(doc().activeElement === inspect && scenario.tabIndex === -1, 'Left arrow or roving tab index failed');
+    });
+    await check('Scenario updates preserve visible target selection and never hide the focused control', async () => {
+      await open('customer-health'); allRecords(); choose('customer:03');
+      el('scenario-display-tab').click(); const capacity = el('control-capacity'); capacity.focus(); control('capacity', 1);
+      assert(selectedId() === 'customer:03', 'A visible customer outside the priority list was deselected');
+      assert(doc().activeElement === capacity && !el('scenario-panel').hidden && el('record-inspector').hidden, 'Scenario update hid or unfocused the active control');
+      const segment = el('control-segment'); segment.focus(); control('segment', 2);
+      assert(selectedId() !== 'customer:03' && selectedId().startsWith('customer:'), 'Excluded selection was not reconciled');
+      assert(doc().activeElement === segment && !el('scenario-panel').hidden, 'Selection reconciliation unexpectedly opened Inspect');
+      const currentIds = [...el('data-table').tBodies[0].rows].map(row => row.cells[0].textContent);
+      assert(currentIds.includes(selectedId()), 'Reconciled customer is outside the new cohort');
+      choose('customer:03'); assert(!el('record-inspector').hidden && el('scenario-panel').hidden, 'Explicit workspace selection did not reveal Inspector');
+    });
+    await check('Brief adds and pins evidence; actual exported bytes preserve scope until explicitly updated', async () => {
+      await open('evidence-to-roadmap');
+      const action = () => el('outcome-actions').querySelector('.add-to-brief[data-action-id="investigate-checkout"]');
+      assert(action(), 'Checkout investigation missing');
+      const ownerLabel = action().closest('.outcome-action').querySelector('.action-owner button').textContent;
+      action().click();
+      choose('interview:03:02'); el('pin-evidence').click();
+      assert(el('brief-status').textContent.includes('1 proposed action') && el('brief-status').textContent.includes('1 pinned record'), 'Action/pin counts did not update');
+      const initial = await briefText();
+      assert(scopeLine(initial).includes('All themes') && scopeLine(initial).includes('Both customer segments'), 'Initial selected scope is absent');
+      assert(initial.includes(ownerLabel), 'Exported owner differs from the selected proposal');
+      for (const required of ['Synthetic demonstration', 'fictional', 'Proposed owner', 'Measure:', 'Observed baseline:', 'Proposed success criterion:', 'Guardrail:', 'Limits / assumptions:', 'interview:03:02', 'Fictional interview', 'not expected incremental revenue']) assert(initial.includes(required), 'Export omitted ' + required);
+      el('scenario-display-tab').click(); control('theme', 1); control('segment', 1);
+      assert(action().textContent === 'Update brief with this scope', 'Saved proposal was silently replaced or update option is absent');
+      const unchanged = await briefText(); assert(scopeLine(unchanged) === scopeLine(initial), 'Changing a filter mutated saved scope');
+      action().click(); const updated = await briefText();
+      assert(scopeLine(updated).includes('Growth') && scopeLine(updated).includes('Checkout recovery') && scopeLine(updated) !== scopeLine(initial), 'Explicit update did not save the new scope');
+      assert(updated.includes('Additional records selected:') && updated.includes('interview:03:02'), 'Explicitly pinned counter-evidence disappeared after updating the scope');
+      el('clear-brief').click(); assert(el('download-brief').disabled && el('clear-brief').disabled && el('brief-status').textContent.includes('0 proposed actions') && el('brief-status').textContent.includes('0 pinned records'), 'Clear did not reset brief state');
+    });
+    await check('Ordinary scenes remove connected UI and remount starts a fresh local brief', async () => {
+      await open('evidence-to-roadmap'); el('outcome-actions').querySelector('.add-to-brief').click();
+      await open('correlation-matrix');
+      assert(!el('viewer').classList.contains('connected') && el('outcome-workspace').hidden && !el('outcome-workspace').children.length, 'Connected workspace leaked into a regular scene');
+      assert(!el('scenario-panel') && !el('description').hidden && el('entity-tooltip').hidden, 'Connected sidebar/picking UI was not cleaned up');
+      assert(el('stage').querySelectorAll('canvas').length === 1, 'Switching scenes duplicated the renderer');
+      await open('checkout-recovery');
+      assert(doc().querySelectorAll('#scenario-panel').length === 1 && doc().querySelectorAll('#outcome-actions').length === 1, 'Remount duplicated connected controls');
+      assert(el('brief-status').textContent.includes('0 proposed actions') && el('download-brief').disabled, 'Brief state leaked across workflows');
+      choose('checkout:01:01'); assert(el('record-inspector').textContent.includes('Synthetic checkout attempt'), 'Remounted inspector no longer works');
+    });
+    await check('375px workflow keeps records, inspector, controls, and brief actions within the viewport', async () => {
+      frame.style.width = '375px'; await open('evidence-to-roadmap'); await wait(250);
+      const stage = el('stage').getBoundingClientRect(), dialog = el('viewer');
+      assert(stage.width > 250 && stage.height >= 220, 'Phone scene is too small');
+      assert(doc().documentElement.scrollWidth <= doc().documentElement.clientWidth + 1 && dialog.scrollWidth <= dialog.clientWidth + 1, 'Phone page/viewer overflows horizontally');
+      const jump = el('outcome-heading').querySelector('button'); jump.click();
+      assert(doc().activeElement === el('entity-search'), 'Explore records did not focus search');
+      choose('interview:03:02'); await wait(150);
+      const inspector = el('record-inspector').getBoundingClientRect();
+      assert(!el('record-inspector').hidden && inspector.width > 250 && inspector.top < win().innerHeight && inspector.bottom > 0, 'Selecting a phone record did not reveal its inspector');
+      el('scenario-display-tab').click(); assert(el('control-theme').getBoundingClientRect().width > 200, 'Phone controls are squeezed');
+      const button = el('download-brief').getBoundingClientRect();
+      assert(button.width > 150 && button.left >= 0 && button.right <= doc().documentElement.clientWidth + 1, 'Brief action is outside phone width');
+    });
+    await check('Injected empty cohort reconciles selection, disables unsupported actions, and can recover', async () => {
+      frame.style.width = '1100px';
+      await load('/tests/connected-pressure.html?fixture=empty#evidence-to-roadmap');
+      await until(() => el('viewer')?.dataset.status === 'ready', 'Empty-cohort fixture did not mount');
+      el('scenario-display-tab').click(); const toggle = el('control-test-empty'); toggle.focus(); control('test-empty', 1);
+      assert(selectedId() === '' && el('entity-list').querySelectorAll('[data-entity-id]').length === 0, 'Empty cohort retained a stale selected candidate');
+      assert(el('record-inspector').textContent.includes('No records in this cohort') && el('outcome-actions').textContent.includes('No proposed action'), 'Empty state did not explain missing records/actions');
+      assert(doc().activeElement === toggle && !el('scenario-panel').hidden && el('download-brief').disabled, 'Empty reconciliation hid the control or enabled an unsupported brief');
+      allRecords(); assert(rows().length === 99, 'Empty scene prevented full-dataset inspection'); choose('interview:03:02');
+      assert(el('record-inspector').textContent.includes('Fictional interview'), 'Related evidence is unavailable in an empty cohort');
+      el('scenario-display-tab').click(); control('test-empty', 0);
+      assert(selectedId() && el('outcome-actions').querySelectorAll('.outcome-action').length === 3, 'Restoring the cohort did not recover selection/actions');
+      el('close').click(); await until(() => !el('viewer').open && el('stage').querySelectorAll('canvas').length === 0, 'Fixture close leaked a canvas');
+    });
+    finish();
+  } catch (error) { finish(error.stack ?? error.message); }
+}
+</script>
+</html>

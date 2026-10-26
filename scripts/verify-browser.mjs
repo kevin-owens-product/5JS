@@ -14,6 +14,7 @@ const checks = [
   { name: 'examples', path: '/tests/examples-browser.html', timeout: 210_000 },
   { name: 'core-pressure', path: '/tests/core-pressure.html', timeout: 60_000 },
   { name: 'gallery-pressure', path: '/tests/gallery-pressure.html', timeout: 300_000 },
+  { name: 'connected-pressure', path: '/tests/connected-pressure.html', timeout: 300_000 },
   { name: 'render-pressure', path: '/tests/render-pressure.html', timeout: 210_000 },
 ];
 await mkdir(artifacts, { recursive: true });
@@ -55,7 +56,7 @@ try {
       assert.equal(pageErrors.length, 0, `${check.name}: uncaught browser error(s): ${pageErrors.join('\n')}`);
       if (check.name === 'examples') {
         const counts = results.match(/ALL (\d+)\/(\d+) EXAMPLE BROWSER CHECKS PASSED/);
-        assert.ok(counts && Number(counts[1]) >= 44 && counts[1] === counts[2], 'Every gallery recipe must pass.');
+        assert.ok(counts && Number(counts[1]) >= 47 && counts[1] === counts[2], 'Every gallery recipe must pass.');
       } else if (check.name.endsWith('-pressure')) {
         assert.match(results, /ALL \d+(?:\/\d+)?(?: (?:CORE|RENDER))? PRESSURE CHECKS PASSED/);
       } else {

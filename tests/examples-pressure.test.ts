@@ -57,7 +57,7 @@ test('portfolio rejects revenue rounded to zero before calculating margins', () 
 });
 
 // Combined middle states exercise selectors and interactions missed by isolated
-// slider endpoints. Across the twenty recipes this covers 477 distinct states.
+// slider endpoints. Across the twenty-three recipes this covers 540 distinct states.
 for (const recipe of examples.filter(example => example.category === 'Business' || example.category === 'Analytics')) {
   test(`${recipe.id}: combined min/middle/max states preserve finite data and geometry`, () => {
     const layers: FiveLayer<object>[] = [];
