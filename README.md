@@ -6,9 +6,9 @@ This MIT-licensed alpha is experimental open-source software. It has not been pu
 
 [Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
 
-Documentation: [API reference](docs/API.md) · [Example guide](examples/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](CONTRIBUTING.md) · [Release guide](docs/RELEASING.md).
+Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/5JS/blob/main/docs/RELEASING.md).
 
-![Conversion reactor example](artifacts/business-motion-reactor.jpg)
+![Conversion reactor example](https://raw.githubusercontent.com/kevin-owens-product/5JS/main/artifacts/business-motion-reactor.jpg)
 
 ## Run the playground
 
@@ -25,7 +25,7 @@ Open http://127.0.0.1:5185. The playground includes live parameters, palettes, c
 
 ## Example library
 
-Open http://127.0.0.1:5185/examples/ for **44 runnable recipes**, including **20 business and analytics examples** alongside twelve new Space, Biology, Climate, Energy, Cities, and Engineering scenes, plus scientific visualization, structured data, and cinematic composition. The ten Business scenes include luminous revenue rivers, a conversion reactor, an attribution network, a profit engine, a factory circuit, an inventory constellation, and a continuous break-even terrain. Their motion makes flow and relationships visible while exact synthetic-data calculations remain inspectable in live metrics, tables, and current-view CSV exports. The ten Analytics recipes cover cohorts, segmentation, distributions, experiments, and data quality. Search and filter the gallery, open any example, change its live parameters, inspect its actual TypeScript source, or launch its standalone view. The [example guide](examples/README.md) lists every recipe and explains how to add your own.
+Open http://127.0.0.1:5185/examples/ for **44 runnable recipes**, including **20 business and analytics examples** alongside twelve new Space, Biology, Climate, Energy, Cities, and Engineering scenes, plus scientific visualization, structured data, and cinematic composition. The ten Business scenes include luminous revenue rivers, a conversion reactor, an attribution network, a profit engine, a factory circuit, an inventory constellation, and a continuous break-even terrain. Their motion makes flow and relationships visible while exact synthetic-data calculations remain inspectable in live metrics, tables, and current-view CSV exports. The ten Analytics recipes cover cohorts, segmentation, distributions, experiments, and data quality. Search and filter the gallery, open any example, change its live parameters, inspect its actual TypeScript source, or launch its standalone view. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) lists every recipe and explains how to add your own.
 
 The Business scenes use example-only helpers for tubes, ribbons, rings, surfaces, glow, and animated path tracers. These are implemented in `examples/shared/chart.ts`; they do not add factories to the public library API. Tracers are illustrative motion, not new transactions or observations. Each recipe states which geometry actually encodes the data.
 
@@ -150,7 +150,7 @@ npm run test:package
 
 With `npm run dev` active, open http://127.0.0.1:5185/tests/browser.html for real WebGL2 lifecycle checks. These exercise four layers together, pause/speed, bloom, geometry replacement, PNG decoding, resizing, ownership, and disposal. CPU tests cover graph validation, deterministic seeds/layouts, mathematical invariants, atomic settings, continuous animation, and resource disposal.
 
-`npm run test:package` builds from a fresh temporary copy and installs the tarball into a separate consumer project. For automated Chromium checks, first run `npx --no-install playwright install chromium`, then `npm run test:browser`. The runner starts its own local server and executes both browser harnesses. GitHub Actions runs these checks on Linux; diagnostics are saved under `artifacts/browser-checks/`.
+`npm run test:package` uses Python 3 to check source-archive exclusions, builds from a fresh temporary copy, and installs the tarball into a separate consumer project. It also verifies packaged documentation links and headings. For automated Chromium checks, first run `npx --no-install playwright install chromium`, then `npm run test:browser`. The runner starts its own local server and executes the browser harnesses. GitHub Actions runs these checks on Linux; diagnostics are saved under `artifacts/browser-checks/`.
 
 ## Current boundaries
 
@@ -160,4 +160,4 @@ Construction limits (250,000 particles, 10,000 graph nodes, 100,000 edges, 512 t
 
 ## License and community
 
-5js is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](CONTRIBUTING.md) and [community conduct policy](CODE_OF_CONDUCT.md). See [security reporting](SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.
+5js is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/5JS/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.

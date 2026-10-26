@@ -2,7 +2,7 @@
 
 This reference describes the 0.1.0-alpha.1 API. The source is public on GitHub; the package is not published to npm; install a built checkout using the [local setup instructions](../README.md#build-and-use-the-library). Imports below assume that local package is installed as `fivejs`.
 
-The public entry point is [src/index.ts](../src/index.ts). It exports `createFive`, four layer factories, and their TypeScript interfaces. Gallery recipes and `examples/shared/chart.ts` are example utilities, not public package exports.
+The public entry point is [src/index.ts](https://github.com/kevin-owens-product/5JS/blob/main/src/index.ts). It exports `createFive`, four layer factories, and their TypeScript interfaces. Gallery recipes and `examples/shared/chart.ts` are example utilities, not public package exports.
 
 ## Create a scene
 
@@ -54,7 +54,9 @@ Without explicit overrides, `prefers-reduced-motion: reduce` starts paused and d
 | `scene`, `camera`, `renderer` | Readonly references to the underlying Three.js objects; their own APIs remain accessible |
 | `stats: FiveStats` | A fresh statistics snapshot |
 
-A layer belongs to at most one app. Once removed or cleared, create a new layer instead of reusing it. Use the app's removal methods for attached layers; do not dispose an attached layer directly. Dispose an unattached layer yourself. Objects and resources added directly to `app.scene` are your responsibility.
+A layer and its root Object3D belong to at most one app. Different layer wrappers cannot share an owned or retired root. The app captures the root at addition and releases that same root even if caller code later replaces the wrapper property. Once removed or cleared, create a new layer instead of reusing it. Use the app's removal methods for attached layers; do not dispose an attached layer directly. Dispose an unattached layer yourself. Objects and resources added directly to `app.scene` are your responsibility.
+
+If an initial custom-layer update throws, `add()` rolls back scene attachment and ownership so the caller can repair or dispose the layer. `remove()`, `clear()`, and `dispose()` attempt all relevant cleanup even when a custom disposer throws, then report failures in an `AggregateError`. A disposed app remains terminal even after such an error; repeated disposal is harmless. A custom update or frame observer may dispose its app, and the current frame stops. `onFrame()` rejects non-functions immediately.
 
 All app methods except repeated `dispose()` reject calls after disposal. Reading an exposed Three.js reference does not make its disposed resources usable again.
 
@@ -75,11 +77,13 @@ interface FiveLayer<P extends object = Record<string, unknown>> {
 
 All four factories accept an optional options object and return a `FiveLayer` parameterized by that factory's options interface. `object` can be positioned or scaled with Three.js. `kind` identifies the layer. `count` has the layer-specific meaning listed below.
 
+Factories and `set()` require non-null, non-array option objects. Supported own properties are read once before validation; inherited and unknown keys are ignored. Undefined values retain defaults/current settings, except structural-key rejection still applies where documented. Numeric null values are invalid.
+
 `set()` validates supported values before changing the live configuration. Invalid inputs throw. Structural settings require a replacement layer unless stated otherwise. `set()` after disposal throws; built-in `dispose()` methods are idempotent.
 
 The app calls `update(time, delta)` in seconds. It supplies `delta = 0` when paused, hidden, or speed is zero. Raw frame intervals are capped at 0.05 seconds before the shared speed multiplier is applied. Built-in layers integrate `delta` and ignore `time`; changing speed preserves their current phase, and passing a large `time` is not a seek operation. Negative built-in layer speeds reverse their own animation; the app's shared speed remains nonnegative.
 
-When using a layer with your own Three.js renderer, call `update()` from your own loop with finite, nonnegative delta seconds, render its `object`, and call `dispose()` when finished. No second update loop is needed for a layer already attached to `createFive`.
+When using a layer with your own Three.js renderer, call `update()` from your own loop with finite, nonnegative delta seconds, render its `object`, and call `dispose()` when finished. Nonfinite, negative, or overflowing deltas are ignored without poisoning the previous animation state. No second update loop is needed for a layer already attached to `createFive`.
 
 Colors accept CSS named colors, three- or six-digit hex, comma-separated `rgb()` values (0–255 or all percentages), and comma-separated `hsl()`. Alpha colors, CSS variables, and newer CSS color functions are not accepted by this version. Numeric ranges below are inclusive; all numbers must be finite.
 
@@ -228,14 +232,14 @@ function spinningCube(): FiveLayer<{ speed: number }> {
 // app.remove(cube); // disposes it; create a new cube to add again
 ```
 
-For more involved compositions, the [example guide](../examples/README.md) describes the gallery's recipe interface and example-only tubes, surfaces, labels, and particle flows. Those helpers demonstrate custom layers; they are not additional public 5js factories.
+For more involved compositions, the [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) describes the gallery's recipe interface and example-only tubes, surfaces, labels, and particle flows. Those helpers demonstrate custom layers; they are not additional public 5js factories.
 
 ## Compatibility and limits
 
 - Runtime: browser with WebGL2, `ResizeObserver`, and standard canvas APIs. Call `createFive` after mounting a browser element; it cannot render on a server. Layer construction can be exercised in Node without a WebGL context.
 - Package: ESM with TypeScript declarations. Three.js is a peer dependency, external to the library bundle. The current peer range is `^0.180.0`, and the prototype is tested with r180. No CommonJS entry is provided.
-- Local development: Node.js 22.12+ is the documented baseline. Python 3 is required only for regenerating the downloadable example ZIP.
+- Local development: Node.js 22.12+ is the documented baseline. Python 3 is required for regenerating the downloadable example ZIP and checking its exclusion rules with `npm run test:package`.
 - Rendering: WebGL2, not WebGPU compute. Maximum accepted counts bound input sizes; they do not promise an interactive frame rate. Lower counts, resolution, pixel ratio, and bloom for slower devices.
 - Features not implemented: built-in picking/tooltips, arbitrary point-cloud ingestion, volumetric raymarching, streaming/LOD, and a WebGPU backend. Analytic motion and synthetic example data do not represent physical or business measurements.
 
-See the [validation instructions](../README.md#validation) for CPU/type checks and browser lifecycle checks. The [example browser harness](../tests/examples-browser.html) separately verifies all gallery recipes.
+See the [validation instructions](../README.md#validation) for CPU/type checks and browser lifecycle checks. The [example browser harness](https://github.com/kevin-owens-product/5JS/blob/main/tests/examples-browser.html) separately verifies all gallery recipes.

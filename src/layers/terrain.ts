@@ -1,16 +1,17 @@
 import { DoubleSide, Mesh, PlaneGeometry, ShaderMaterial } from 'three';
 import type { FiveLayer, TerrainOptions } from '../types.js';
 import { bounded, colorString, rejectStructural, seededRandom } from './dataMath.js';
-import { scientificColor } from './scientificMath.js';
+import { optionSnapshot, scientificColor } from './scientificMath.js';
+
+const defaults: Required<TerrainOptions> = {
+  resolution: 160, size: 12, height: 2.2, frequency: 0.85, speed: 0.5,
+  wireframe: false, colorA: '#39eddc', colorB: '#9c67ff', seed: 42,
+};
 
 /** Animated analytic height field with shader contours; this does not model physical terrain erosion. */
 export function terrain(options: TerrainOptions = {}): FiveLayer<TerrainOptions> {
-  const config = {
-    resolution: options.resolution ?? 160, size: options.size ?? 12,
-    height: options.height ?? 2.2, frequency: options.frequency ?? 0.85,
-    speed: options.speed ?? 0.5, wireframe: options.wireframe ?? false,
-    colorA: options.colorA ?? '#39eddc', colorB: options.colorB ?? '#9c67ff', seed: options.seed ?? 42,
-  };
+  const keys = Object.keys(defaults) as (keyof TerrainOptions)[];
+  const config = { ...defaults, ...optionSnapshot(options, keys, 'terrain options') };
   bounded(config.resolution, 'resolution', 2, 512, true);
   bounded(config.size, 'size', 0.1, 10_000);
   bounded(config.seed, 'seed', 0, 0xffffffff, true);
@@ -90,12 +91,15 @@ export function terrain(options: TerrainOptions = {}): FiveLayer<TerrainOptions>
     object, kind: 'terrain', count: geometry.getAttribute('position').count,
     update(_time, delta) {
       if (disposed || !Number.isFinite(delta) || delta < 0) return;
-      material.uniforms.uTime.value += delta * config.speed;
+      const nextPhase = material.uniforms.uTime.value + delta * config.speed;
+      if (!Number.isFinite(Math.fround(nextPhase))) return;
+      material.uniforms.uTime.value = nextPhase;
     },
     set(patch) {
       if (disposed) throw new Error('Cannot update a disposed terrain layer.');
+      const supplied = optionSnapshot(patch, keys, 'terrain.set()');
       rejectStructural(patch, ['resolution', 'size', 'seed'], 'terrain');
-      const next = { ...config, ...patch };
+      const next = { ...config, ...supplied };
       validateAppearance(next);
       Object.assign(config, next);
       material.uniforms.uHeight.value = config.height;

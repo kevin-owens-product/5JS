@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
 import { cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
-import { join, resolve } from 'node:path';
+import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
@@ -19,7 +19,56 @@ function npm(args, cwd, capture = false) {
   });
 }
 
+async function markdownFiles(directory) {
+  const result = [];
+  for (const entry of await readdir(directory, { withFileTypes: true })) {
+    const path = join(directory, entry.name);
+    if (entry.isDirectory()) result.push(...await markdownFiles(path));
+    else if (entry.isFile() && extname(path) === '.md') result.push(path);
+  }
+  return result;
+}
+
+function headingIds(markdown) {
+  const ids = new Set();
+  for (const match of markdown.matchAll(/^#{1,6}\s+(.+?)\s*#*$/gm)) {
+    const title = match[1].replace(/<[^>]*>/g, '').replace(/\[([^\]]+)\]\([^)]*\)/g, '$1');
+    const slug = title.toLowerCase().replace(/[^\p{L}\p{N}_\-\s]/gu, '').replace(/\s/g, '-');
+    let candidate = slug, suffix = 0;
+    while (ids.has(candidate)) candidate = `${slug}-${++suffix}`;
+    ids.add(candidate);
+  }
+  for (const match of markdown.matchAll(/\b(?:id|name)=["']([^"']+)["']/g)) ids.add(match[1]);
+  return ids;
+}
+
+async function verifyDocumentation(directory) {
+  let checked = 0;
+  for (const path of await markdownFiles(directory)) {
+    const markdown = (await readFile(path, 'utf8')).replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '');
+    const links = [...markdown.matchAll(/!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))(?:\s+["'][^\n]*?["'])?\)/g)].map(match => match[1] ?? match[2]);
+    links.push(...[...markdown.matchAll(/^\s*\[[^\]]+\]:\s*(?:<([^>]+)>|(\S+))/gm)].map(match => match[1] ?? match[2]));
+    for (const link of links) {
+      if (/^[a-z][a-z0-9+.-]*:/i.test(link) || link.startsWith('//')) continue;
+      const [target, fragment] = link.split('#');
+      assert.ok(!isAbsolute(target), `${relative(directory, path)} links to an absolute local path: ${link}`);
+      const destination = resolve(dirname(path), decodeURIComponent(target.split('?')[0] || '.'));
+      const actual = target ? destination : path;
+      const within = relative(directory, actual);
+      assert.ok(within !== '..' && !within.startsWith(`..${process.platform === 'win32' ? '\\' : '/'}`), `${relative(directory, path)} links outside the artifact: ${link}`);
+      assert.ok(await stat(actual).then(item => item.isFile()).catch(() => false), `${relative(directory, path)} has a missing artifact target: ${link}`);
+      if (fragment && extname(actual) === '.md') {
+        const content = (await readFile(actual, 'utf8')).replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '');
+        assert.ok(headingIds(content).has(decodeURIComponent(fragment)), `${relative(directory, path)} has a missing heading: ${link}`);
+      }
+      checked++;
+    }
+  }
+  return checked;
+}
+
 try {
+  execFileSync('python3', [join(root, 'scripts/verify-source-archive.py')], { cwd: root, stdio: 'inherit', timeout: 60_000 });
   await mkdir(source);
   // A deliberately fresh source checkout: no existing dist or node_modules can
   // hide a missing build hook. Never delete or mutate the developer's checkout.
@@ -57,6 +106,20 @@ try {
   }
   const installedNames = await readdir(installed);
   assert.ok(!installedNames.some(name => ['node_modules', 'tests', 'demo', 'demo-dist', 'artifacts', '.git', '.github'].includes(name)), 'Package contains unintended development files.');
+
+  // Guard the failure modes that made package docs look complete in a source
+  // checkout even though the shipped targets and anchors were absent.
+  const linkFixture = join(temporary, 'documentation-regression');
+  await mkdir(linkFixture);
+  await writeFile(join(linkFixture, 'README.md'), '[Guide](missing.md)');
+  await assert.rejects(verifyDocumentation(linkFixture), /missing artifact target/);
+  await writeFile(join(linkFixture, 'missing.md'), '# Existing heading\n');
+  await writeFile(join(linkFixture, 'README.md'), '[Guide](missing.md#absent-heading)');
+  await assert.rejects(verifyDocumentation(linkFixture), /missing heading/);
+  await writeFile(join(linkFixture, 'README.md'), '[Guide](missing.md#existing-heading)');
+  assert.equal(await verifyDocumentation(linkFixture), 1);
+  const checkedLinks = await verifyDocumentation(installed);
+  console.log(`PASS · ${checkedLinks} packaged documentation targets and headings resolve`);
 
   // Compile the existing public consumer test from outside the repository, so
   // package self-resolution and local devDependencies cannot make it pass.

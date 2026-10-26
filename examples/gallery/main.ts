@@ -43,9 +43,10 @@ document.getElementById('app')!.innerHTML = `
 
 const requestedCategory = new URLSearchParams(location.search).get('category');
 let category = categories.includes(requestedCategory ?? '') ? requestedCategory! : 'All';
+get<HTMLInputElement>('search').value = new URLSearchParams(location.search).get('q') ?? '';
 let toastTimer: ReturnType<typeof setTimeout>;
 function notify(message: string) { clearTimeout(toastTimer); const toast=get('toast'); (get<HTMLDialogElement>('viewer').open?get('viewer'):document.body).append(toast);toast.textContent=message;toast.hidden=false;toastTimer=setTimeout(()=>toast.hidden=true,3500); }
-function filter() {
+function filter(syncUrl = true) {
   const query=get<HTMLInputElement>('search').value.toLowerCase().trim();
   let count=0;
   for(const example of examples) {
@@ -55,10 +56,23 @@ function filter() {
   }
   get('result-count').textContent=`${count} ${count===1?'example':'examples'}`;
   get('empty').hidden=count>0;
+  if (syncUrl && !standalone) {
+    const url = new URL(location.href);
+    if (category === 'All') url.searchParams.delete('category'); else url.searchParams.set('category', category);
+    const search = get<HTMLInputElement>('search').value.trim();
+    if (search) url.searchParams.set('q', search); else url.searchParams.delete('q');
+    if (url.href !== location.href) history.replaceState(null, '', url);
+  }
   document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button=>{const selected=button.dataset.filter===category;button.classList.toggle('selected',selected);button.setAttribute('aria-pressed',String(selected));});
 }
 filter();
-get('search').addEventListener('input',filter);
+get('search').addEventListener('input',()=>filter());
+window.addEventListener('popstate',()=>{
+  const params=new URLSearchParams(location.search), requested=params.get('category');
+  category=categories.includes(requested??'')?requested!:'All';
+  get<HTMLInputElement>('search').value=params.get('q')??'';
+  filter(false);
+});
 document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button=>button.addEventListener('click',()=>{category=button.dataset.filter!;filter();}));
 get('clear-search').addEventListener('click',()=>{category='All';get<HTMLInputElement>('search').value='';filter();});
 document.addEventListener('keydown',event=>{if(event.key==='/'&&!get<HTMLDialogElement>('viewer').open && !(event.target instanceof HTMLInputElement)){event.preventDefault();get('search').focus();}});
@@ -75,7 +89,18 @@ let opening=false;
 
 function updatePlayback() { app?.setPaused(paused); get('play').innerHTML=icon(paused?'play':'pause');get('play').setAttribute('aria-label',paused?'Play animation':'Pause animation'); }
 function fitCamera() { if(!app||!active)return; const box=get('stage').getBoundingClientRect(); app.resetCamera(cameraFor(active,box.width,box.height),active.target);previousScale=cameraScale(active,box.width,box.height); }
-function cleanup() { resizeObserver?.disconnect();stopStats?.();mounted?.dispose?.();mounted=undefined;app?.dispose();app=undefined;active=undefined; }
+function cleanup() {
+  const observer=resizeObserver, stop=stopStats, instance=mounted, renderer=app;
+  resizeObserver=undefined;stopStats=undefined;mounted=undefined;app=undefined;active=undefined;
+  const errors:unknown[]=[];
+  for(const release of [()=>observer?.disconnect(),()=>stop?.(),()=>instance?.dispose?.(),()=>renderer?.dispose()]) {
+    try { release(); } catch(error) { errors.push(error); }
+  }
+  if(errors.length) {
+    console.warn('Example cleanup reported errors.',new AggregateError(errors));
+    notify('This example reported a cleanup error. You can open another example.');
+  }
+}
 
 function refreshReadout() {
   const data=mounted?.readout?.();
@@ -174,7 +199,8 @@ function route() {
   const example=findExample(id);
   if(example){show(example);return;}
   if(standalone){location.replace('./');return;}
-  else notify('Example not found. Choose one from the collection.');
+  if (dialog.open) dialog.close();
+  notify('Example not found. Choose one from the collection.');
 }
 window.addEventListener('hashchange',route);
 get('close').addEventListener('click',()=>dialog.close());

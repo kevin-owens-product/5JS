@@ -2,7 +2,7 @@ import {
   AdditiveBlending, BufferAttribute, BufferGeometry, Points, ShaderMaterial, Sphere, Vector3,
 } from 'three';
 import type { FiveLayer, ParticleFieldOptions } from '../types.js';
-import { finiteRange, integerRange, scientificColor, seededRandom } from './scientificMath.js';
+import { finiteRange, integerRange, optionSnapshot, scientificColor, seededRandom } from './scientificMath.js';
 
 const defaults: Required<ParticleFieldOptions> = {
   count: 60000, mode: 'vortex', radius: 3.8, speed: 0.5, turbulence: 0.55,
@@ -107,10 +107,8 @@ const fragmentShader = /* glsl */ `
  * Animation integrates delta seconds, so changing speed preserves the phase.
  */
 export function particleField(options: ParticleFieldOptions = {}): FiveLayer<ParticleFieldOptions> {
-  let settings = { ...defaults };
-  for (const key of Object.keys(defaults) as (keyof ParticleFieldOptions)[]) {
-    if (options[key] !== undefined) Object.assign(settings, { [key]: options[key] });
-  }
+  const keys = Object.keys(defaults) as (keyof ParticleFieldOptions)[];
+  let settings = { ...defaults, ...optionSnapshot(options, keys, 'particleField options') };
   validate(settings);
   const random = seededRandom(settings.seed);
   const seeds = new Float32Array(settings.count * 4);
@@ -141,17 +139,15 @@ export function particleField(options: ParticleFieldOptions = {}): FiveLayer<Par
     update(_time: number, delta: number): void {
       if (disposed || !Number.isFinite(delta) || delta < 0) return;
       const nextPhase = phase + delta * settings.speed;
-      // Uniforms are 32-bit floats; keep invalid frame input out of the shader.
-      if (!Number.isFinite(Math.fround(nextPhase))) return;
+      // The vortex evaluates orbit * 5 + time (less than 7 * phase).
+      // Guard derived float32 arithmetic as well as the uploaded uniform.
+      if (!Number.isFinite(Math.fround(nextPhase * 8))) return;
       phase = nextPhase;
       uniforms.uTime.value = phase;
     },
     set(next: Partial<ParticleFieldOptions>): void {
       if (disposed) throw new Error('Cannot update a disposed particle field.');
-      const proposed = { ...settings };
-      for (const key of Object.keys(defaults) as (keyof ParticleFieldOptions)[]) {
-        if (next[key] !== undefined) Object.assign(proposed, { [key]: next[key] });
-      }
+      const proposed = { ...settings, ...optionSnapshot(next, keys, 'particleField.set()') };
       validate(proposed);
       if (proposed.count !== settings.count || proposed.seed !== settings.seed) {
         throw new Error('Particle count and seed are immutable. Recreate the particleField layer to change them.');

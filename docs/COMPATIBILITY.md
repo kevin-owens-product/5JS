@@ -11,7 +11,7 @@
 | JavaScript package | ESM with TypeScript declarations; no CommonJS entry |
 | Three.js | Peer range `^0.180.0`; current implementation tested with r180 |
 | Development tools | Node.js 22.12+ and npm |
-| Source ZIP generation | Python 3, invoked by `npm run package:examples` and `npm run build:demo` |
+| Source ZIP generation and package verification | Python 3, invoked by `npm run package:examples`, `npm run build:demo`, and the archive-regression portion of `npm run test:package` |
 | Server rendering | `createFive` requires a mounted browser element; it does not render on a server |
 
 The `@webgpu/types` reference in the declarations supports dependency typing; it does not indicate a WebGPU rendering backend. Three.js remains external to the library bundle, while the static demo bundles its own runtime dependencies.
@@ -61,7 +61,7 @@ npx --no-install playwright install chromium
 npm run test:browser
 ```
 
-On a Linux CI runner, use `npx --no-install playwright install --with-deps chromium` to install its system dependencies too. The runner starts its own Vite server on an ephemeral loopback port and executes the two existing HTML harnesses sequentially in headless Chromium with the SwiftShader software graphics backend. It saves screenshots and diagnostics under `artifacts/browser-checks/`; a separately running development server is not needed.
+On a Linux CI runner, use `npx --no-install playwright install --with-deps chromium` to install its system dependencies too. The runner starts its own Vite server on an ephemeral loopback port and executes the rendering and pressure-test HTML harnesses sequentially in headless Chromium with the SwiftShader software graphics backend. It saves screenshots and diagnostics under `artifacts/browser-checks/`; a separately running development server is not needed.
 
 These checks exercise real rendering. A passing automated run establishes behavior in that runner's browser and graphics backend; it does not establish visual quality on every device. Inspect changed scenes manually as well.
 
@@ -69,6 +69,9 @@ For interactive diagnosis, start `npm run dev` and open:
 
 - `/tests/browser.html`: scene lifecycle, all four layers together, pause/speed, bloom, geometry replacement, capture, resizing, and disposal.
 - `/tests/examples-browser.html`: gallery rendering, control boundaries, encoded PNG pixels, analytic readouts, animation/pause, and resource cleanup.
+- `/tests/core-pressure.html`: failed initialization, throwing/reentrant cleanup, observer validation, and capture failures.
+- `/tests/gallery-pressure.html`: shareable filters/search, invalid routes, browser history, repeated opening, phone layout, reduced motion, and unavailable WebGL.
+- `/tests/render-pressure.html`: high-count rendering, repeated resource replacement, and context loss/restoration where supported.
 
 Use `npm run preview` after `npm run build:demo` to inspect the production site. The build output is `demo-dist/`; the library-only `dist/` is not a website. Test direct standalone links and source downloads at the deployed repository subpath, not only at localhost root.
 
@@ -76,4 +79,4 @@ Use `npm run preview` after `npm run build:demo` to inspect the production site.
 
 There is no built-in picking, tooltip system, arbitrary point-cloud ingestion, streaming/LOD, volumetric raymarching, or WebGPU compute support. Shader-displaced particle and terrain layers disable CPU raycasting because their CPU geometry does not match visible positions. The graph layout is deterministic grouping, not a force solver. Particle and terrain motion is analytic animation rather than a physical simulation.
 
-Business and analytics fixtures are synthetic. Their models and tables demonstrate calculations and visualization techniques; they are not evidence about a real company. See the [example guide](../examples/README.md#interpretation-and-checks) for interpretation details and the [API reference](API.md) for exact option contracts.
+Business and analytics fixtures are synthetic. Their models and tables demonstrate calculations and visualization techniques; they are not evidence about a real company. See the [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#interpretation-and-checks) for interpretation details and the [API reference](API.md) for exact option contracts.
