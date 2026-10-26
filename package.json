@@ -25,7 +25,7 @@
   ],
   "scripts": {
     "dev": "vite --host 127.0.0.1",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p packages/connectors/tsconfig.json --noEmit",
     "test": "tsx --test tests/*.test.ts",
     "build": "tsc --noEmit && vite build && tsc -p tsconfig.lib.json",
     "build:demo": "npm run prepare:public && npm run package:examples && vite build --config vite.demo.config.ts",
@@ -34,8 +34,11 @@
     "package:examples": "python3 scripts/package-examples.py",
     "prepack": "npm run build",
     "prepare:public": "node scripts/prepare-public.mjs",
-    "test:package": "node scripts/verify-package.mjs",
-    "test:browser": "node scripts/verify-browser.mjs"
+    "test:package": "node scripts/verify-package.mjs && npm run test:connectors:package",
+    "test:browser": "node scripts/verify-browser.mjs",
+    "build:connectors": "tsc -p packages/connectors/tsconfig.json",
+    "demo:connectors": "npm run build:connectors && tsx packages/connectors/examples/server.ts",
+    "test:connectors:package": "npm run build:connectors && node scripts/verify-connectors.mjs"
   },
   "peerDependencies": {
     "three": "^0.180.0"

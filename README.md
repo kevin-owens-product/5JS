@@ -6,7 +6,7 @@ This MIT-licensed alpha is experimental open-source software. It has not been pu
 
 [Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
 
-Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/5JS/blob/main/docs/RELEASING.md).
+Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) · [Connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/5JS/blob/main/docs/RELEASING.md).
 
 ![Conversion reactor example](https://raw.githubusercontent.com/kevin-owens-product/5JS/main/artifacts/business-motion-reactor.jpg)
 
@@ -38,6 +38,20 @@ These compositions use the four public layers, custom `FiveLayer` implementation
 The connected examples use `EntityRecord` and `OutcomeExplorer` contracts in `examples/connected/`. `buildEntityRecords()` maps the deterministic fixture into inspectable records and links; a different validated source can supply that adapter boundary. These contracts and the investigation-brief UI belong to the examples project, not the public `fivejs` API. Replacing the fixture also requires appropriate source provenance, units, relationships, and updated synthetic-only UI/export labels. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-a-connected-workflow) explains the integration points.
 
 `npm run package:examples` creates a portable source project at `public/examples/5js-examples.zip`. Unzip it, run `npm ci`, then `npm run dev` to explore or edit. It includes the library source, shared runner, recipes, tests, and build configuration. Node.js 22.12+ is needed to run; Python 3 is only needed to regenerate the ZIP. `npm run build:demo` regenerates the download and includes the original playground, gallery, and standalone runner in the static output.
+
+## Motif connector preview
+
+**Motif** is the working name for the project's next phase. The independent `motif-connectors` workspace package is private and unpublished. It supplies **12 source factories plus an application endpoint**, representing **13 implemented entries in a 39-entry coverage catalog**: PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, MongoDB, BigQuery, Snowflake, Databricks, Stripe, HubSpot, Airtable, JSON, and the application endpoint. Planned entries are explicitly labeled.
+
+Run the local SQLite and JSON fixture demo with Node.js 22.16+:
+
+```sh
+npm run demo:connectors
+```
+
+Open [http://127.0.0.1:5190](http://127.0.0.1:5190). Credentials and registered queries stay on the server; the browser requests authorized operations and receives typed pages with source provenance, pagination and truncation metadata. Applications own authentication, tenant binding and provider read-only permissions.
+
+Verification includes real SQLite reads and a real DuckDB smoke check. Other provider adapters have local driver/API protocol tests; live cloud accounts have not been certified. The [connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) documents factory APIs, supported scope, precision and cancellation limits, and the remaining roadmap.
 
 ## Build and use the library
 

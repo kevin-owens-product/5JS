@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add the independent, private and unpublished `motif-connectors` package under the Motif working name: 12 source factories plus an application endpoint, covering 13 implemented entries in a 39-entry catalog. See the [connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) for supported scope and planned providers.
+- Add typed data pages, explicit pagination/truncation, and an authorized operation gateway with server-owned credentials, queries and tenant binding. Run `npm run demo:connectors` for the SQLite/JSON fixture demo at [http://127.0.0.1:5190](http://127.0.0.1:5190), using Node.js 22.16+.
+- Verify connector contracts with local tests, real SQLite reads and a real DuckDB smoke check; other provider integrations are protocol-tested without live cloud credentials.
+
 - Add three connected decision workflows for checkout recovery, customer impact reviews, and evidence-to-roadmap research, bringing the gallery to 47 recipes.
 - Connect 99 synthetic customers, products, services, people, interviews, sessions, and checkouts through scene selection, a keyboard-accessible record inspector, scenario filters, and local investigation briefs with proposed owners, evidence, measures, and guardrails.
 - Keep recorded observations, qualitative counter-evidence, exposure, and explicit scenario assumptions distinct; add linked-data, selection, brief-export, picking, and workflow browser checks.

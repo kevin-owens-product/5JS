@@ -9,6 +9,8 @@ destination = root / "public/examples/5js-examples.zip"
 required_files = [root / name for name in (
     "package.json", "package-lock.json", "index.html", "README.md", ".gitignore", "LICENSE", "THIRD_PARTY_NOTICES.md",
     "tsconfig.json", "tsconfig.lib.json", "vite.config.ts", "vite.demo.config.ts",
+    "packages/connectors/package.json", "packages/connectors/tsconfig.json",
+    "packages/connectors/README.md", "packages/connectors/LICENSE",
 )]
 files = list(required_files)
 files.extend(root / name for name in (
@@ -17,9 +19,22 @@ files.extend(root / name for name in (
     "CODE_OF_CONDUCT.md", "CHANGELOG.md",
     "artifacts/business-motion-reactor.jpg",
 ) if (root / name).exists())
-excluded_directories = {"node_modules", "dist", "demo-dist", "__pycache__"}
+excluded_directories = {"node_modules", "dist", "demo-dist", "__pycache__", "coverage"}
+private_names = {"private", "secret", "secrets", "credentials"}
 allowed_suffixes = {".ts", ".mts", ".mjs", ".html", ".css", ".md", ".py", ".yml", ".yaml"}
-for folder in ("src", "demo", "examples", "tests", "scripts", "docs", ".github"):
+
+
+def excluded_name(name):
+    return name.startswith(".") or bool(set(name.lower().split(".")) & private_names)
+
+
+# Package manifests/configuration are exact required paths above; arbitrary JSON,
+# root package files, keys, local snapshots, and other packages are not included.
+source_folders = (
+    "src", "demo", "examples", "tests", "scripts", "docs", ".github",
+    "packages/connectors/src", "packages/connectors/examples", "packages/connectors/docs",
+)
+for folder in source_folders:
     base = root / folder
     if base.is_symlink():
         raise ValueError(f"Refusing to archive symlink: {folder}")
@@ -28,13 +43,13 @@ for folder in ("src", "demo", "examples", "tests", "scripts", "docs", ".github")
         # assembling from an extracted source ZIP with no Git metadata.
         for name in directories[:]:
             path = Path(parent) / name
-            if name.startswith(".") or name in excluded_directories:
+            if excluded_name(name) or name in excluded_directories:
                 directories.remove(name)
             elif path.is_symlink():
                 raise ValueError(f"Refusing to archive symlink: {path.relative_to(root)}")
         for name in filenames:
             path = Path(parent) / name
-            if not name.startswith(".") and path.suffix in allowed_suffixes:
+            if not excluded_name(name) and path.suffix in allowed_suffixes:
                 files.append(path)
 
 if (root / ".git").exists():
