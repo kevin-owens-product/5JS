@@ -44,7 +44,7 @@ async function verifyReadme(directory) {
 
 async function verifyBrowserGraph(installed) {
   const visited = new Set();
-  const allowed = new Set(['dist/index.js', 'dist/browser.js', 'dist/core.js', 'dist/catalog.js', 'dist/adapters/json.js', 'dist/adapters/rest-support.js']);
+  const allowed = new Set(['dist/index.js', 'dist/browser.js', 'dist/core.js', 'dist/catalog.js', 'dist/adapters/json.js', 'dist/adapters/rest-support.js', 'dist/adapters/files.js']);
   async function visit(path) {
     if (visited.has(path)) return;
     visited.add(path);
@@ -101,7 +101,7 @@ try {
   assert.deepEqual(actual.exports['./server'], { types: './dist/server.d.ts', import: './dist/server.js' });
   for (const key of ['dependencies', 'optionalDependencies', 'peerDependencies']) assert.equal(Object.keys(actual[key] ?? {}).length, 0);
   assert.deepEqual((await readdir(join(consumer, 'node_modules'))).filter(name => !name.startsWith('.')).sort(), [manifest.name.split('/')[0]], 'Installation pulled in an undeclared runtime package.');
-  for (const name of ['README.md', 'LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/server.js', 'dist/server.d.ts', 'dist/types.d.ts', 'dist/gateway.js', 'dist/adapters/postgres.d.ts', 'dist/adapters/warehouses.d.ts']) assert.ok((await stat(join(installed, name))).size > 0, `Tarball is missing ${name}.`);
+  for (const name of ['README.md', 'LICENSE', 'dist/index.js', 'dist/index.d.ts', 'dist/server.js', 'dist/server.d.ts', 'dist/types.d.ts', 'dist/gateway.js', 'dist/adapters/postgres.d.ts', 'dist/adapters/warehouses.d.ts', 'dist/adapters/databases.d.ts', 'dist/adapters/aws-warehouses.d.ts', 'dist/adapters/product-tools.d.ts', 'dist/adapters/product-analytics.d.ts', 'dist/adapters/google-sheets.d.ts', 'dist/adapters/semantic.d.ts', 'dist/adapters/files.d.ts']) assert.ok((await stat(join(installed, name))).size > 0, `Tarball is missing ${name}.`);
   assert.equal(await readFile(join(installed, 'LICENSE'), 'utf8'), await readFile(join(root, 'LICENSE'), 'utf8'), 'The connector artifact must carry the repository license.');
   const checkedLinks = await verifyReadme(installed);
   const browserModules = await verifyBrowserGraph(installed);
@@ -110,9 +110,10 @@ try {
   const packageName = JSON.stringify(manifest.name), serverName = JSON.stringify(`${manifest.name}/server`);
   await writeFile(join(consumer, 'consumer.mts'), `
 import {
-  collectPages, endpointConnector, jsonConnector, mapRows,
+  collectPages, endpointConnector, jsonConnector, mapRows, csvConnector, arrowConnector, parquetConnector,
   type Cell, type ConnectorIdentity, type DataConnector, type DataPage,
   type Field, type JsonOptions, type OperationQuery, type ReadOptions, type SqlQuery,
+  type CsvOptions, type ArrowOptions, type ParquetOptions, type ConnectorCatalogEntry,
 } from ${packageName};
 import {
   createConnectorGateway, postgresConnector, mysqlConnector, sqliteConnector, duckdbConnector, mongodbConnector,
@@ -121,6 +122,18 @@ import {
   type PostgresClient, type MysqlClient, type SqliteClient, type DuckDBClient, type DuckDBBindValue, type MongoOptions,
   type BigQueryParameter, type BigQueryOptions, type SnowflakeOptions, type DatabricksOptions,
   type StripeOptions, type StripeQuery, type HubSpotQuery, type AirtableOptions,
+  sqlServerConnector, oracleConnector, clickHouseConnector, elasticsearchConnector, opensearchConnector,
+  redisConnector, neo4jConnector, firestoreConnector, supabaseConnector,
+  dynamoDBConnector, redshiftConnector, athenaConnector, trinoConnector,
+  type SqlServerOptions, type OracleOptions, type ClickHouseClient, type SearchOptions, type RedisClient,
+  type Neo4jOptions, type FirestoreOptions, type SupabaseOptions,
+  type DynamoDBOptions, type RedshiftOptions, type AthenaOptions, type TrinoOptions,
+  salesforceConnector, shopifyConnector, zendeskConnector, intercomConnector, segmentConnector,
+  googleAnalyticsConnector, mixpanelConnector, amplitudeConnector, posthogConnector, googleSheetsConnector,
+  type SalesforceOptions, type ShopifyOptions, type ZendeskOptions, type IntercomOptions, type SegmentOptions,
+  type GoogleAnalyticsOptions, type MixpanelOptions, type AmplitudeOptions, type PostHogOptions, type GoogleSheetsOptions,
+  lookerConnector, powerBiConnector, tableauConnector, cubeConnector, dbtSemanticConnector,
+  type LookerOptions, type PowerBiOptions, type TableauOptions, type CubeOptions, type DbtSemanticOptions,
 } from ${serverName};
 // @ts-expect-error Server factories must not leak into the browser entry.
 import { postgresConnector as forbiddenBrowserExport } from ${packageName};
@@ -139,6 +152,12 @@ const access: AccessContext = { subject: 'consumer', scope: { tenantId: 'fixture
 const gatewayOptions: GatewayOptions = { operations: { customers: operation }, authorize: () => access };
 const gateway: (request: Request) => Promise<Response> = createConnectorGateway(gatewayOptions);
 const browser: DataConnector<OperationQuery> = endpointConnector({ ...identity, endpoint: '/api/data' });
+const csv: CsvOptions = { ...identity, data: 'id,revenue\\n1,10.00' };
+await csvConnector(csv).read(undefined, options);
+declare const arrow: ArrowOptions, parquet: ParquetOptions, catalogEntry: ConnectorCatalogEntry;
+await arrowConnector(arrow).read(undefined, options);
+await parquetConnector(parquet).read(undefined, options);
+const declaredFactories: readonly string[] = catalogEntry.factories;
 
 declare const pg: PostgresClient, mysql: MysqlClient, sqlite: SqliteClient, duckdb: DuckDBClient;
 declare const mongo: MongoOptions, bq: BigQueryOptions, snowflake: SnowflakeOptions, databricks: DatabricksOptions;
@@ -159,7 +178,41 @@ await createDatabricksConnector(databricks).read({ text: 'select :tenant', param
 await stripeConnector(stripe).read(stripeQuery);
 await hubspotConnector({ ...identity, token: () => 'fixture' }).read(hubspotQuery);
 await airtableConnector(airtable).read({ fields: ['Name'] });
-void [gateway, browser, values];
+declare const sqlServer: SqlServerOptions, oracle: OracleOptions, clickHouse: ClickHouseClient, search: SearchOptions, redis: RedisClient;
+declare const neo4j: Neo4jOptions, firestore: FirestoreOptions, supabase: SupabaseOptions;
+declare const dynamo: DynamoDBOptions, redshift: RedshiftOptions, athena: AthenaOptions, trino: TrinoOptions;
+await sqlServerConnector(sqlServer).read({ text: 'SELECT @tenant', parameters: { tenant: { value: 'fixture' } } });
+await oracleConnector(oracle).read({ text: 'SELECT :tenant FROM dual', binds: { tenant: 'fixture' } });
+await clickHouseConnector({ ...identity, client: clickHouse }).read({ text: 'SELECT {tenant:String}', parameters: { tenant: 'fixture' } });
+await elasticsearchConnector(search).read({ query: { term: { tenant: 'fixture' } } });
+await opensearchConnector(search).read({ source: ['customer_id'] });
+await redisConnector({ ...identity, client: redis }).read({ keys: ['customer:1'] });
+await neo4jConnector(neo4j).read({ text: 'MATCH (n) WHERE n.tenant = $tenant RETURN n.id', parameters: { tenant: 'fixture' } });
+await firestoreConnector(firestore).read(undefined);
+await supabaseConnector(supabase).read({ equals: { tenant: 'fixture', deleted: null }, order: { column: 'id' } });
+await dynamoDBConnector(dynamo).read({ keyConditionExpression: '#tenant = :tenant', expressionAttributeNames: { '#tenant': 'tenant' }, expressionAttributeValues: { ':tenant': { S: 'fixture' } } });
+await redshiftConnector(redshift).read({ text: 'SELECT :tenant', parameters: [{ name: 'tenant', value: 'fixture' }] });
+await athenaConnector(athena).read({ text: 'SELECT id FROM customers WHERE tenant = ?', executionParameters: ["'fixture'"] });
+await trinoConnector(trino).read({ text: 'SELECT id FROM approved_customers' });
+declare const salesforce: SalesforceOptions, shopify: ShopifyOptions, zendesk: ZendeskOptions, intercom: IntercomOptions, segment: SegmentOptions;
+declare const analytics: GoogleAnalyticsOptions, mixpanel: MixpanelOptions, amplitude: AmplitudeOptions, posthog: PostHogOptions, sheets: GoogleSheetsOptions;
+await salesforceConnector(salesforce).read({ soql: 'SELECT Id FROM Account' });
+await shopifyConnector(shopify).read({ resource: 'orders' });
+await zendeskConnector(zendesk).read({ resource: 'tickets' });
+await intercomConnector(intercom).read(undefined);
+await segmentConnector(segment).read({ profile: 'user_id:fixture', resource: 'traits' });
+await googleAnalyticsConnector(analytics).read({ dimensions: ['date'], metrics: ['sessions'], startDate: '2026-01-01', endDate: '2026-01-31' });
+await mixpanelConnector(mixpanel).read({ fromDate: '2026-01-01', toDate: '2026-01-02', events: ['checkout'] });
+await amplitudeConnector(amplitude).read({ event: 'checkout', metric: 'uniques', startDate: '20260101', endDate: '20260102' });
+await posthogConnector(posthog).read({ variables: { tenant: 'fixture' } });
+await googleSheetsConnector(sheets).read(undefined);
+declare const looker: LookerOptions, powerBi: PowerBiOptions, tableau: TableauOptions, cube: CubeOptions, dbt: DbtSemanticOptions;
+await lookerConnector(looker).read({ model: 'analytics', view: 'customers', fields: ['customers.id'] });
+await powerBiConnector(powerBi).read({ tableExpression: 'Customers', fields: [{ name: 'Customers[id]', type: 'string' }] });
+await tableauConnector(tableau).read({ filters: { Region: 'West' } });
+await cubeConnector(cube).read({ measures: ['Orders.count'], dimensions: ['Orders.status'] });
+await dbtSemanticConnector(dbt).read({ metrics: [{ name: 'revenue' }], groupBy: [{ name: 'metric_time', grain: 'MONTH' }] });
+void [gateway, browser, values, declaredFactories];
 `);
   await writeFile(join(consumer, 'tsconfig.json'), JSON.stringify({ compilerOptions: { module: 'NodeNext', moduleResolution: 'NodeNext', target: 'ES2022', lib: ['ES2022', 'DOM', 'DOM.Iterable'], strict: true, noEmit: true, types: [], skipLibCheck: false }, files: ['consumer.mts'] }));
   // TypeScript is only a build tool from this checkout. Module/type resolution
@@ -172,7 +225,7 @@ import assert from 'node:assert/strict';
 globalThis.fetch = async () => { throw new Error('Package verification must not use a network.'); };
 globalThis.window = {};
 const motif = await import(${packageName});
-assert.deepEqual(Object.keys(motif).sort(), ['ConnectorError', 'collectPages', 'connectorCatalog', 'endpointConnector', 'inferFields', 'jsonConnector', 'makePage', 'mapRows', 'normalizeCell', 'validateDataPage'].sort());
+assert.deepEqual(Object.keys(motif).sort(), ['ConnectorError', 'collectPages', 'connectorCatalog', 'endpointConnector', 'inferFields', 'jsonConnector', 'makePage', 'mapRows', 'normalizeCell', 'validateDataPage', 'csvConnector', 'arrowConnector', 'parquetConnector'].sort());
 const rows = [[9007199254740993n, 'first'], [2n, 'second'], [3n, 'third']];
 const snapshot = motif.jsonConnector({ id: 'customer-fixture', source: 'Installed package fixture', mode: 'fixture', fields: [{ name: 'id', type: 'integer' }, { name: 'id', type: 'string' }], rows });
 rows[0][1] = 'mutated input';
@@ -184,8 +237,20 @@ assert.deepEqual((await snapshot.read(undefined, { limit: 1, cursor: first.page.
 const full = await motif.collectPages(snapshot, undefined, { limit: 1 });
 assert.equal(full.rows.length, 3); assert.equal(full.page.truncated, false);
 assert.equal((await motif.collectPages(snapshot, undefined, { limit: 1, maxPages: 2 })).page.truncated, true);
+const csv = motif.csvConnector({ id: 'csv-fixture', source: 'Installed CSV fixture', mode: 'fixture', data: ${JSON.stringify('id,id,notes\r\n9223372036854775807,0001,"line one\nline two"\r\n2,02,plain\r\n')} });
+const csvPage = await motif.collectPages(csv, undefined, { limit: 1 });
+assert.deepEqual(csvPage.fields.map(field => field.name), ['id', 'id', 'notes']);
+assert.deepEqual(csvPage.rows, [['9223372036854775807', '0001', 'line one\\nline two'], ['2', '02', 'plain']]);
+assert.equal(csvPage.page.truncated, false);
+assert.equal((await motif.collectPages(csv, undefined, { limit: 1, maxRows: 1 })).page.truncated, true);
 const server = await import(${serverName});
-assert.deepEqual(Object.keys(server).sort(), ['createConnectorGateway', 'postgresConnector', 'mysqlConnector', 'sqliteConnector', 'duckdbConnector', 'mongodbConnector', 'createBigQueryConnector', 'createSnowflakeConnector', 'createDatabricksConnector', 'stripeConnector', 'hubspotConnector', 'airtableConnector'].sort());
+assert.deepEqual(Object.keys(server).sort(), ['createConnectorGateway', 'postgresConnector', 'mysqlConnector', 'sqliteConnector', 'duckdbConnector', 'mongodbConnector', 'createBigQueryConnector', 'createSnowflakeConnector', 'createDatabricksConnector', 'stripeConnector', 'hubspotConnector', 'airtableConnector', 'sqlServerConnector', 'oracleConnector', 'clickHouseConnector', 'elasticsearchConnector', 'opensearchConnector', 'redisConnector', 'neo4jConnector', 'firestoreConnector', 'supabaseConnector', 'dynamoDBConnector', 'redshiftConnector', 'athenaConnector', 'trinoConnector', 'salesforceConnector', 'shopifyConnector', 'zendeskConnector', 'intercomConnector', 'segmentConnector', 'googleAnalyticsConnector', 'mixpanelConnector', 'amplitudeConnector', 'posthogConnector', 'googleSheetsConnector', 'lookerConnector', 'powerBiConnector', 'tableauConnector', 'cubeConnector', 'dbtSemanticConnector'].sort());
+const implementations = { ...motif, ...server };
+assert.equal(motif.connectorCatalog.length, 39);
+for (const entry of motif.connectorCatalog) {
+  assert.equal(entry.status, 'implemented'); assert.ok(entry.factories.length > 0);
+  for (const factory of entry.factories) assert.equal(typeof implementations[factory], 'function', entry.name + ' advertises an unavailable factory: ' + factory);
+}
 assert.throws(() => server.createConnectorGateway({ operations: {}, authorize: () => null }), error => error.code === 'SERVER_ONLY');
 assert.throws(() => server.postgresConnector({ id: 'pg', source: 'Fixture', client: {} }), error => error.code === 'SERVER_ONLY');
 await assert.rejects(import(${JSON.stringify(`${manifest.name}/dist/http.js`)}), error => error.code === 'ERR_PACKAGE_PATH_NOT_EXPORTED');
@@ -214,7 +279,7 @@ assert.equal((await gateway(request(requests[0]))).status, 403);
 assert.equal((await gateway(request(requests[1], 'bob'))).status, 400);
 assert.equal((await gateway(request({ ...requests[0], sql: 'select unregistered_data' }, 'alice'))).status, 400);
 assert.equal(executed, 3);
-console.log('PASS · installed browser/server exports, exact JSON pagination, authorization, and endpoint-to-gateway workflow without network access');
+console.log('PASS · all 39 catalog entries resolve to installed factories; browser/server exports, JSON/CSV pagination and authorized gateway work without network access');
 `);
   execFileSync(process.execPath, ['runtime.mjs'], { cwd: consumer, stdio: 'inherit', timeout: 60_000 });
   console.log(`PASS · ${packed[0].filename} installs and runs in an isolated consumer with no runtime dependencies.`);

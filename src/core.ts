@@ -71,7 +71,7 @@ export function createFive(options: FiveOptions): FiveApp {
   canvas.style.width = '100%';
   canvas.style.height = '100%';
   canvas.style.display = 'block';
-  canvas.setAttribute('aria-label', '5js visualization; drag to orbit and scroll to zoom');
+  canvas.setAttribute('aria-label', 'Motif visualization; drag to orbit and scroll to zoom');
   canvas.tabIndex = 0;
   container.appendChild(canvas);
 

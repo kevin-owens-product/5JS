@@ -1,8 +1,8 @@
-# 5js
+# Motif
 
-An experimental TypeScript library for composing scientific, data, and cinematic visualizations on Three.js. The 0.1.0-alpha.1 API supplies a shared scene lifecycle and four visualization layers, plus an interactive playground and 47 examples.
+An experimental TypeScript visualization library on Three.js, connecting source records, relationships and evidence to conversion, retention and product decisions. Motif includes an interactive decision lab, 50 editable examples, a connector library, and four composable visualization layers for scientific, data and cinematic scenes.
 
-This MIT-licensed alpha is experimental open-source software. It has not been published to npm; `private: true` prevents accidental registry publication. Naming rights and registry acceptance have not been established.
+**Motif is the project's working name and homepage brand.** Existing code keeps the `fivejs` import, `createFive` API, `FiveLayer` contract and `dist/fivejs.js` output. The repository remains `kevin-owens-product/5JS`; this update does not rename the npm package or repository. This MIT-licensed alpha has not been published to npm; `private: true` prevents accidental publication. Naming rights and registry acceptance have not been established.
 
 [Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
 
@@ -10,7 +10,7 @@ Documentation: [API reference](docs/API.md) · [Example guide](https://github.co
 
 ![Conversion reactor example](https://raw.githubusercontent.com/kevin-owens-product/5JS/main/artifacts/business-motion-reactor.jpg)
 
-## Run the playground
+## Run Motif locally
 
 Requires Node.js 22.12+ and a browser with WebGL2.
 
@@ -21,15 +21,19 @@ npm ci
 npm run dev
 ```
 
-Open http://127.0.0.1:5185. The playground includes live parameters, palettes, camera orbit, pause, bloom, actual rendering statistics, PNG export, and copyable code for the current experiment. Network data in the playground is synthetic and labeled accordingly. Fonts are optional Google Fonts with system fallbacks; rendering and application code are served locally.
+Open [http://127.0.0.1:5185/](http://127.0.0.1:5185/) for the Motif homepage and [decision lab](http://127.0.0.1:5185/#decision-lab). Choose [conversion](http://127.0.0.1:5185/?outcome=conversion#decision-lab), [retention](http://127.0.0.1:5185/?outcome=retention#decision-lab), or [product decisions](http://127.0.0.1:5185/?outcome=product#decision-lab), then follow a 3D evidence scene into exact source records and a local investigation brief.
+
+The decision lab reads **seven fictional JSON snapshots containing 540 records** through the actual Motif JSON connector: 36 accounts, 144 sessions, 144 checkouts, 144 usage observations, 24 support tickets, 45 interviews and three initiatives. Source receipts expose fields, joins, provenance and completeness. Record dialogs link accounts, sessions, attempts, usage, support and interviews. Retention exposes every observed week; selecting a product interview keeps its initiative context, and the exported brief uses that initiative's owner, measure and guardrail. Recovery rates, review capacity and discovery effort are explicit assumptions. These are fixture workflows, not live provider data or demonstrated business impact.
+
+The original four-scene playground is at [http://127.0.0.1:5185/demo/playground.html](http://127.0.0.1:5185/demo/playground.html). It retains live parameters, palettes, camera orbit, pause, bloom, measured rendering statistics, PNG export, and copyable code. Fonts use system fallbacks when optional Google Fonts are unavailable; rendering and application code are served locally.
 
 ## Example library
 
-Open http://127.0.0.1:5185/examples/ for **47 runnable recipes** across eleven categories: Space, Biology, Climate, Energy, Cities, Engineering, Business, Analytics, Scientific, Data, and Cinematic. The twenty-three Business and Analytics examples combine synthetic-data calculations with live metrics, tables, and current-view CSV exports.
+Open [http://127.0.0.1:5185/examples/](http://127.0.0.1:5185/examples/) for **50 runnable recipes** across eleven categories: Space, Biology, Climate, Energy, Cities, Engineering, Business, Analytics, Scientific, Data, and Cinematic. The twenty-six Business and Analytics examples combine synthetic-data calculations with interactive metrics, tables, and current-view CSV exports.
 
-Choose **Decisions** to explore three connected workflows: **Checkout recovery lab**, **Customer impact review**, and **Evidence to roadmap**. They share 99 fictional records spanning customers, products, services, people, interviews, sessions, and checkouts. Select a chart node or a record in the searchable list, inspect its fields and sources, follow a session timeline or fictional interview, and review a proposed action with an owner, measure, baseline, success criterion, and guardrail. Pin evidence or add actions to a local Markdown investigation brief. No external systems are connected, no customers are contacted, and no tasks are created. Basket recovery assumptions and annual customer exposure are not revenue forecasts.
+Choose **Decisions** for six recipes. **Conversion observatory** (`source-conversion`), **Retention horizon** (`source-retention`) and **Opportunity constellation** (`source-product`) are companion views of the homepage's 540-record fixture; **Open the decision workspace** leads to linked-record inspection and brief export. **Checkout recovery lab**, **Customer impact review** and **Evidence to roadmap** retain their separate 99-record fixture spanning customers, products, services, people, interviews, sessions and checkouts. In those earlier workflows, select chart nodes or searchable records, follow timelines and interviews, then pin evidence and proposed actions to a Markdown brief. No workflow contacts customers, creates external tasks or changes a source system. Basket recovery assumptions and annual customer exposure are not revenue forecasts.
 
-The preceding visual refresh redesigned **17 of the original 44 scenes**: the original ten Analytics recipes, four structured Data compositions, two Scientific scenes, and the Business break-even landscape. Analytics gained retention sails, customer hulls, three zero-baseline demand sails, a concentration weave, geographic demand terrain, and linked relationship and observation views. Data gained community envelopes, branching dependency levels, continuous helix rails, and a lattice with an explicit six-neighbor interior. Projected hypercube faces and an analytic wave mesh reveal structure in the two Scientific scenes. Break-even adds a profit cutaway, reference slices, and an exact zero-profit boundary. The other 27 original recipes were reviewed and retained; the three decision workflows are new additions.
+The preceding visual refresh redesigned **17 of the original 44 scenes**: the original ten Analytics recipes, four structured Data compositions, two Scientific scenes, and the Business break-even landscape. Analytics gained retention sails, customer hulls, three zero-baseline demand sails, a concentration weave, geographic demand terrain, and linked relationship and observation views. Data gained community envelopes, branching dependency levels, continuous helix rails, and a lattice with an explicit six-neighbor interior. Projected hypercube faces and an analytic wave mesh reveal structure in the two Scientific scenes. Break-even adds a profit cutaway, reference slices, and an exact zero-profit boundary. The other 27 original recipes were reviewed and retained; six decision recipes now sit alongside them.
 
 Every category uses the same larger interactive stage. Search or filter, open a scene, adjust its controls, and expand **How to read this scene** for units, encodings, assumptions, and the role of motion. The correlation example's **Explore a pair** control connects signed strands and a floor matrix to raw daily observations; constant variables produce undefined correlations, not zero. Source inspection and standalone views remain available. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) describes every recipe and explains how to add your own.
 
@@ -37,11 +41,13 @@ These compositions use the four public layers, custom `FiveLayer` implementation
 
 The connected examples use `EntityRecord` and `OutcomeExplorer` contracts in `examples/connected/`. `buildEntityRecords()` maps the deterministic fixture into inspectable records and links; a different validated source can supply that adapter boundary. These contracts and the investigation-brief UI belong to the examples project, not the public `fivejs` API. Replacing the fixture also requires appropriate source provenance, units, relationships, and updated synthetic-only UI/export labels. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-a-connected-workflow) explains the integration points.
 
-`npm run package:examples` creates a portable source project at `public/examples/5js-examples.zip`. Unzip it, run `npm ci`, then `npm run dev` to explore or edit. It includes the library source, shared runner, recipes, tests, and build configuration. Node.js 22.12+ is needed to run; Python 3 is only needed to regenerate the ZIP. `npm run build:demo` regenerates the download and includes the original playground, gallery, and standalone runner in the static output.
+The new decision lab uses `OutcomeDataset` and `SourceReceipt` in [examples/outcomes/model.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/model.ts), shared scenes in [examples/outcomes/scene.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/scene.ts), gallery definitions in [examples/outcomes/recipe.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/recipe.ts), and the homepage controller in [demo/motif.ts](https://github.com/kevin-owens-product/5JS/blob/main/demo/motif.ts). Replace its fixture loader with authorized connector pages and an explicit schema mapper, retain completeness checks, and validate join grain before calculating outcomes. The [source-adaptation guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-the-motif-decision-lab) describes these contracts and their limits.
+
+`npm run package:examples` creates a portable source project at `public/examples/5js-examples.zip`. Unzip it, run `npm ci`, then `npm run dev` to explore or edit. It includes the library source, Motif homepage, shared runner, recipes, connector source, tests and build configuration. Node.js 22.12+ is needed to run the website; Python 3 is only needed to regenerate the ZIP. `npm run build:demo` regenerates the download and includes the homepage, original playground, gallery and standalone runner in the static output.
 
 ## Motif connector preview
 
-**Motif** is the working name for the project's next phase. The independent `motif-connectors` workspace package is private and unpublished. It supplies **12 source factories plus an application endpoint**, representing **13 implemented entries in a 39-entry coverage catalog**: PostgreSQL, MySQL/MariaDB, SQLite, DuckDB, MongoDB, BigQuery, Snowflake, Databricks, Stripe, HubSpot, Airtable, JSON, and the application endpoint. Planned entries are explicitly labeled.
+The independent `motif-connectors` workspace package is private and unpublished. **All 39 catalog entries have constrained implementations through 44 factories**, covering relational/document/search databases, warehouses, CRM/commerce/support tools, product analytics, BI/semantic APIs, JSON/CSV/Arrow/Parquet and the application endpoint. Grouped catalog entries have separate factories where needed. Implemented scope is specific: for example, PostHog uses pinned named SQL Endpoints, Amplitude returns daily segmentation, and Redis reads explicit keys.
 
 Run the local SQLite and JSON fixture demo with Node.js 22.16+:
 
@@ -51,14 +57,14 @@ npm run demo:connectors
 
 Open [http://127.0.0.1:5190](http://127.0.0.1:5190). Credentials and registered queries stay on the server; the browser requests authorized operations and receives typed pages with source provenance, pagination and truncation metadata. Applications own authentication, tenant binding and provider read-only permissions.
 
-Verification includes real SQLite reads and a real DuckDB smoke check. Other provider adapters have local driver/API protocol tests; live cloud accounts have not been certified. The [connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) documents factory APIs, supported scope, precision and cancellation limits, and the remaining roadmap.
+Verification includes real SQLite reads, a real DuckDB smoke check, and an Arrow/Parquet roundtrip. Other provider adapters have local driver/API protocol tests, with SDK typechecks where applicable; live cloud accounts have not been certified. The [connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) documents every factory, supported scope, precision, pagination and cancellation limits. Onboarding, OAuth lifecycle, schema discovery, incremental synchronization and durable cursors remain application work.
 
 ## Build and use the library
 
 ```sh
 npm run build          # dist/fivejs.js + TypeScript declarations
-npm run build:demo     # standalone static playground in demo-dist/
-npm run preview       # serve that production playground
+npm run build:demo     # static Motif site, playground and gallery in demo-dist/
+npm run preview       # serve the production site
 ```
 
 Install this local folder into another project after building:
@@ -172,7 +178,7 @@ npm run test:package
 
 With `npm run dev` active, open http://127.0.0.1:5185/tests/browser.html for real WebGL2 lifecycle checks. These exercise four layers together, pause/speed, bloom, geometry replacement, PNG decoding, resizing, ownership, and disposal. CPU tests cover graph validation, deterministic seeds/layouts, mathematical invariants, atomic settings, continuous animation, and resource disposal.
 
-Open http://127.0.0.1:5185/tests/examples-browser.html?review=1 for paginated contact sheets of all 47 actual scene renders. The harness first checks every recipe's nonempty PNG, minimum/midpoint/maximum control values, readouts, and resource cleanup. It also compares rendered pixels before and after motion and after a zero-delta update: every recipe must visibly animate, freeze exactly when paused, and preserve its data during playback. After a successful run, use **Previous page** and **Next page** to inspect 12 captures per page. These checks complement visual review; they do not judge composition or label legibility. For connected workflows, also exercise chart and keyboard-list selection, related-record navigation, cohort changes, and the downloaded brief in the normal gallery.
+Open http://127.0.0.1:5185/tests/examples-browser.html?review=1 for paginated contact sheets of all 50 actual scene renders. The harness first checks every recipe's nonempty PNG, minimum/midpoint/maximum control values, readouts, and resource cleanup. It also compares rendered pixels before and after motion and after a zero-delta update: every recipe must visibly animate, freeze exactly when paused, and preserve its data during playback. After a successful run, use **Previous page** and **Next page** to inspect 12 captures per page. These checks complement visual review; they do not judge composition or label legibility. Exercise the homepage decision lab separately: follow record joins, inspect every retention week, select a product satellite and verify the initiative-specific downloaded brief. For the earlier connected gallery workflows, also check keyboard-list selection, cohort changes and saved brief scope.
 
 `npm run test:package` uses Python 3 to check source-archive exclusions, builds from a fresh temporary copy, and installs the tarball into a separate consumer project. It also verifies packaged documentation links and headings. For automated Chromium checks, first run `npx --no-install playwright install chromium`, then `npm run test:browser`. The runner starts its own local server and executes the browser harnesses. GitHub Actions runs these checks on Linux; diagnostics are saved under `artifacts/browser-checks/`.
 
@@ -184,4 +190,4 @@ Construction limits (250,000 particles, 10,000 graph nodes, 100,000 edges, 512 t
 
 ## License and community
 
-5js is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/5JS/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.
+Motif is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/5JS/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.

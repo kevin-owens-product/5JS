@@ -43,6 +43,8 @@ export interface ExampleDefinition {
   previewTime?: number;
   /** Marks a decision workflow in the gallery, without mounting the scene. */
   outcome?: string;
+  /** Complete source-inspection/action workflow for a companion spatial recipe. */
+  workbench?: string;
   dataNote?: string;
   setup(app: FiveApp): ExampleInstance;
 }

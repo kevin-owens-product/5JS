@@ -42,9 +42,9 @@ const state = { scene: 'particles' as SceneId, palette: 0, speed: .7, bloom: .7,
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="app-shell" id="app-shell">
     <header class="topbar">
-      <a class="brand" href="#" aria-label="5js home"><div class="wordmark">5<span>js</span></div><div class="brand-rule"></div><div class="brand-description">A new dimension<br>of possibility.</div></a>
+      <a class="brand" href="../" aria-label="Motif home"><div class="wordmark">motif<span>·</span></div><div class="brand-rule"></div><div class="brand-description">Connected data.<br>Better decisions.</div></a>
       <nav class="top-links" aria-label="Resources">
-        <a class="text-link" href="./examples/">Example library ${svg('arrow', 12)}</a>
+        <a class="text-link" href="../examples/">Example library ${svg('arrow', 12)}</a>
         <span class="build-badge"><span class="status-dot"></span>v0.1.0-alpha.1 · EXPERIMENTAL</span>
         <a class="text-link" href="https://threejs.org/" target="_blank" rel="noreferrer">Built on Three.js ${svg('arrow', 12)}</a>
         <button class="source-trigger" id="open-source">${svg('code', 13)} View code</button>
@@ -72,7 +72,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <div class="inspector-footer">${svg('info', 12)}<span>Every parameter is live.<br>${reducedMotion ? 'Animation starts paused for reduced motion.' : 'A little curiosity goes a long way.'}</span></div>
       </aside>
     </main>
-    <footer class="telemetry" aria-label="Live rendering statistics"><div class="metrics"><span class="metric"><span class="status-dot"></span><b id="stat-fps">—</b><span class="metric-label">FPS</span></span><span class="metric"><b id="stat-points">—</b><span class="metric-label">Points</span></span><span class="metric"><b id="stat-triangles">—</b><span class="metric-label">Triangles</span></span><span class="metric"><b id="stat-calls">—</b><span class="metric-label">Draw calls</span></span><span class="metric"><b id="stat-objects">—</b><span class="metric-label">Objects</span></span></div><span class="footer-signature">YOUR IDEAS. MORE DIMENSIONS.</span></footer>
+    <footer class="telemetry" aria-label="Live rendering statistics"><div class="metrics"><span class="metric"><span class="status-dot"></span><b id="stat-fps">—</b><span class="metric-label">FPS</span></span><span class="metric"><b id="stat-points">—</b><span class="metric-label">Points</span></span><span class="metric"><b id="stat-triangles">—</b><span class="metric-label">Triangles</span></span><span class="metric"><b id="stat-calls">—</b><span class="metric-label">Draw calls</span></span><span class="metric"><b id="stat-objects">—</b><span class="metric-label">Objects</span></span></div><span class="footer-signature">MOTIF · FIND THE PATTERN.</span></footer>
   </div>
   <div class="source-panel" id="source-panel" hidden><section class="source-card" role="dialog" aria-modal="true" aria-labelledby="source-title" tabindex="-1"><header class="source-header"><div><h2 id="source-title">Small API. Big possibilities.</h2><p>Your current experiment · TypeScript</p></div><div class="source-buttons"><button class="copy-button" id="copy-source">${svg('copy', 12)}<span>Copy</span></button><button class="icon-button" id="close-source" aria-label="Close code">${svg('close', 13)}</button></div></header><pre class="source-code" id="source-scroll" tabindex="0" aria-label="TypeScript example"><code id="source-code"></code></pre><div class="source-bottom">Add a <code>&lt;div id="canvas"&gt;</code> with a defined height to your page. This example uses the local <code>fivejs</code> package and its <code>three</code> peer dependency.<br>When you're done: <code>app.dispose()</code>.</div></section></div>
   <div class="toast" id="toast" role="status" hidden></div>`;
@@ -237,7 +237,7 @@ element<HTMLButtonElement>('capture').addEventListener('click', async () => {
   try {
     const blob = await studio.capture();
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `5js-${state.scene}-${Date.now()}.png`; anchor.click();
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `motif-${state.scene}-${Date.now()}.png`; anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
     notify('Canvas exported as PNG');
   } catch { notify('Unable to export this canvas. Please try again.'); }
@@ -286,6 +286,6 @@ try {
   const heading = document.createElement('h2'); heading.textContent = 'A little more graphics power.';
   const message = document.createElement('p'); message.textContent = 'This playground needs WebGL2. Enable hardware acceleration in your browser, then reload the page.';
   panel.append(heading, message); element('viewport').append(panel);
-  console.error('5js could not initialize:', error);
+  console.error('Motif could not initialize:', error);
 }
 window.addEventListener('pagehide', event => { if (!event.persisted) { framingObserver?.disconnect(); studio?.dispose(); } });

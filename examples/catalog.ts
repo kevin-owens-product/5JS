@@ -1,4 +1,7 @@
 import checkoutRecovery from './business/checkout-recovery.js';
+import sourceConversion from './business/source-conversion.js';
+import sourceRetention from './analytics/source-retention.js';
+import sourceProduct from './analytics/source-product.js';
 import customerHealth from './business/customer-health.js';
 import evidenceRoadmap from './analytics/evidence-to-roadmap.js';
 import vortex from './scientific/vortex-flow.js';
@@ -48,7 +51,7 @@ import distribution from './analytics/distribution-explorer.js';
 import anomalies from './analytics/time-series-anomalies.js';
 import experiment from './analytics/ab-experiment.js';
 export const examples: ExampleDefinition[] = [
-  checkoutRecovery, customerHealth, evidenceRoadmap,
+  checkoutRecovery, customerHealth, evidenceRoadmap, sourceConversion, sourceRetention, sourceProduct,
   orbits, magneticField, connectome, vascular, jetStream, oceanGyres, gridDispatch, fusionChamber,
   transit, canopy, acoustics, turbine,
   revenue, cohort, funnel, segments, unit, demand, subscription, correlation,

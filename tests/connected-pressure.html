@@ -122,12 +122,12 @@ if (new URLSearchParams(location.search).get('fixture') === 'empty') {
   const scopeLine = text => text.split('\n').find(line => line.includes('Scope at selection:')) ?? '';
   try {
     await load('/examples/?category=Decisions', true);
-    await check('Decisions contains exactly the three connected workflows', async () => {
+    await check('Decisions contains the six connected workflows', async () => {
       const selected = doc().querySelector('[data-filter][aria-pressed="true"]');
       assert(selected?.dataset.filter === 'Decisions', 'Decisions URL filter was not selected');
-      assert(el('result-count').textContent === '3 examples', 'Decisions count differs from three');
+      assert(el('result-count').textContent === '6 examples', 'Decisions count differs from six');
       const cards = [...el('cards').querySelectorAll('[data-card]')].filter(card => !card.hidden).map(card => card.dataset.card).sort();
-      assert(cards.join(',') === ['checkout-recovery','customer-health','evidence-to-roadmap'].sort().join(','), 'Wrong decision cards');
+      assert(cards.join(',') === ['checkout-recovery','customer-health','evidence-to-roadmap','source-conversion','source-retention','source-product'].sort().join(','), 'Wrong decision cards');
     });
     await check('Selection follows checkout → session timeline → fictional interview, with Back navigation', async () => {
       await open('checkout-recovery'); choose('checkout:01:01');

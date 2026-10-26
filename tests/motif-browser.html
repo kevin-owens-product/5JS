@@ -1,0 +1,64 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RUNNING — Motif workflow checks</title>
+<style>body{font:13px system-ui;background:#09110e;color:#cde3c8;margin:24px}iframe{display:block;width:1120px;height:860px;border:1px solid #496448;max-width:none}pre{white-space:pre-wrap;line-height:1.8}.passed{color:#a9dd8a}</style>
+<h1>Motif main page and decision workflows</h1><pre id="results">Loading the rebranded site…</pre><iframe id="site" title="Motif under test"></iframe>
+<script type="module">
+const frame=document.getElementById('site'), results=document.getElementById('results');let passed=0;const failures=[];
+const doc=()=>frame.contentDocument,win=()=>frame.contentWindow,el=id=>doc().getElementById(id);
+const assert=(value,message)=>{if(!value)throw new Error(message)};
+async function until(predicate,timeout=15000){const start=performance.now();while(!predicate()){if(performance.now()-start>timeout)throw new Error('Timed out waiting for the site');await new Promise(resolve=>setTimeout(resolve,40))}}
+async function load(path){frame.src=path;await new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject});await until(()=>doc().body.dataset.motifReady);assert(doc().body.dataset.motifReady==='true','Source snapshots failed to load')}
+async function check(name,work){try{await work();passed++;results.textContent+=`\nPASS ${name}`}catch(error){failures.push(name);results.textContent+=`\nFAIL ${name}: ${error.message}`}}
+function select(id,value){el(id).value=value;el(id).dispatchEvent(new (win().Event)('change',{bubbles:true}))}
+function range(value){el('scenario').value=String(value);el('scenario').dispatchEvent(new (win().Event)('input',{bubbles:true}))}
+function decision(value){doc().querySelector(`[data-decision="${value}"]`).click()}
+try{
+ await load('/');results.textContent='';
+ await check('Motif brand, 39 executable connector entries, complete fictional snapshots and live scene',()=>{
+  assert(doc().title.startsWith('Motif'),'Main title is not rebranded');assert(doc().querySelector('[aria-label="Motif home"]'),'Brand navigation missing');
+  assert(el('connector-grid').children.length===39,'Catalog must show all 39 entries');assert(!el('connector-grid').textContent.includes('PLANNED'),'Unimplemented catalog entries remain');
+  assert(el('source-count').textContent==='540 records','Wrong joined-source record count');assert(el('source-receipts').children.length===7,'Source receipts missing');
+  assert(el('spatial-view').querySelector('canvas'),'No scene canvas');assert(el('scene-fallback').hidden,'WebGL fallback was shown unexpectedly');
+ });
+ await check('Conversion assumptions affect modeled value only; filters reconcile to the chosen cohort',()=>{
+  const before=el('stage-readout').textContent;range(0);assert(el('scenario-result').textContent.includes('0.0 modeled'),'Zero assumption not reflected');assert(el('stage-readout').textContent===before,'Assumption changed observed stages');
+  range(50);assert(el('scenario-result').textContent.includes('17.0 modeled'),'Recovery math is wrong');assert(el('stage-readout').textContent===before,'Assumption mutated history');
+  select('segment','Growth');assert(el('stage-readout').textContent.includes('48'),'Segment did not restrict checkout starts');assert(el('record').options.length===12,'Segment leaked another account cohort');
+ });
+ await check('Exact record inspection and closing preserve source and selection',()=>{
+  select('record','acct-002');doc().querySelector('[data-table="accounts"]').click();assert(el('detail-dialog').open,'Record dialog did not open');
+  assert(el('detail-title').textContent.includes('acct-002'),'Wrong source record');assert(el('detail-body').textContent.includes('Bramble Studio'),'Record contents do not match selection');
+  const session=el('detail-body').querySelector('[data-table="sessions"]');assert(session,'Related sessions missing');session.focus();session.click();assert(doc().activeElement===el('detail-title'),'Record navigation lost keyboard focus');assert(el('detail-title').textContent.includes('sessions'),'Session link did not navigate');
+  const checkout=el('detail-body').querySelector('[data-table="checkouts"]');assert(checkout,'Related checkout missing');checkout.click();assert(el('detail-title').textContent.includes('checkouts'),'Checkout link did not navigate');el('detail-back').click();assert(el('detail-title').textContent.includes('sessions'),'Record history did not restore session');
+  el('close-detail').click();assert(!el('detail-dialog').open,'Record dialog did not close');assert(el('record').value==='acct-002','Selection lost on close');
+ });
+ await check('Retention changes the review queue while observed cohort counts remain unchanged',()=>{
+  select('segment','All accounts');decision('retention');const observed=el('stage-readout').textContent;range(0);assert(el('scenario-result').textContent.includes('No accounts selected'),'Zero coverage did not clear the queue');
+  assert(el('account-evidence').querySelectorAll('[data-table="usage"]').length===4,'All observation weeks must be inspectable');
+  range(100);assert(el('scenario-result').textContent.startsWith('Review:'),'Full coverage did not populate a review queue');assert(el('stage-readout').textContent===observed,'Review coverage changed retention');assert(el('decision-metrics').textContent.includes('not predicted churn'),'Contract-value limitation missing');
+ });
+ await check('Product selection keeps distinct-account evidence and counter-evidence visible',()=>{
+  decision('product');select('initiative','activation');assert(el('action-title').textContent.includes('guided first workspace'),'Initiative does not drive the action');
+  range(1);assert(el('scenario-result').textContent.includes('narrow the scope'),'Capacity did not constrain the initiative');range(6);assert(el('scenario-result').textContent.includes('scope fits'),'Capacity did not update');
+  assert(el('decision-metrics').textContent.includes('Contradicting interviews'),'Counter-evidence metric absent');assert(el('stage-readout').children.length===3,'Initiatives missing');
+ });
+ await check('Investigation brief downloads actual context without performing an external action',()=>{
+  el('build-brief').click();assert(el('brief-dialog').open,'Brief did not open');const text=el('brief-content').textContent;for(const phrase of ['entirely fictional','Proposed owner','Guardrail','activation','not an executed action'])assert(text.includes(phrase),`Missing ${phrase}`);
+  let blob,filename;const create=win().URL.createObjectURL,click=win().HTMLAnchorElement.prototype.click;
+  win().URL.createObjectURL=value=>{blob=value;return 'blob:motif-test'};win().HTMLAnchorElement.prototype.click=function(){filename=this.download};
+  try{el('download-brief').click();assert(filename==='motif-product-investigation.md','Wrong export filename');assert(blob instanceof win().Blob,'Brief was not exported as a local Blob')}finally{win().URL.createObjectURL=create;win().HTMLAnchorElement.prototype.click=click}
+  el('close-brief').click();assert(!el('brief-dialog').open,'Brief did not close');
+ });
+ await check('Connector search narrows actual implemented scope and clears cleanly',()=>{
+  el('connector-search').value='PostHog';el('connector-search').dispatchEvent(new (win().Event)('input',{bubbles:true}));assert(el('connector-grid').children.length===1,'Connector search failed');assert(el('connector-grid').textContent.includes('named SQL Endpoints'),'Wrong PostHog scope');
+  el('connector-search').value='';el('connector-search').dispatchEvent(new (win().Event)('input',{bubbles:true}));assert(el('connector-grid').children.length===39,'Clearing search lost entries');
+ });
+ await check('Narrow layout keeps the scene, evidence and controls within the viewport',async()=>{
+  frame.style.width='375px';frame.style.height='820px';await new Promise(resolve=>setTimeout(resolve,100));
+  assert(doc().documentElement.scrollWidth<=win().innerWidth+1,'Horizontal overflow');
+  for(const id of ['spatial-view','record','scenario','build-brief']){const r=el(id).getBoundingClientRect();assert(r.width>0&&r.left>=-1&&r.right<=win().innerWidth+1,`${id} escapes the narrow viewport`)}
+  assert(el('spatial-view').getBoundingClientRect().height>=300,'Mobile scene is unusably small');
+ });
+ await check('Invalid outcome URLs fall back to a valid workflow',async()=>{await load('/?outcome=constructor');assert(doc().querySelector('[data-decision="conversion"]').getAttribute('aria-pressed')==='true','Inherited object key accepted as an outcome')});
+}catch(error){failures.push('Harness');results.textContent+=`\nFAIL Harness: ${error.stack||error}`}
+results.textContent+=`\n${failures.length?'FAILED '+failures.length:'ALL '+passed+' PRESSURE CHECKS PASSED'}`;document.title=(failures.length?'FAIL':'PASS')+' — Motif workflow checks';
+</script></html>
