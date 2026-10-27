@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+- Add three connected decision workflows for checkout recovery, customer impact reviews, and evidence-to-roadmap research, bringing the gallery to 47 recipes.
+- Connect 99 synthetic customers, products, services, people, interviews, sessions, and checkouts through scene selection, a keyboard-accessible record inspector, scenario filters, and local investigation briefs with proposed owners, evidence, measures, and guardrails.
+- Keep recorded observations, qualitative counter-evidence, exposure, and explicit scenario assumptions distinct; add linked-data, selection, brief-export, picking, and workflow browser checks.
+
 - Make custom-layer initialization transactional and complete resource cleanup even when a custom disposer throws; stop frames that dispose their scene.
 - Validate JavaScript option objects and graph-data snapshots before mutation; keep oversized deltas and sparse coordinates out of live GPU state.
 - Reconcile decimal-price break-even with operating profit and reject rounded-zero or nonfinite business-model denominators/results.

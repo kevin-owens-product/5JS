@@ -1,3 +1,6 @@
+import checkoutRecovery from './business/checkout-recovery.js';
+import customerHealth from './business/customer-health.js';
+import evidenceRoadmap from './analytics/evidence-to-roadmap.js';
 import vortex from './scientific/vortex-flow.js';
 import waves from './scientific/wave-interference.js';
 import dimensions from './scientific/dimensional-dance.js';
@@ -45,6 +48,7 @@ import distribution from './analytics/distribution-explorer.js';
 import anomalies from './analytics/time-series-anomalies.js';
 import experiment from './analytics/ab-experiment.js';
 export const examples: ExampleDefinition[] = [
+  checkoutRecovery, customerHealth, evidenceRoadmap,
   orbits, magneticField, connectome, vascular, jetStream, oceanGyres, gridDispatch, fusionChamber,
   transit, canopy, acoustics, turbine,
   revenue, cohort, funnel, segments, unit, demand, subscription, correlation,

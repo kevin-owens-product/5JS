@@ -1,3 +1,4 @@
+import type { OutcomeExplorer } from './connected/types.js';
 import type { FiveApp } from '../src/index.js';
 
 export const exampleCategories = ['Space', 'Biology', 'Climate', 'Energy', 'Cities', 'Engineering', 'Business', 'Analytics', 'Scientific', 'Data', 'Cinematic'] as const;
@@ -19,6 +20,8 @@ export interface ExampleReadout {
 }
 export interface ExampleInstance {
   controls?: ExampleControl[];
+  /** Linked records, evidence, and proposed decisions for outcome examples. */
+  connected?: OutcomeExplorer;
   /** Computed from the same current data that drives the chart. */
   readout?(): ExampleReadout;
   /** Release callbacks/resources beyond the layers owned by app. */
@@ -38,6 +41,8 @@ export interface ExampleDefinition {
   bloom: number;
   /** Preview phase in seconds, integrated by the gallery for still thumbnails. */
   previewTime?: number;
+  /** Marks a decision workflow in the gallery, without mounting the scene. */
+  outcome?: string;
   dataNote?: string;
   setup(app: FiveApp): ExampleInstance;
 }
