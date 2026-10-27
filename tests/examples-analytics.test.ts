@@ -200,3 +200,58 @@ test('filtered readouts match the displayed customer and experiment table rows',
   assert.equal(abReadout.metrics[2].value, '+1.00 pp');
   ab.layers.forEach(layer => layer.dispose());
 });
+
+test('correlation focus preserves all fifteen raw pairs independently of the network filter', () => {
+  const { app, layers } = fakeApp(), instance = correlations.setup(app);
+  const control = (id: string) => instance.controls!.find(item => item.id === id)!;
+  const data = createCorrelationData();
+  const pairs = data[0].values.flatMap((_, a) => data[0].values.slice(a + 1).map((_, offset) => [a, a + offset + 1]));
+  for (const days of [12, 36]) {
+    control('window').apply(days);
+    for (let index = 0; index < pairs.length; index++) {
+      control('pair').apply(index);
+      const [a, b] = pairs[index], rows = data.slice(-days);
+      const r = pearson(rows.map(row => row.values[a]), rows.map(row => row.values[b]));
+      const expected = r === null ? 'Undefined' : `${r >= 0 ? '+' : ''}${r.toFixed(4)}`;
+      for (const magnitude of [0, 0.9]) {
+        control('magnitude').apply(magnitude);
+        const readout = instance.readout!();
+        assert.equal(readout.metrics[0].value, expected);
+        assert.equal(readout.metrics[1].value, String(days));
+        assert.equal(readout.table.rows.length, correlationCells(data, days, magnitude).length);
+        for (const row of readout.table.rows) if (typeof row[2] === 'string' && row[2].startsWith('Undefined')) assert.ok(row[0] === 'Uptime %' || row[1] === 'Uptime %');
+      }
+    }
+  }
+  layers.forEach(layer => layer.dispose());
+});
+
+test('A/B population domes preserve visitor totals, conversion caps, and the same area scale across filters', () => {
+  const { app, layers } = fakeApp(), instance = experiment.setup(app);
+  const data = createExperimentData(), devices = ['Desktop', 'Mobile', 'Tablet'];
+  const population = layers.find(layer => layer.kind === 'experimentPopulation')!;
+  for (const segment of [0, 1, 2, 3]) {
+    instance.controls!.find(control => control.id === 'segment')!.apply(segment);
+    const rows = data.filter(row => segment === 0 || row.segment === devices[segment - 1]);
+    const positions = (population.object as import('three').Points).geometry.getAttribute('position');
+    assert.equal(positions.count, rows.reduce((sum, row) => sum + row.visitors, 0));
+    assert.equal(population.count, positions.count);
+    for (const row of rows) {
+      const cx = row.variant === 'A' ? -3.1 : 3.1, cz = -1.8 + devices.indexOf(row.segment) * 1.8;
+      const rate = row.conversions / row.visitors;
+      const baseHeight = 0.5 + rate / 0.16 * 2.85;
+      const radius = 0.78 * Math.sqrt(row.visitors / 7000);
+      let visitors = 0, converted = 0;
+      for (let i = 0; i < positions.count; i++) {
+        if (Math.abs(positions.getX(i) - cx) > 1 || Math.abs(positions.getZ(i) - cz) > 0.9) continue;
+        visitors++;
+        const dx = positions.getX(i) - cx, dy = positions.getY(i) - baseHeight, dz = positions.getZ(i) - cz;
+        close(dx * dx + dy * dy + dz * dz, radius * radius, 1e-6);
+        if (dy > radius * (1 - rate)) converted++;
+      }
+      assert.equal(visitors, row.visitors);
+      assert.equal(converted, row.conversions, `${row.segment}/${row.variant}: cap must contain the exact conversion count`);
+    }
+  }
+  layers.forEach(layer => layer.dispose());
+});

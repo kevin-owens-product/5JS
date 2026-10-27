@@ -15,6 +15,14 @@
     figure img { display: block; width: 180px; height: 120px; background: #070a0e; border: 1px solid #304445; }
     figcaption { font-size: 11px; }
     body[data-status="fail"] #results { color: #ffb3b3; }
+    body.review[data-status="pass"] #results, body.review[data-status="pass"] #fixture { display: none; }
+    body.review #previews { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+    body.review figure img { width: 100%; height: auto; aspect-ratio: 1.5; }
+    figure[hidden] { display: none; }
+    #review-controls { display: flex; gap: 10px; align-items: center; }
+    #review-controls[hidden] { display: none; }
+    button { background: #1c302c; color: #d6ffd7; border: 1px solid #466b5a; padding: 8px 14px; cursor: pointer; }
+    @media(max-width:700px) { body.review #previews { grid-template-columns:repeat(2,minmax(0,1fr)); } }
   </style>
 </head>
 <body data-status="running">
@@ -22,12 +30,26 @@
   <p>Real WebGL2 rendering, PNG pixel verification, control boundaries, and resource cleanup for every gallery recipe. The scene stays paused; rendering continues.</p>
   <pre id="results" role="status" aria-live="polite">Loading the example catalog…</pre>
   <div id="fixture"></div>
+  <nav id="review-controls" hidden aria-label="Visual review pages"><button id="review-previous">Previous page</button><span id="review-page"></span><button id="review-next">Next page</button></nav>
   <div id="previews" aria-label="Verified recipe captures"></div>
   <script type="module">
     const results = document.querySelector('#results');
     const fixture = document.querySelector('#fixture');
     const previews = document.querySelector('#previews');
     const lines = [];
+    const review = new URLSearchParams(location.search).has('review');
+    let reviewPage = 0;
+    if (review) document.body.classList.add('review');
+    function showReview() {
+      const figures = [...previews.children], pages = Math.ceil(figures.length / 12);
+      figures.forEach((figure, i) => { figure.hidden = review && Math.floor(i / 12) !== reviewPage; });
+      document.querySelector('#review-controls').hidden = !review;
+      document.querySelector('#review-page').textContent = `${reviewPage + 1} / ${pages} · ${figures.length} real scene captures`;
+      document.querySelector('#review-previous').disabled = reviewPage === 0;
+      document.querySelector('#review-next').disabled = reviewPage === pages - 1;
+    }
+    document.querySelector('#review-previous').addEventListener('click', () => { reviewPage--; showReview(); });
+    document.querySelector('#review-next').addEventListener('click', () => { reviewPage++; showReview(); });
     const abort = new AbortController();
     let app;
     let mounted;
@@ -204,7 +226,7 @@
           validateReadout(mounted.readout());
         }
         let motionProof = '';
-        if (['Business', 'Space', 'Biology', 'Climate', 'Energy', 'Cities', 'Engineering'].includes(example.category)) {
+        { // Every scene must demonstrate visible, pause-aware motion without changing its data.
           const readoutBeforeMotion = JSON.stringify(mounted.readout?.());
           for (const layer of mounted.layers) layer.update(0, .537);
           await afterFrames(2, `${current}: motion frame`);
@@ -261,6 +283,7 @@
       finished = true;
       clearTimeout(watchdog);
       document.body.dataset.status = 'pass';
+      showReview();
       document.title = 'PASS — 5js example browser verification';
       results.textContent = [...lines, '', `ALL ${passed}/${total} EXAMPLE BROWSER CHECKS PASSED`].join('\n');
     } catch (error) {

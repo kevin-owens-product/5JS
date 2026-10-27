@@ -1,6 +1,8 @@
 import type { ExampleDefinition } from '../types.js';
 import { createChartLayer } from '../shared/chart.js';
 import type { ChartBuilder } from '../shared/chart.js';
+import { Vector3 } from 'three';
+import { ConvexGeometry } from 'three/addons/geometries/ConvexGeometry.js';
 
 export interface Customer { id: string; annualRevenue: number; engagement: number; tenureMonths: number }
 export type CustomerSegment = 'Champions' | 'Growth' | 'At risk' | 'Develop';
@@ -39,11 +41,11 @@ export function summarizeCustomers(customers: readonly Customer[]) {
 const usd = (value: number) => `$${value.toLocaleString('en-US')}`;
 const example: ExampleDefinition = {
   id: 'customer-segments', title: 'Customer segments', category: 'Analytics',
-  summary: 'Sixty customers, three measured axes, and transparent segment rules.',
-  description: 'Plot annual revenue, engagement score, and tenure on fixed axes. Colors are explicit revenue-and-engagement rules. Raise the high-value cutoff, filter by tenure or segment, and inspect the exact customers and totals remaining on screen.',
-  tags: ['Segmentation', '3D scatter', 'Rule-based'], difficulty: 'Intermediate', accent: '#8fe0b3',
-  camera: [8, 7, 12], target: [0, 2, 0], bloom: 0.05,
-  dataNote: 'Synthetic account snapshot at June 30, 2026: one point per customer. Annual revenue is trailing-12-month USD; engagement is an illustrative 0–100 score; tenure is whole months. High value means revenue ≥ the cutoff; engaged means score ≥60. Segment names are demonstration rules, not ML clusters or measured churn predictions.',
+  summary: 'Carve a customer volume with explicit rules and faceted segment envelopes.',
+  description: 'Move the revenue boundary through four faceted customer envelopes. Every luminous account stays at its exact revenue, engagement, and tenure coordinates; translucent hulls reveal each segment’s spatial extent. Filter tenure or isolate a segment to see its envelope rebuild around the remaining customers.',
+  tags: ['Segment volumes', 'Rule planes', 'Convex envelopes'], difficulty: 'Advanced', accent: '#8fe0b3',
+  camera: [8.6, 6.8, 11], target: [0, 2.2, 0], bloom: 0.24,
+  dataNote: 'Synthetic account snapshot at June 30, 2026: one point per customer. Annual revenue is trailing-12-month USD; engagement is an illustrative 0–100 score; tenure is whole months. High value means revenue ≥ the cutoff; engaged means score ≥60. Segment names are demonstration rules, not ML clusters or measured churn predictions. Faceted envelopes are convex hulls of displayed accounts in each segment, not density estimates, confidence regions, or additional customers. Hull tracers scan spatial extent without changing positions or values. Constant point size carries no metric.',
   setup(app) {
     const customers = createCustomerData();
     let minimumTenure = 0, highValueThreshold = 50000, segmentIndex = 0;
@@ -56,9 +58,58 @@ const example: ExampleDefinition = {
         xLabel: 'Annual revenue · USD', yLabel: 'Engagement · 0–100', zLabel: 'Tenure · months',
       });
       const cutoffX = -4.5 + highValueThreshold / 100000 * 9;
+      type P = [number, number, number];
+      const position = (row: Customer): P => [-4.5 + row.annualRevenue / 100000 * 9, row.engagement / 100 * 4.5, -2.5 + row.tenureMonths / 48 * 5];
+      chart.surface([[[cutoffX, 0, -2.5], [cutoffX, 0, 2.5]], [[cutoffX, 4.5, -2.5], [cutoffX, 4.5, 2.5]]], [['#9a7639', '#9a7639'], ['#e9c77d', '#e9c77d']], .055);
+      chart.surface([[[-4.5, 2.7, -2.5], [4.5, 2.7, -2.5]], [[-4.5, 2.7, 2.5], [4.5, 2.7, 2.5]]], [['#5d879b', '#5d879b'], ['#83a5bf', '#83a5bf']], .045);
       chart.line([[cutoffX, 0, -2.5], [cutoffX, 4.5, -2.5], [cutoffX, 4.5, 2.5], [cutoffX, 0, 2.5]], '#d4bb83', 0.45);
       chart.line([[-4.5, 2.7, -2.5], [4.5, 2.7, -2.5]], '#d4bb83', 0.45);
-      for (const row of rows) chart.point([-4.5 + row.annualRevenue / 100000 * 9, row.engagement / 100 * 4.5, -2.5 + row.tenureMonths / 48 * 5], COLORS[row.segment], 0.09);
+      chart.flow([[cutoffX, 2.7, -2.48], [cutoffX, 2.7, 2.48]], { color: '#ffe6a6', count: 140, speed: .11, size: .035, spread: .015, seed: 16 });
+      chart.label(`HIGH VALUE ≥ ${usd(highValueThreshold)}`, [cutoffX, 4.9, -.6], .22, '#e9c77d');
+      chart.label('ENGAGED ≥ 60', [4.6, 2.9, -2.5], .2, '#a9c7dc');
+      for (const segment of SEGMENTS) {
+        const members = rows.filter(row => row.segment === segment), hue = COLORS[segment];
+        const vertices = members.map(row => new Vector3(...position(row)));
+        // Avoid degenerate hulls for small or coplanar filtered subsets.
+        let solid = false;
+        if (vertices.length >= 4) {
+          const a = vertices[0];
+          for (let b = 1; b < vertices.length && !solid; b++) for (let c = b + 1; c < vertices.length && !solid; c++) {
+            const normal = vertices[b].clone().sub(a).cross(vertices[c].clone().sub(a));
+            solid = vertices.some(point => Math.abs(normal.dot(point.clone().sub(a))) > 1e-6);
+          }
+        }
+        if (solid) {
+          const geometry = new ConvexGeometry(vertices), attribute = geometry.getAttribute('position');
+          const edges = new Map<string, [P, P]>();
+          try {
+            for (let i = 0; i < attribute.count; i += 3) {
+              const triangle = [0, 1, 2].map(offset => [attribute.getX(i + offset), attribute.getY(i + offset), attribute.getZ(i + offset)] as P);
+              chart.surface([[triangle[0], triangle[1]], [triangle[2], triangle[2]]], [[hue, hue], [hue, hue]], .105);
+              for (let j = 0; j < 3; j++) {
+                const a = triangle[j], b = triangle[(j + 1) % 3];
+                const key = [a.join(','), b.join(',')].sort().join('|'); edges.set(key, [a, b]);
+              }
+            }
+          } finally { geometry.dispose(); }
+          let edgeIndex = 0;
+          for (const edge of edges.values()) {
+            chart.line(edge, hue, .34);
+            if (edgeIndex++ % 3 === 0) chart.flow(edge, { color: hue, count: 18, speed: .09, size: .025, spread: 0, seed: 20 + edgeIndex });
+          }
+        }
+        if (members.length) {
+          const side = segment === 'Champions' || segment === 'At risk' ? 1 : -1;
+          const high = segment === 'Champions' || segment === 'Growth';
+          chart.label(`${segment.toUpperCase()} · ${members.length}`, [side * 2.9, high ? 4.8 : .25, 2.75], .21, hue);
+        }
+      }
+      for (const row of rows) {
+        const point = position(row);
+        chart.point(point, COLORS[row.segment], .065);
+        chart.glow(point, COLORS[row.segment], .22);
+      }
+      if (!rows.length) chart.label('NO ACCOUNTS MEET THESE RULES', [0, 2.2, 0], .27, '#b6c6d4');
     };
     const layer = createChartLayer(draw); app.add(layer);
     const refresh = () => { rows = selectCustomers(customers, minimumTenure, highValueThreshold, FILTERS[segmentIndex]); layer.redraw(draw); };

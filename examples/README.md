@@ -1,6 +1,6 @@
 # 5js example library
 
-Forty-four editable recipes span eleven categories, including twenty business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer.
+Forty-four editable recipes span eleven categories, including twenty business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. This visual refresh redesigns seventeen scenes: all ten Analytics recipes, four Data recipes, two Scientific recipes, and the Business break-even landscape. The other twenty-seven were reviewed and retained.
 
 ## Run locally
 
@@ -19,7 +19,7 @@ Open one recipe directly with `/examples/run.html?example=id`, for example:
 http://127.0.0.1:5185/examples/run.html?example=orbital-garden
 ```
 
-The gallery supports category filters, text search, keyboard navigation, live controls, pause, camera reset, PNG capture, and source inspection. Reduced-motion preferences start animation paused. Rendering requires WebGL2.
+The gallery supports category filters, text search, keyboard navigation, live controls, pause, camera reset, PNG capture, and source inspection. Every category uses the same larger stage, including scenes with metrics and tables. Expand **How to read this scene** to inspect a recipe’s units, encodings, and assumptions; these notes start collapsed so controls remain easy to reach. Reduced-motion preferences start animation paused. Rendering requires WebGL2.
 
 For a production build, run `npm run build:demo`, then `npm run preview`; the gallery remains at `/examples/`.
 
@@ -47,26 +47,26 @@ For a production build, run `npm run build:demo`, then `npm run preview`; the ga
 | [Product portfolio](business/product-portfolio.ts) | Business | A product constellation with quantitative positions and scenario trails |
 | [Capacity planning](business/capacity-planning.ts) | Business | A factory circuit with utilization reactors and visible overload arcs |
 | [Inventory coverage](business/inventory-coverage.ts) | Business | A supply constellation with coverage gauges and conditional replenishment routes |
-| [Break-even landscape](business/break-even.ts) | Business | Continuous profit terrain with a traced zero-profit contour |
+| [Break-even landscape](business/break-even.ts) | Business | A profit cutaway, reference slices, and an exact zero-profit boundary |
 | [Budget tension field](business/budget-variance.ts) | Business | Spending petals whose footprint area encodes expense and outer-edge height encodes variance |
-| [Cohort retention](analytics/cohort-retention.ts) | Analytics | Observed cohort ages, missing future periods, and weighted retention |
-| [Customer segments](analytics/customer-segments.ts) | Analytics | Rule-based segmentation of synthetic customer observations |
-| [Demand scenarios](analytics/demand-scenarios.ts) | Analytics | Separate historical observations from explicit what-if paths |
-| [Pareto analysis](analytics/pareto-analysis.ts) | Analytics | Ranked contributions and cumulative share with a defined denominator |
-| [Geographic demand](analytics/geographic-demand.ts) | Analytics | Longitude, latitude, and order counts for fictional city demand |
-| [Correlation matrix](analytics/correlation-matrix.ts) | Analytics | Calculate Pearson correlations from the selected observations |
-| [Distribution explorer](analytics/distribution-explorer.ts) | Analytics | Bin observations and inspect their frequency distribution |
-| [Time-series anomalies](analytics/time-series-anomalies.ts) | Analytics | Flag residuals against an explicit baseline and threshold |
-| [A/B experiment](analytics/ab-experiment.ts) | Analytics | Inspect observed group rates and differences without causal claims |
-| [Data quality audit](analytics/data-quality.ts) | Analytics | Distinguish overlapping validation flags from affected records |
+| [Cohort retention](analytics/cohort-retention.ts) | Analytics | Retention sails ending at the observed frontier, an age cross-section, and weighted retention |
+| [Customer segments](analytics/customer-segments.ts) | Analytics | Faceted segment hulls around exact revenue, engagement, and tenure coordinates |
+| [Demand scenarios](analytics/demand-scenarios.ts) | Analytics | A fixed historical spine unfolding into three zero-baseline crystalline sails |
+| [Pareto analysis](analytics/pareto-analysis.ts) | Analytics | A revenue-to-cumulative-share weave with separate scales and a coverage plane |
+| [Geographic demand](analytics/geographic-demand.ts) | Analytics | Triangulated demand terrain anchored to fictional city coordinates and exact order counts |
+| [Correlation matrix](analytics/correlation-matrix.ts) | Analytics | Signed relationship strands, a floor matrix, and a focused raw-observation chamber |
+| [Distribution explorer](analytics/distribution-explorer.ts) | Analytics | Vaulted bin chambers with exact histogram sections and one replaying spark per request |
+| [Time-series anomalies](analytics/time-series-anomalies.ts) | Analytics | A waveform corridor with residual bridges and explicit threshold boundaries |
+| [A/B experiment](analytics/ab-experiment.ts) | Analytics | Population domes with visitor-proportional surface areas and exact conversion caps |
+| [Data quality audit](analytics/data-quality.ts) | Analytics | Individual record routes through overlapping checks and distinct pass/review exits |
 | [Vortex flow](scientific/vortex-flow.ts) | Scientific | Seeded shader particles and live field parameters |
-| [Wave interference](scientific/wave-interference.ts) | Scientific | Analytic wave terms and object transforms |
-| [Dimensional dance](scientific/dimensional-dance.ts) | Scientific | Compose 4D and 5D perspective projections |
+| [Wave interference](scientific/wave-interference.ts) | Scientific | An analytic mean-surface mesh synchronized with the particle wave |
+| [Dimensional dance](scientific/dimensional-dance.ts) | Scientific | Projected square faces sharing the rotating 4D/5D wireframe vertices |
 | [Lorenz attractor](scientific/lorenz-attractor.ts) | Scientific | Numerical integration, custom geometry, and trajectory playback |
-| [Community network](data/community-network.ts) | Data | Explicit groups, hubs, and weighted edges |
-| [Dependency tree](data/dependency-tree.ts) | Data | Position a hierarchy from its topology |
-| [Double helix](data/double-helix.ts) | Data | Parametric coordinates and cross-strand connections |
-| [Lattice network](data/lattice-network.ts) | Data | Construct a regular grid with nearest-neighbor edges |
+| [Community network](data/community-network.ts) | Data | Community envelopes, emphasized hub links, and tracers on selected connections |
+| [Dependency tree](data/dependency-tree.ts) | Data | Radial branching levels and pulses following existing parent-child edges |
+| [Double helix](data/double-helix.ts) | Data | Continuous helical rails, highlighted paired rungs, and traveling samples |
+| [Lattice network](data/lattice-network.ts) | Data | Layer slices, axial pulses, and a highlighted six-neighbor interior |
 | [Neon landscape](cinematic/neon-landscape.ts) | Cinematic | Compose matching surface and wireframe layers |
 | [Twin galaxies](cinematic/twin-galaxies.ts) | Cinematic | Independent palettes, transforms, and shared controls |
 | [Orbital garden](cinematic/orbital-garden.ts) | Cinematic | Custom torus layers, nested networks, and resource ownership |
@@ -82,7 +82,37 @@ Read each recipe's encoding note before comparing sizes. Revenue river crests us
 
 Factory gauges map the inner turn to 0–100% utilization and the outer turn to 100–200%; their moving light does not simulate jobs or queues. Inventory gauges map one turn to 60 days, with gold threshold beacons and replenishment routes lit only when the stated reorder rule fires. These pulses are proposed routes, not shipments. Product constellation positions encode growth, margin, and revenue; constant-size halos and curved trails are presentation, not historical observations.
 
-The break-even terrain evaluates the profit formula between its 36 tabulated price/volume samples. Its gold contour marks zero profit, with moving lights used only to reveal the surface. Budget petals have equal angular spans: their footprint area viewed from above is proportional to actual expense, a blue outline marks planned expense, and the outer-edge height relative to the plan plane shows signed variance. The sloped interior is a visual connection, not an additional metric.
+The break-even cutaway evaluates the profit formula between its 36 marked price/volume samples. Height uses a fixed $30,000 per world unit; cyan and magenta distinguish gains and losses around a visible zero-profit plane. Side walls and the $50-price and 1,500-unit slice curtains connect that plane to the actual profit surface. The gold boundary marks continuous zero profit, while the readout rounds required units upward. Its downward curtain projects the boundary onto a reference floor; the curtain's depth does not encode a loss. Moving contour lights reveal the formula and do not imply demand or profitability probabilities.
+
+Budget petals have equal angular spans: their footprint area viewed from above is proportional to actual expense, a blue outline marks planned expense, and the outer-edge height relative to the plan plane shows signed variance. The sloped interior is a visual connection, not an additional metric.
+
+## Reading the Analytics observatories
+
+All ten Analytics scenes use fixed synthetic observations or explicit scenario formulas. Controls recompute the current geometry, metrics, and table together. Animated guides expose relationships and reading order; they do not add observations, establish statistical significance, or change the data during playback.
+
+**Correlation matrix** links three views. Cyan upper strands show positive Pearson correlations and coral lower strands show negative ones; strand width and floor-tile lightness increase with `|r|`. Tower positions are categorical, and each tower trace is normalized within its own variable and trailing window. **Explore a pair** selects two variables for the observation chamber: X and Y show their raw units, while depth follows day order. The trailing-window control uses 12–36 days. **Minimum network |r|** filters strands and floor cells, but the selected pair's observations and coefficient remain inspectable even below the cutoff. Constant 99.9% uptime yields **Undefined**, never zero; undefined cells are retained, with gray marking them outside the focus highlight. The gold focus accent and moving lights are presentation, not another measure. Correlation does not imply causation.
+
+**Cohort retention** places exact monthly rates or customer counts on sail crests and stops at each cohort's observed frontier. Weighted retention uses eligible original customers; future ages remain absent. **Customer segments** places every account at its revenue, engagement, and tenure coordinates. Faceted convex hulls enclose displayed accounts under explicit classification rules; they are spatial extents, not density estimates or confidence regions.
+
+**Demand scenarios** keeps historical values fixed and unfolds low/base/high futures into three crystalline sails. Each sail starts at zero and its crest meets every exact monthly demand value on a shared, fixed 0–3,000 unit scale. Month spacing is linear. Depth separates alternatives and remains separated even at zero spread; it does not encode likelihood. Facets and cross-sections interpolate the monthly knots. Growth, seasonality, and spread are explicit assumptions, not probability estimates. **Geographic demand** anchors a triangulated canopy to displayed city order counts. Intermediate triangles and contours are interpolation, not additional observations; longitude/latitude use linear degree spacing, not a distance-preserving map. Mesh edges are not transport routes.
+
+**Pareto analysis** joins a dollar-scaled revenue ridge to a separately scaled cumulative-share spine. Hidden products remain in the selected-segment denominator. Ribbon interiors carry no extra metric.
+
+**Distribution explorer** opens each bin into a ribbed vault. Its central outlined rectangle preserves the exact bin width and count or density height; in density mode, that section's area represents the included probability mass. The curved roof, depth, and volume have no analytical meaning. Exactly one spark represents each of the 96 requests, replaying from a suspended rail into its bin while preserving its latency on X. Vertical packing, paths, and replay timing are inspection aids. Density is normalized over included observations in units of `1/ms`; excluded requests use a separate orange dock rather than a latency coordinate. The scene does not smooth a continuous density estimate between bins.
+
+**Time-series anomalies** separates the known baseline from observations, or zero from residuals. Bridges identify strict `|observed − baseline| > threshold` flags. Threshold surfaces are configurable rules, not confidence or prediction intervals. Depth separates the two lanes; time runs along X.
+
+**A/B experiment** arranges the two variants and three device segments into six hemispherical population domes. Hemisphere surface area is proportional to eligible visitors, with a fixed radius scale across filters. Each spark represents one visitor; the bright spherical cap occupies the conversion-rate share of the dome's surface and contains exactly the converted visitors. Dome **base elevation** encodes the selected rate or count; the apex and volume carry no additional metric. Overall rates divide summed conversions by summed visitors. Anonymous spark positions are an equal-area arrangement, not visitor features, and bridge lights are inspection guides rather than participant transitions.
+
+**Data quality audit** replays each fixed record through its actual missing-field, duplicate, and amount-check branches. Flags can overlap; the final review exit counts an affected record once. Route height is categorical, and replay speed is not throughput.
+
+## Reading the Data and Scientific compositions
+
+The four Data scenes retain their explicit synthetic graph topology and existing controls. **Community network** groups 210 nodes into five envelopes; bowed bridges emphasize the existing hub-to-hub links. Envelope surfaces are grouping aids, not graph edges. **Dependency tree** preserves all 121 nodes and 120 parent-child edges; depth guides separate its four levels, and pulses run from parents toward children. Neither animation measures traffic or latency.
+
+**Double helix** retains 168 nodes and 84 paired rungs. Continuous rails follow the same helical parameterization, and the height control stretches the entire composition while preserving connections. This is illustrative geometry, not a molecular model. **Lattice network** retains 216 nodes and 540 nearest-neighbor edges. Translucent slices separate its six levels; a highlighted interior node exposes six axis-aligned neighbors. Pulses follow existing axial links, and the cell-height control stretches the whole lattice. Tracer counts and speeds do not encode graph weights or physical interactions.
+
+**Dimensional dance** fills the tesseract's 24 and penteract's 80 square faces using the same projected vertices as their wireframes. Projection changes visible lengths and crossings; it does not change the original equal-edge geometry. **Wave interference** overlays a continuous mesh on the particle field's analytic mean surface, omitting only the particles' small seeded vertical jitter. Both share the same wave phase and vertical scale. These are example compositions, not additional public layer factories.
 
 ## Reading the domain scenes
 
@@ -214,10 +244,12 @@ An individual `.ts` download depends on its relative library imports, shared exa
 
 All twenty Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted; rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Tables and metric readouts update with the controls.
 
-The original Data examples use synthetic graphs and coordinates. The double helix is illustrative geometry, not a molecular model. Vortex and wave examples use analytic visual patterns; they do not solve fluid dynamics or the wave equation. Cinematic scenes are stylized compositions.
+Data examples use synthetic graphs and coordinates. Vortex and wave examples use analytic visual patterns; they do not solve fluid dynamics or the wave equation. Cinematic scenes are stylized compositions.
 
 The Lorenz example precomputes 18,000 trajectory samples using fourth-order Runge–Kutta integration, then replays that finite path. Its controls change presentation speed, tail length, and rotation; they do not run a real-time parameter solver or alter the differential equations. Individual recipe `dataNote` fields give further context.
 
 Run `npm run typecheck` and `npm test` after adding a recipe. CPU tests should cover useful invariants, live controls, zero-delta pause behavior, and resource disposal. Also inspect its real browser render, portrait framing, control extremes, and standalone URL.
 
-Open `/tests/examples-browser.html` to verify all 44 gallery recipes in WebGL2, including control boundaries, PNG pixels, analytic readouts, and geometry/texture cleanup.
+Open `/tests/examples-browser.html` to verify all 44 gallery recipes in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
+
+For visual review, open **http://127.0.0.1:5185/tests/examples-browser.html?review=1** with the development server running. After all checks pass, the page shows contact sheets made from the actual WebGL captures. Use **Previous page** and **Next page** to review 12 scenes at a time across four pages. These are default-scene captures, not screenshots of every control combination. Inspect normal viewers and portrait layouts separately for framing, labels, and useful interactions; a pixel-change assertion cannot establish visual quality.

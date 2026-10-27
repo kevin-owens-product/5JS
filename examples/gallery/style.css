@@ -16,3 +16,18 @@
 @media(min-width:761px){.viewer.has-data.immersive .viewer-content{height:min(620px,calc(100svh - 220px));min-height:440px}.viewer.immersive .example-info{display:flex;flex-direction:column}.viewer.immersive .example-info>.eyebrow{order:0}.viewer.immersive .description{order:1}.viewer.immersive .example-controls{order:2;margin-top:8px}.viewer.immersive .shared-controls{order:3}.viewer.immersive .data-note{order:4}.viewer.immersive .standalone-link{order:5}}
 /* Phone controls need a full-width drag target, especially for precise values. */
 @media(max-width:480px){.example-info{grid-template-columns:minmax(0,1fr)}.example-controls,.shared-controls{grid-column:1/-1}.shared-controls{margin-top:4px}}
+
+/* Every domain gets the same stage; controls precede the expandable encoding notes. */
+.viewer{width:min(1440px,calc(100vw - 40px))}
+.methodology{border-top:1px solid #2d3d2d;margin-top:18px;padding-top:15px;grid-column:1/-1}
+.methodology summary{font-size:11px;color:#bbd19f;cursor:pointer;line-height:1.5}
+.methodology .data-note{margin:12px 0 0;font-size:10px}
+@media(min-width:761px){
+ .viewer.immersive .viewer-content,.viewer.has-data.immersive .viewer-content{height:min(680px,calc(100svh - 190px));min-height:470px}
+ .viewer.immersive .example-info>.methodology{order:4}
+ .viewer.immersive .example-info>.standalone-link{order:5}
+ .viewer.immersive .description{font-size:12px;line-height:1.75}
+ .viewer.immersive .control label{flex-wrap:wrap;gap:6px}
+ .viewer.immersive .control output{margin-left:auto;max-width:100%;line-height:1.5}
+}
+@media(max-width:760px){.viewer{width:calc(100vw - 24px)}.methodology{order:4}.viewer.immersive .example-info{display:flex;flex-direction:column}.example-info>.eyebrow{order:0}.example-info>.description{order:1}.example-controls{order:2}.shared-controls{order:3}.standalone-link{order:5}}
