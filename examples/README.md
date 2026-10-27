@@ -17,6 +17,8 @@ Open **http://127.0.0.1:5185/examples/**. If Vite reports another port, use that
 
 The Motif homepage and full decision workspace are at [http://127.0.0.1:5185/#decision-lab](http://127.0.0.1:5185/#decision-lab). The original playground remains at [http://127.0.0.1:5185/demo/playground.html](http://127.0.0.1:5185/demo/playground.html).
 
+Use the [connector directory](http://127.0.0.1:5185/connectors/) when adapting a fixture to a source. Its 45 guides cover 44 factories and 39 catalog entries, with separate MySQL/MariaDB guides for their shared adapter. Each `/connectors/<slug>/` URL provides setup, exact TypeScript samples, runtime/limits, provider documentation and a related conversion, retention or product workflow. Copy/download controls and directory search use JavaScript; the guide text and code remain readable without it. The linked decision lab still uses fictional data.
+
 Open one recipe directly with `/examples/run.html?example=id`, for example:
 
 ```text
@@ -215,6 +217,8 @@ Transit calculates departures, headway, and capacity from synthetic train counts
 - [outcomes/model.ts](outcomes/model.ts), [outcomes/scene.ts](outcomes/scene.ts), and [outcomes/recipe.ts](outcomes/recipe.ts) supply the seven-source fixture, connector receipts, calculations, shared scenes and three new gallery definitions.
 - [../demo/motif.ts](../demo/motif.ts) runs the homepage decision lab, source inspection, joins, initiative selection and local brief export.
 - [../packages/connectors/README.md](../packages/connectors/README.md) documents the private connector package and its 39 implemented catalog entries.
+- [../connectors/content/index.ts](../connectors/content/index.ts) assembles the 45 authored source guides; [../connectors/render.ts](../connectors/render.ts) prerenders their body content and code, and [../connectors/client.ts](../connectors/client.ts) adds search, code tabs, copy and download.
+- [../scripts/generate-connector-pages.ts](../scripts/generate-connector-pages.ts) creates the `/connectors/` directory and individual guide pages before development or a static site build.
 - [../src/index.ts](../src/index.ts) exports the rendering library under its retained `fivejs` API; [../README.md](../README.md) documents Motif and local setup.
 
 Recipe modules avoid browser globals at import time. The shared chart helper draws camera-facing text labels only when a browser canvas is available; Node tests exercise the same numeric geometry without text textures. Their `setup(app)` functions can run against a small app substitute in CPU tests; browser work belongs in the shared runner.
@@ -322,6 +326,8 @@ Gallery thumbnails are actual WebGL renders of these recipes. Startup uses one t
 **Explore the source**, **Copy recipe**, and **Download .ts** expose the actual TypeScript module used by the viewer. They preserve the recipe defaults; moving sliders does not rewrite the module or serialize the current camera. PNG capture records the current canvas image, including chart-axis labels but excluding HTML metric cards and the table. **Download data CSV** exports the current table after filters and scenario controls; it preserves numeric values and adds context columns for the example, data notes, period/view caption, and selected controls. Model-generated scenarios are labeled in the recipe and table.
 
 An individual `.ts` download depends on its relative library imports, shared example types, and any example helpers it uses. Use it within this project, or adapt those imports in your application. **Download examples** provides the project with its library source and shared runner. **Copy link** copies the current example URL: a localhost address remains local, while a deployed gallery produces its deployed URL.
+
+The source ZIP also includes authored connector-guide content, rendering templates, client code and the generator. Generated guide HTML is excluded and recreated automatically by `npm run dev` or `npm run build:demo`; after editing [guide content](../connectors/content/index.ts), use `npm run prepare:connectors` for an explicit refresh. Edit the TypeScript source rather than generated `/connectors/<slug>/index.html` files. Connector samples use the unpublished package installed from a local checkout and require the prerequisites on their guide; downloading a sample does not configure credentials or connect the example fixture to a live account.
 
 ## Interpretation and checks
 

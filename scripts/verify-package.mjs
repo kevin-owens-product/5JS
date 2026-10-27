@@ -87,7 +87,7 @@ try {
   await mkdir(source);
   // A deliberately fresh source checkout: no existing dist or node_modules can
   // hide a missing build hook. Never delete or mutate the developer's checkout.
-  const directories = ['src', 'demo', 'examples', 'tests', 'scripts', 'docs'];
+  const directories = ['src', 'demo', 'examples', 'connectors', 'tests', 'scripts', 'docs'];
   const files = [
     'package.json', 'package-lock.json', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CHANGELOG.md',
     'tsconfig.json', 'tsconfig.lib.json', 'vite.config.ts', 'vite.demo.config.ts', 'index.html',

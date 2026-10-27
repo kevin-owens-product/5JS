@@ -31,7 +31,7 @@ def excluded_name(name):
 # Package manifests/configuration are exact required paths above; arbitrary JSON,
 # root package files, keys, local snapshots, and other packages are not included.
 source_folders = (
-    "src", "demo", "examples", "tests", "scripts", "docs", ".github",
+    "src", "demo", "examples", "connectors", "tests", "scripts", "docs", ".github",
     "packages/connectors/src", "packages/connectors/examples", "packages/connectors/docs",
 )
 for folder in source_folders:
@@ -49,6 +49,8 @@ for folder in source_folders:
                 raise ValueError(f"Refusing to archive symlink: {path.relative_to(root)}")
         for name in filenames:
             path = Path(parent) / name
+            if folder == "connectors" and name == "index.html":
+                continue
             if not excluded_name(name) and path.suffix in allowed_suffixes:
                 files.append(path)
 

@@ -49,6 +49,10 @@ The new decision lab uses `OutcomeDataset` and `SourceReceipt` in [examples/outc
 
 The independent `motif-connectors` workspace package is private and unpublished. **All 39 catalog entries have constrained implementations through 44 factories**, covering relational/document/search databases, warehouses, CRM/commerce/support tools, product analytics, BI/semantic APIs, JSON/CSV/Arrow/Parquet and the application endpoint. Grouped catalog entries have separate factories where needed. Implemented scope is specific: for example, PostHog uses pinned named SQL Endpoints, Amplitude returns daily segmentation, and Redis reads explicit keys.
 
+Browse the [searchable connector directory](http://127.0.0.1:5185/connectors/) for **45 individually shareable guides** at `/connectors/<slug>/`, including [PostgreSQL](http://127.0.0.1:5185/connectors/postgresql/), [Stripe](http://127.0.0.1:5185/connectors/stripe/) and [JSON](http://127.0.0.1:5185/connectors/json/). MySQL and MariaDB have separate guides for their shared factory. Each page includes prerequisites, a source-specific TypeScript sample with copy/download controls, runtime and scope limits, provider documentation, related sources and a decision-workflow link. Page text and code are prerendered and readable without JavaScript; search, code tabs, copy and download enhance that static content. Guides do not execute queries or collect credentials.
+
+`npm run dev` and `npm run build:demo` automatically generate the directory and guide HTML from `connectors/content/*.ts` through `scripts/generate-connector-pages.ts`; run `npm run prepare:connectors` to refresh them explicitly after editing guide content. Generated HTML is ignored rather than maintained by hand. The downloadable source ZIP includes the authored content, renderer, client and generator so an extracted project can recreate the pages. These are local package guides, not an npm release announcement.
+
 Run the local SQLite and JSON fixture demo with Node.js 22.16+:
 
 ```sh
