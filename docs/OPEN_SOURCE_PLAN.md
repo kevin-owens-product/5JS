@@ -1,4 +1,4 @@
-# 5js open-source launch plan
+# Motif open-source launch plan
 
 Readiness review: 2026-10-25. The original audit below records the starting point. The user accepted the launch plan, and local alpha preparation has now been implemented. The source is now published at https://github.com/kevin-owens-product/5JS. npm publication remains a separate milestone.
 
@@ -21,7 +21,7 @@ Use [the release checklist](RELEASING.md) for execution and [the API reference](
 | --- | --- |
 | Source and issues | [kevin-owens-product/5JS](https://github.com/kevin-owens-product/5JS) |
 | Hosted playground | [GitHub Pages](https://kevin-owens-product.github.io/5JS/) |
-| Example gallery | [44 recipes](https://kevin-owens-product.github.io/5JS/examples/) |
+| Example gallery | [50 recipes](https://kevin-owens-product.github.io/5JS/examples/) |
 | Versioned alpha | [GitHub releases](https://github.com/kevin-owens-product/5JS/releases) |
 | CI evidence | [Checks](https://github.com/kevin-owens-product/5JS/actions/workflows/ci.yml) |
 | Deployment evidence | [Pages workflow](https://github.com/kevin-owens-product/5JS/actions/workflows/pages.yml) |
@@ -36,7 +36,7 @@ The workflow and release pages are the authoritative records for successful publ
 4. Tag the tested commit with `v0.1.0-alpha.1`, create a GitHub prerelease, and attach the runnable source ZIP. Keep the tag and deployed source aligned.
 5. Maintain required default-branch checks and use issues and pull requests for contributions. See [CONTRIBUTING.md](../CONTRIBUTING.md).
 
-The expanded first alpha has 44 examples across 11 categories, including 20 Business/Analytics recipes and 12 new Space, Biology, Climate, Energy, Cities, and Engineering scenes. These are illustrative models with documented assumptions, not validated domain simulators. The public API remains four visualization factories; recipe-specific geometry helpers are not new package exports.
+The current working tree has 50 examples across 11 categories, including 26 Business/Analytics recipes and 12 new Space, Biology, Climate, Energy, Cities, and Engineering scenes. These are illustrative models with documented assumptions, not validated domain simulators. The public API remains four visualization factories; recipe-specific geometry helpers are not new package exports.
 
 ## Later npm milestone
 

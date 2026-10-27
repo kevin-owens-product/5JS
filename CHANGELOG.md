@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+- Add a human documentation map, focused quickstart, architecture and troubleshooting guides, root agent instructions and a plain-text documentation index. Record the ecosystem/naming review and correct stale current example counts.
+
 - Introduce Motif as the working project name and homepage brand at `/`. Keep the `fivejs` import, `createFive`, `FiveLayer`, package output and `kevin-owens-product/5JS` repository unchanged. Move the original playground to `/demo/playground.html`; retain the gallery at `/examples/`.
 - Add the homepage decision lab at `/#decision-lab`, with conversion, retention and product routes. Read seven fictional snapshots through actual JSON connectors: 36 accounts, 144 sessions, 144 checkouts, 144 usage observations, 24 support tickets, 45 interviews and three initiatives, totaling 540 records. Expose source fields, provenance, joins and completeness; no live provider accounts are queried.
 - Connect 3D evidence selection to navigable source-record dialogs, all four retention observation weeks, initiative-specific interview context, scenario controls and local investigation briefs. Product briefs retain the selected initiative's evidence, owner, measure and guardrail; scenarios do not change historical observations or claim validated impact.

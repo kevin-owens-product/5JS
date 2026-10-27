@@ -1,0 +1,32 @@
+# Motif (kevin-owens-product/5JS)
+
+> Experimental TypeScript visualization on Three.js, with typed source adapters and example workflows linking records, evidence and decision briefs.
+
+Working brand: Motif. Rendering import: fivejs. API: createFive and four FiveLayer factories. Connector imports: motif-connectors and motif-connectors/server. Both packages are private and unpublished; use built local paths. Node 22.12+ for the core/site, 22.16+ for connectors. Browser scenes require WebGL2. Examples use fictional data, not demonstrated customer outcomes. Unrelated to Cylynx motif.gl.
+
+## Start here
+
+- [Documentation map](https://github.com/kevin-owens-product/5JS/blob/main/docs/INDEX.md): task-based reading paths.
+- [Getting started](https://github.com/kevin-owens-product/5JS/blob/main/docs/GETTING_STARTED.md): local setup, first graph, connectors and static builds.
+- [Architecture](https://github.com/kevin-owens-product/5JS/blob/main/docs/ARCHITECTURE.md): library, connector and application boundaries.
+- [API](https://github.com/kevin-owens-product/5JS/blob/main/docs/API.md): exact exports, settings and disposal.
+- [Connector reference](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md): supported operations, exact values, pagination and gateway boundaries.
+- [Example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md): recipes, fixtures and source adaptation.
+
+## Develop and verify
+
+- [Agent instructions](https://github.com/kevin-owens-product/5JS/blob/main/AGENTS.md): repository map, commands and invariants.
+- [Contributing](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md): development and review.
+- [Compatibility](https://github.com/kevin-owens-product/5JS/blob/main/docs/COMPATIBILITY.md): runtime limits and validation.
+- [Troubleshooting](https://github.com/kevin-owens-product/5JS/blob/main/docs/TROUBLESHOOTING.md): symptoms and concrete checks.
+- [Security](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md): private reporting.
+- [Release guide](https://github.com/kevin-owens-product/5JS/blob/main/docs/RELEASING.md): checks before publication.
+
+## Context
+
+- [Ecosystem review](https://github.com/kevin-owens-product/5JS/blob/main/docs/ECOSYSTEM_REVIEW.md): alternatives and naming overlap.
+- [Documentation audit](https://github.com/kevin-owens-product/5JS/blob/main/docs/DOCUMENTATION_AUDIT.md): assessed gaps and remaining work.
+- [Live examples](https://kevin-owens-product.github.io/5JS/examples/): runnable recipes.
+- [Connector guides](https://kevin-owens-product.github.io/5JS/connectors/): source-specific setup and samples.
+
+These links follow main. For a pinned checkout use documentation from that revision. This index is a discovery aid, not a runtime API, MCP server or evidence of agent evaluation.

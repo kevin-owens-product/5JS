@@ -16,7 +16,7 @@ files = list(required_files)
 files.extend(root / name for name in (
     "LICENSE.md", "LICENSE.txt", "NOTICE", "NOTICE.md",
     "CONTRIBUTING.md", "SECURITY.md",
-    "CODE_OF_CONDUCT.md", "CHANGELOG.md",
+    "CODE_OF_CONDUCT.md", "CHANGELOG.md", "AGENTS.md", "llms.txt",
     "artifacts/business-motion-reactor.jpg",
 ) if (root / name).exists())
 excluded_directories = {"node_modules", "dist", "demo-dist", "__pycache__", "coverage"}
