@@ -8,6 +8,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { finiteRange, scientificColor } from './layers/scientificMath.js';
 import type { FiveLayer } from './types.js';
+import type { Object3D } from 'three';
 
 export interface FiveOptions {
   container: HTMLElement;
@@ -48,6 +49,8 @@ export interface FiveApp {
 
 const owners = new WeakMap<object, object>();
 const retired = new WeakSet<object>();
+const rootOwners = new WeakMap<Object3D, object>();
+const retiredRoots = new WeakSet<Object3D>();
 
 /** Create a WebGL2 scene and own its canvas, animation loop, controls and layers. */
 export function createFive(options: FiveOptions): FiveApp {
@@ -92,6 +95,7 @@ export function createFive(options: FiveOptions): FiveApp {
   composer.addPass(output);
 
   const layers = new Set<FiveLayer<object>>();
+  const roots = new Map<FiveLayer<object>, Object3D>();
   const callbacks = new Set<(stats: FiveStats) => void>();
   const owner = {};
   let disposed = false;
@@ -105,6 +109,22 @@ export function createFive(options: FiveOptions): FiveApp {
   let stats: FiveStats = { fps: 0, drawCalls: 0, triangles: 0, points: 0, objects: 0, time: 0, renderer: 'WebGL2' };
 
   function alive() { if (disposed) throw new Error('This 5js scene has been disposed. Create a new scene to continue.'); }
+  function reportCleanupErrors(errors: unknown[], message: string) {
+    if (errors.length) throw new AggregateError(errors, message);
+  }
+  function releaseLayer(layer: FiveLayer<object>, errors: unknown[]) {
+    if (!layers.delete(layer)) return;
+    const root = roots.get(layer)!;
+    roots.delete(layer);
+    owners.delete(layer);
+    retired.add(layer);
+    rootOwners.delete(root);
+    retiredRoots.add(root);
+    // A consumer may have grouped the object after adding it. Detach from its
+    // current parent, and still attempt resource cleanup if an event throws.
+    try { root.removeFromParent(); } catch (error) { errors.push(error); }
+    try { layer.dispose(); } catch (error) { errors.push(error); }
+  }
   function resize() {
     if (disposed) return;
     const { width, height } = container.getBoundingClientRect();
@@ -135,7 +155,11 @@ export function createFive(options: FiveOptions): FiveApp {
     previous = now;
     const delta = paused || document.hidden ? 0 : rawDelta * speed;
     time += delta;
-    for (const layer of layers) layer.update(time, delta);
+    for (const layer of [...layers]) {
+      if (disposed) return;
+      if (layers.has(layer)) layer.update(time, delta);
+    }
+    if (disposed) return;
     controls.autoRotate = autoRotate && !paused && !document.hidden && speed > 0;
     controls.update(rawDelta * speed);
     draw();
@@ -145,7 +169,10 @@ export function createFive(options: FiveOptions): FiveApp {
       frames = 0;
       fpsStart = now;
     }
-    for (const callback of callbacks) callback({ ...stats });
+    for (const callback of [...callbacks]) {
+      if (disposed) return;
+      if (callbacks.has(callback)) callback({ ...stats });
+    }
   }
   renderer.setAnimationLoop(frame);
 
@@ -154,28 +181,61 @@ export function createFive(options: FiveOptions): FiveApp {
     get stats() { return { ...stats }; },
     add<P extends object>(layer: FiveLayer<P>) {
       alive();
-      if (!layer?.object?.isObject3D || typeof layer.update !== 'function' || typeof layer.dispose !== 'function') {
+      if (!layer || (typeof layer !== 'object' && typeof layer !== 'function')) {
         throw new TypeError('add() expects a FiveLayer with an Object3D, update() and dispose().');
       }
       if (retired.has(layer)) throw new Error('This layer has been disposed. Create a new layer before adding it.');
       const existing = owners.get(layer);
       if (existing && existing !== owner) throw new Error('A layer can only belong to one 5js scene at a time.');
       if (layers.has(layer)) return layer;
+      if (existing) throw new Error('This layer is still rolling back a failed initialization.');
+      // The wrapper may expose a getter or later mutate its object property.
+      // Ownership and cleanup must refer to the root actually attached here.
+      const root = layer.object;
+      if (!root?.isObject3D || typeof layer.update !== 'function' || typeof layer.dispose !== 'function') {
+        throw new TypeError('add() expects a FiveLayer with an Object3D, update() and dispose().');
+      }
+      if (retiredRoots.has(root)) throw new Error('This Object3D root has been disposed. Create a new root before adding it.');
+      if (rootOwners.has(root)) throw new Error('An Object3D root can only belong to one layer at a time.');
+      const previousParent = root.parent;
       owners.set(layer, owner);
       layers.add(layer);
-      scene.add(layer.object);
-      layer.update(time, 0);
+      roots.set(layer, root);
+      rootOwners.set(root, layer);
+      try {
+        scene.add(root);
+        layer.update(time, 0);
+      } catch (error) {
+        // Ownership transfers only after successful initialization. Keep the
+        // caller's layer reusable rather than disposing it on a failed add.
+        layers.delete(layer);
+        roots.delete(layer);
+        const errors = [error];
+        // Retain claims during attachment events: a rollback listener must not
+        // claim this root in another scene before the old parent is restored.
+        if (!retiredRoots.has(root)) {
+          try { root.removeFromParent(); } catch (rollbackError) { errors.push(rollbackError); }
+          try { previousParent?.add(root); } catch (rollbackError) { errors.push(rollbackError); }
+        }
+        owners.delete(layer);
+        if (rootOwners.get(root) === layer) rootOwners.delete(root);
+        if (errors.length > 1) throw new AggregateError(errors, 'Layer initialization and attachment rollback failed.');
+        throw error;
+      }
       return layer;
     },
     remove(layer) {
       alive();
-      if (!layers.delete(layer)) return;
-      owners.delete(layer);
-      retired.add(layer);
-      scene.remove(layer.object);
-      layer.dispose();
+      const errors: unknown[] = [];
+      releaseLayer(layer, errors);
+      reportCleanupErrors(errors, 'Layer cleanup failed.');
     },
-    clear() { alive(); for (const layer of [...layers]) app.remove(layer); },
+    clear() {
+      alive();
+      const errors: unknown[] = [];
+      for (const layer of [...layers]) releaseLayer(layer, errors);
+      reportCleanupErrors(errors, 'One or more layers failed to clean up.');
+    },
     setBloom(strength) { alive(); bloom.strength = finiteRange(strength, 'bloom', 0, 5); bloom.enabled = strength > 0; },
     setAutoRotate(enabled) { alive(); autoRotate = Boolean(enabled); },
     setPaused(value) { alive(); paused = Boolean(value); previous = 0; },
@@ -196,7 +256,12 @@ export function createFive(options: FiveOptions): FiveApp {
       controls.update(0);
       controls.autoRotate = rotating;
     },
-    onFrame(callback) { alive(); callbacks.add(callback); return () => callbacks.delete(callback); },
+    onFrame(callback) {
+      alive();
+      if (typeof callback !== 'function') throw new TypeError('onFrame() expects a callback function.');
+      callbacks.add(callback);
+      return () => callbacks.delete(callback);
+    },
     async capture() {
       alive();
       draw();
@@ -206,19 +271,24 @@ export function createFive(options: FiveOptions): FiveApp {
     },
     dispose() {
       if (disposed) return;
-      renderer.setAnimationLoop(null);
-      observer.disconnect();
-      app.clear();
-      callbacks.clear();
-      controls.dispose();
-      renderPass.dispose();
-      bloom.dispose();
-      output.dispose();
-      composer.dispose();
-      renderer.dispose();
-      renderer.forceContextLoss();
-      canvas.remove();
+      // Mark terminal before invoking user-defined cleanup: a layer may call
+      // dispose() again, or throw, and neither may leave the app half alive.
       disposed = true;
+      const errors: unknown[] = [];
+      const attempt = (cleanup: () => void) => { try { cleanup(); } catch (error) { errors.push(error); } };
+      attempt(() => renderer.setAnimationLoop(null));
+      attempt(() => observer.disconnect());
+      for (const layer of [...layers]) releaseLayer(layer, errors);
+      callbacks.clear();
+      attempt(() => controls.dispose());
+      attempt(() => renderPass.dispose());
+      attempt(() => bloom.dispose());
+      attempt(() => output.dispose());
+      attempt(() => composer.dispose());
+      attempt(() => renderer.dispose());
+      attempt(() => renderer.forceContextLoss());
+      attempt(() => canvas.remove());
+      reportCleanupErrors(errors, 'One or more resources failed to clean up.');
     },
   };
   return app;

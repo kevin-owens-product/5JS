@@ -4,7 +4,7 @@ import {
 } from 'three';
 import type { FiveLayer, HypercubeOptions } from '../types.js';
 import {
-  finiteRange, hypercubeTopology, projectHypercubeVertex, rotateHypercubeVertex, scientificColor,
+  finiteRange, hypercubeTopology, optionSnapshot, projectHypercubeVertex, rotateHypercubeVertex, scientificColor,
 } from './scientificMath.js';
 
 const defaults: Required<HypercubeOptions> = {
@@ -26,10 +26,8 @@ function validate(options: Required<HypercubeOptions>): void {
  * Animation integrates delta seconds, so changing speed preserves the phase.
  */
 export function hypercube(options: HypercubeOptions = {}): FiveLayer<HypercubeOptions> {
-  let settings = { ...defaults };
-  for (const key of Object.keys(defaults) as (keyof HypercubeOptions)[]) {
-    if (options[key] !== undefined) Object.assign(settings, { [key]: options[key] });
-  }
+  const keys = Object.keys(defaults) as (keyof HypercubeOptions)[];
+  let settings = { ...defaults, ...optionSnapshot(options, keys, 'hypercube options') };
   validate(settings);
   let topology = hypercubeTopology(settings.dimensions);
   const object = new Group();
@@ -126,10 +124,7 @@ export function hypercube(options: HypercubeOptions = {}): FiveLayer<HypercubeOp
     },
     set(next: Partial<HypercubeOptions>): void {
       if (disposed) throw new Error('Cannot update a disposed hypercube.');
-      const proposed = { ...settings };
-      for (const key of Object.keys(defaults) as (keyof HypercubeOptions)[]) {
-        if (next[key] !== undefined) Object.assign(proposed, { [key]: next[key] });
-      }
+      const proposed = { ...settings, ...optionSnapshot(next, keys, 'hypercube.set()') };
       validate(proposed);
       const dimensionsChanged = proposed.dimensions !== settings.dimensions;
       settings = proposed;

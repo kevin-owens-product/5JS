@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>RUNNING — 5js render pressure checks</title>
+  <style>
+    body { margin: 0; padding: 28px; background: #101818; color: #d6ffd7; font: 14px/1.6 ui-monospace, monospace; }
+    h1 { font-size: 22px; }
+    #results { white-space: pre-wrap; overflow-wrap: anywhere; }
+    #fixture { width: 320px; height: 240px; outline: 1px solid #395248; }
+    #captures { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+    figure { margin: 0; max-width: 320px; }
+    figure img { width: 320px; height: 240px; display: block; }
+    figcaption { font-size: 12px; }
+    body[data-status="fail"] #results { color: #ffb3b3; }
+  </style>
+</head>
+<body data-status="running" data-context-recovery="pending">
+  <h1>5js render pressure checks</h1>
+  <p>One WebGL2 context, separately rendered maximum-size layers, 20 resource-churn cycles, and an explicit loss/restoration probe. Timings describe this run; they are not frame-rate guarantees.</p>
+  <pre id="results" role="status" aria-live="polite">Loading the rendering API…</pre>
+  <div id="fixture"></div>
+  <div id="captures" aria-label="Verified pressure-test captures"></div>
+  <script type="module">
+    const results = document.querySelector('#results');
+    const fixture = document.querySelector('#fixture');
+    const captures = document.querySelector('#captures');
+    const lines = [];
+    const abort = new AbortController();
+    let app;
+    let current = 'module imports';
+    let checks = 0;
+    let finished = false;
+    let expectedContextLoss = false;
+    let tearingDown = false;
+    let contextRecovery = 'pending';
+
+    function assert(condition, message) { if (!condition) throw new Error(message); }
+    function progress(message) {
+      current = message;
+      if (!finished) results.textContent = [...lines, '', `RUNNING · ${message}`].join('\n');
+    }
+    function pass(message) {
+      checks++;
+      lines.push(`PASS · ${message}`);
+      results.textContent = lines.join('\n');
+    }
+    function fail(error) {
+      if (finished) return;
+      finished = true;
+      clearTimeout(watchdog);
+      abort.abort(error);
+      document.body.dataset.status = 'fail';
+      document.title = 'FAIL — 5js render pressure checks';
+      results.textContent = [...lines, '', `FAIL · ${current}`, error?.stack ?? String(error)].join('\n');
+      console.error('5js render pressure failed:', error);
+      tearingDown = true;
+      try { app?.dispose(); } catch (cleanupError) { console.error(cleanupError); }
+    }
+    const watchdog = setTimeout(() => fail(new Error('Render pressure checks exceeded the 180-second limit.')), 180_000);
+    window.addEventListener('error', event => fail(event.error ?? new Error(event.message)));
+    window.addEventListener('unhandledrejection', event => fail(event.reason));
+
+    function bounded(promise, label, milliseconds = 15_000) {
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const stop = () => finish(reject, abort.signal.reason ?? new Error(`${label} aborted.`));
+        const timer = setTimeout(() => finish(reject, new Error(`${label} exceeded ${milliseconds / 1000} seconds.`)), milliseconds);
+        function finish(callback, value) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          abort.signal.removeEventListener('abort', stop);
+          callback(value);
+        }
+        abort.signal.addEventListener('abort', stop, { once: true });
+        if (abort.signal.aborted) stop();
+        promise.then(value => finish(resolve, value), error => finish(reject, error));
+      });
+    }
+
+    function afterFrames(count, label, milliseconds = 15_000) {
+      return new Promise((resolve, reject) => {
+        let stopObserving = () => {};
+        let settled = false;
+        const abortWait = () => finish(abort.signal.reason ?? new Error(`${label} aborted.`));
+        const timer = setTimeout(() => finish(new Error(`${label}: no completed frames within ${milliseconds / 1000} seconds.`)), milliseconds);
+        function finish(error) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          stopObserving();
+          abort.signal.removeEventListener('abort', abortWait);
+          error ? reject(error) : resolve();
+        }
+        abort.signal.addEventListener('abort', abortWait, { once: true });
+        if (abort.signal.aborted) { abortWait(); return; }
+        stopObserving = app.onFrame(() => { if (--count === 0) finish(); });
+      });
+    }
+
+    function contextEvent(canvas, name, trigger) {
+      return new Promise((resolve, reject) => {
+        let settled = false;
+        const abortWait = () => finish(abort.signal.reason ?? new Error(`${name} aborted.`));
+        const receive = event => { if (name === 'webglcontextlost') event.preventDefault(); finish(); };
+        const timer = setTimeout(() => finish(new Error(`${name} did not arrive within 15 seconds.`)), 15_000);
+        function finish(error) {
+          if (settled) return;
+          settled = true;
+          clearTimeout(timer);
+          canvas.removeEventListener(name, receive);
+          abort.signal.removeEventListener('abort', abortWait);
+          error ? reject(error) : resolve();
+        }
+        canvas.addEventListener(name, receive);
+        abort.signal.addEventListener('abort', abortWait, { once: true });
+        if (abort.signal.aborted) { abortWait(); return; }
+        try { trigger(); } catch (error) { finish(error); }
+      });
+    }
+
+    async function capture(label, retain = true) {
+      const blob = await bounded(app.capture(), `${label}: PNG encoding`);
+      assert(blob.type === 'image/png' && blob.size > 100, `${label}: capture was not a nonempty PNG.`);
+      const bitmap = await bounded(createImageBitmap(blob), `${label}: PNG decoding`);
+      try {
+        assert(bitmap.width === 320 && bitmap.height === 240, `${label}: unexpected capture dimensions.`);
+        const canvas = document.createElement('canvas');
+        canvas.width = 320; canvas.height = 240;
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        assert(context, 'Could not read captured pixels.');
+        context.drawImage(bitmap, 0, 0);
+        const pixels = context.getImageData(0, 0, 320, 240).data;
+        if (retain) {
+          const figure = document.createElement('figure');
+          const image = document.createElement('img');
+          image.src = canvas.toDataURL('image/png'); image.alt = label;
+          const caption = document.createElement('figcaption'); caption.textContent = `${label} · ${blob.size.toLocaleString()} PNG bytes`;
+          figure.append(image, caption); captures.append(figure);
+        }
+        return pixels;
+      } finally { bitmap.close(); }
+    }
+
+    function visiblePixels(pixels, background) {
+      assert(pixels.length === background.length, 'Capture sizes differ.');
+      let visible = 0;
+      for (let i = 0; i < pixels.length; i += 4) {
+        if (pixels[i + 3] && Math.max(Math.abs(pixels[i] - background[i]), Math.abs(pixels[i + 1] - background[i + 1]), Math.abs(pixels[i + 2] - background[i + 2])) > 10) visible++;
+      }
+      return visible;
+    }
+    function memory() {
+      return { geometries: app.renderer.info.memory.geometries, textures: app.renderer.info.memory.textures };
+    }
+    function restoredBaseline(baseline, label) {
+      const remaining = memory();
+      assert(app.scene.children.length === 0 && app.stats.objects === 0, `${label}: scene attachments survived clear().`);
+      assert(remaining.geometries <= baseline.geometries && remaining.textures <= baseline.textures, `${label}: GPU allocations remain: ${JSON.stringify(remaining)}, baseline ${JSON.stringify(baseline)}.`);
+      return remaining;
+    }
+
+    try {
+      const { createFive, particleField, terrain, networkGraph, hypercube } = await bounded(import('/src/index.ts'), 'Module import');
+      app = createFive({ container: fixture, background: '#070a0e', paused: true, autoRotate: false, bloom: .4, pixelRatio: 1 });
+      const canvas = app.renderer.domElement;
+      canvas.addEventListener('webglcontextlost', event => {
+        event.preventDefault();
+        if (!expectedContextLoss && !tearingDown && !finished) fail(new Error('Unexpected context loss during workload/churn verification.'));
+      });
+      app.renderer.debug.onShaderError = (gl, program, vertex, fragment) => {
+        throw new Error(`Shader compilation failed: ${gl.getProgramInfoLog(program)}\n${gl.getShaderInfoLog(vertex)}\n${gl.getShaderInfoLog(fragment)}`);
+      };
+      progress('warm the empty renderer and post-processing allocations');
+      await afterFrames(3, current);
+      const baseline = memory();
+      assert(baseline.geometries <= 1, 'Empty renderer owns unexpected geometry.');
+      const background = await capture('Empty renderer baseline', false);
+      pass(`One renderer initialized; warmed baseline ${JSON.stringify(baseline)}`);
+
+      const workloads = [
+        { label: '250,000 particles', build: () => particleField({ count: 250_000, mode: 'galaxy', pointSize: .8 }), count: 250_000, field: 'points', minimum: 250_000, camera: [0, 3, 12] },
+        { label: '512-subdivision terrain', build: () => terrain({ resolution: 512, size: 12, height: 2.2 }), count: 513 ** 2, field: 'triangles', minimum: 512 * 512 * 2, camera: [10, 8, 12] },
+      ];
+      for (const workload of workloads) {
+        progress(`${workload.label}: construct, render, and capture separately`);
+        const started = performance.now();
+        app.setBloom(0);
+        app.resetCamera(workload.camera);
+        const layer = app.add(workload.build());
+        layer.update(2, 2);
+        assert(layer.count === workload.count, `${workload.label}: requested maximum topology was not constructed.`);
+        await afterFrames(3, current);
+        const pixels = await capture(workload.label);
+        const visible = visiblePixels(pixels, background);
+        const stats = app.stats;
+        assert(visible >= 64, `${workload.label}: capture was empty (${visible} visible pixels).`);
+        assert(stats[workload.field] >= workload.minimum && stats.drawCalls > 0, `${workload.label}: renderer did not submit the requested primitives.`);
+        pass(`${workload.label}: ${visible.toLocaleString()} visible pixels; diagnostics ${JSON.stringify({ elapsedMs: Math.round(performance.now() - started), drawCalls: stats.drawCalls, points: stats.points, triangles: stats.triangles, memory: memory() })}`);
+        app.clear();
+        await afterFrames(2, `${workload.label}: cleanup`);
+        restoredBaseline(baseline, workload.label);
+        pass(`${workload.label}: GPU geometry/texture counts returned to baseline`);
+      }
+
+      progress('20 repeated construct/rebuild/clear cycles');
+      app.resetCamera();
+      const churnStarted = performance.now();
+      const peaks = { geometries: 0, textures: 0 };
+      for (let cycle = 0; cycle < 20; cycle++) {
+        progress(`Resource churn ${cycle + 1}/20`);
+        const field = app.add(particleField({ count: 600, seed: cycle }));
+        const graph = app.add(networkGraph({ nodeCount: 40, seed: cycle }));
+        const surface = app.add(terrain({ resolution: 16, seed: cycle }));
+        const cube = app.add(hypercube({ dimensions: 5 }));
+        field.set({ mode: cycle % 2 ? 'wave' : 'galaxy' });
+        graph.set({ nodeSize: .08 });
+        surface.set({ wireframe: cycle % 2 === 0 });
+        cube.set({ dimensions: 4 });
+        app.setBloom(cycle % 2 ? .4 : 0);
+        await afterFrames(2, `Cycle ${cycle + 1}: allocation`);
+        cube.set({ dimensions: 5 });
+        await afterFrames(2, `Cycle ${cycle + 1}: geometry replacement`);
+        const allocated = memory();
+        peaks.geometries = Math.max(peaks.geometries, allocated.geometries);
+        peaks.textures = Math.max(peaks.textures, allocated.textures);
+        assert(app.stats.objects > 0 && allocated.geometries > baseline.geometries, `Cycle ${cycle + 1}: no geometry reached the renderer.`);
+        app.clear(); app.clear();
+        await afterFrames(2, `Cycle ${cycle + 1}: clear`);
+        restoredBaseline(baseline, `Cycle ${cycle + 1}`);
+      }
+      pass(`All 20 churn cycles returned to baseline; diagnostics ${JSON.stringify({ elapsedMs: Math.round(performance.now() - churnStarted), peakMemory: peaks, finalMemory: memory() })}`);
+
+      progress('WebGL context-loss/restoration probe');
+      const gl = app.renderer.getContext();
+      const extension = gl.getExtension('WEBGL_lose_context');
+      if (!extension) {
+        contextRecovery = 'unsupported';
+        lines.push('UNSUPPORTED · WEBGL_lose_context is unavailable; context recovery was not tested and is not counted as passed.');
+      } else {
+        app.add(particleField({ count: 1200, mode: 'wave' }));
+        app.add(networkGraph({ nodeCount: 30 }));
+        app.add(terrain({ resolution: 24 }));
+        app.add(hypercube({ dimensions: 5 }));
+        app.setBloom(.4);
+        await afterFrames(3, 'Recovery scene before loss');
+        const beforeLoss = await capture('Before context loss');
+        assert(visiblePixels(beforeLoss, background) >= 64, 'Recovery scene was empty before context loss.');
+        expectedContextLoss = true;
+        const recoveryStarted = performance.now();
+        await contextEvent(canvas, 'webglcontextlost', () => extension.loseContext());
+        assert(gl.isContextLost(), 'Loss event arrived but WebGL was not actually lost.');
+        pass('WEBGL_lose_context caused an observed context loss');
+        // Let the loss event finish dispatching before requesting restoration.
+        await bounded(new Promise(resolve => setTimeout(resolve, 100)), 'Context-loss event settlement');
+        await contextEvent(canvas, 'webglcontextrestored', () => extension.restoreContext());
+        expectedContextLoss = false;
+        assert(!gl.isContextLost(), 'Context remained lost after restoration event.');
+        await afterFrames(4, 'Restored renderer and post-processing');
+        const restored = await capture('After context restoration');
+        const visible = visiblePixels(restored, background);
+        assert(visible >= 64 && app.stats.drawCalls > 5 && app.stats.objects > 0, 'Restored scene did not render/capture through post-processing.');
+        const changedPixels = visiblePixels(restored, beforeLoss);
+        assert(changedPixels <= 320 * 240 * .01, `Restoration changed ${changedPixels} pixels in the paused scene.`);
+        contextRecovery = 'passed';
+        pass(`Existing layers rendered after restoration: ${visible.toLocaleString()} visible pixels; diagnostics ${JSON.stringify({ elapsedMs: Math.round(performance.now() - recoveryStarted), changedPixels, drawCalls: app.stats.drawCalls, memory: memory() })}`);
+        app.clear();
+        await afterFrames(3, 'Post-restoration resource cleanup');
+        restoredBaseline(baseline, 'Post-restoration clear');
+        pass('Post-restoration clear released all owned layer geometry/textures');
+      }
+      document.body.dataset.contextRecovery = contextRecovery;
+      tearingDown = true;
+      app.dispose(); app.dispose();
+      assert(fixture.querySelectorAll('canvas').length === 0, 'Final disposal left the renderer canvas attached.');
+      pass('Final disposal removed the single renderer canvas');
+      finished = true;
+      clearTimeout(watchdog);
+      document.body.dataset.status = 'pass';
+      document.title = 'PASS — 5js render pressure checks';
+      results.textContent = [...lines, '', `Context recovery: ${contextRecovery.toUpperCase()}`, `ALL ${checks} RENDER PRESSURE CHECKS PASSED`].join('\n');
+    } catch (error) { fail(error); }
+  </script>
+</body>
+</html>

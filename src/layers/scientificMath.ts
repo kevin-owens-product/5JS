@@ -1,5 +1,19 @@
 import { Color, SRGBColorSpace } from 'three';
 
+/** Capture supported own options once, before validation or allocation. */
+export function optionSnapshot<T extends object>(value: T, keys: readonly (keyof T)[], name: string): Partial<T> {
+  if (value === null || typeof value !== 'object' || Array.isArray(value)) {
+    throw new TypeError(`${name} must be an options object.`);
+  }
+  const result: Partial<T> = {};
+  for (const key of keys) {
+    if (!Object.prototype.hasOwnProperty.call(value, key)) continue;
+    const entry = value[key];
+    if (entry !== undefined) result[key] = entry;
+  }
+  return result;
+}
+
 export function finiteRange(value: number, name: string, min: number, max: number): number {
   if (!Number.isFinite(value) || value < min || value > max) {
     throw new RangeError(`${name} must be a finite number between ${min} and ${max}.`);

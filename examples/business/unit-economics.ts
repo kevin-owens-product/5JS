@@ -2,18 +2,37 @@ import { createChartLayer, type ChartBuilder } from '../shared/chart.js';
 import type { ExampleDefinition } from '../types.js';
 
 export interface UnitEconomicsInput { volume: number; price: number; unitCost: number; fixedCost?: number }
+// Cancellation in ordinary decimal prices can leave a tiny nonzero result at
+// exact break-even. Normalize only floating-point roundoff, not a currency cent.
+function operatingProfit(revenue: number, variableCost: number, fixedCost: number) {
+  const result = revenue - variableCost - fixedCost;
+  const roundoff = Number.EPSILON * 4 * Math.max(Math.abs(revenue), Math.abs(variableCost), Math.abs(fixedCost));
+  return Math.abs(result) <= roundoff ? 0 : result;
+}
 export function calculateUnitEconomics(input: UnitEconomicsInput) {
   const { volume, price, unitCost, fixedCost = 25_000 } = input;
   if (![volume, price, unitCost, fixedCost].every(value => Number.isFinite(value) && value >= 0) || !Number.isInteger(volume)) {
     throw new RangeError('Volume must be a nonnegative integer; prices and costs must be finite and nonnegative.');
   }
   const revenue = volume * price, variableCost = volume * unitCost;
-  const contribution = revenue - variableCost, profit = contribution - fixedCost;
+  const contribution = revenue - variableCost, profit = operatingProfit(revenue, variableCost, fixedCost);
   const unitContribution = price - unitCost;
+  if (![revenue, variableCost, contribution, profit].every(Number.isFinite)) throw new RangeError('Modeled revenue, costs, and operating profit must remain finite.');
+  const margin = revenue > 0 ? profit / revenue : null;
+  if (margin !== null && !Number.isFinite(margin)) throw new RangeError('Operating margin must remain finite.');
+  let breakEvenUnits: number | null = fixedCost === 0 ? 0 : null;
+  if (fixedCost > 0 && unitContribution > 0) {
+    const exact = fixedCost / unitContribution, nearest = Math.round(exact);
+    if (!Number.isFinite(exact)) throw new RangeError('Break-even volume exceeds the finite numeric range.');
+    const upper = Math.ceil(exact);
+    if (![upper * price, upper * unitCost, upper * unitCost + fixedCost].every(Number.isFinite)) throw new RangeError('Break-even revenue and costs must remain finite.');
+    // Reconcile the boundary with the same operating model used for profit.
+    breakEvenUnits = operatingProfit(nearest * price, nearest * unitCost, fixedCost) === 0 ? nearest : Math.ceil(exact);
+  }
   return {
     volume, price, unitCost, fixedCost, revenue, variableCost, contribution, profit, unitContribution,
-    margin: revenue > 0 ? profit / revenue : null,
-    breakEvenUnits: fixedCost === 0 ? 0 : unitContribution > 0 ? Math.ceil(fixedCost / unitContribution) : null,
+    margin,
+    breakEvenUnits,
     waterfall: [
       { label: 'Revenue', role: 'Starting total', value: revenue, base: 0, end: revenue },
       { label: 'Variable cost', role: 'Expense', value: -variableCost, base: revenue, end: contribution },

@@ -1,0 +1,226 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>5js core pressure checks</title>
+<style>body{background:#101818;color:#d6ffd7;font:15px/1.7 monospace;padding:28px}#fixture{width:320px;height:240px}pre{white-space:pre-wrap}</style>
+<h1>5js core pressure checks</h1><pre id="results">Running custom-layer failure and lifecycle checks…</pre><div id="fixture"></div>
+<script type="module">
+import { Group } from 'three';
+import { createFive } from '/src/index.ts';
+const results = document.querySelector('#results'), container = document.querySelector('#fixture');
+const checks = [];
+let failures = 0;
+const assert = (value, message) => { if (!value) throw new Error(message); };
+const errorOf = fn => { try { fn(); } catch(error) { return error; } return undefined; };
+function layer(patch = {}) { return { object:new Group(), kind:'pressure-test', count:1, update(){}, set(){}, dispose(){}, ...patch }; }
+function scene() { return createFive({container, paused:true, autoRotate:false, bloom:0, pixelRatio:1}); }
+async function check(name, run) {
+  try { await run(); checks.push(`PASS · ${name}`); }
+  catch(error) { failures++; checks.push(`FAIL · ${name}\n${error.stack}`); }
+  results.textContent = checks.join('\n');
+}
+
+await check('Failed initial update restores attachment and releases ownership for retry', () => {
+  const app = scene(), parent = new Group();
+  let first = true;
+  const item = layer({ update(){ if(first) { first=false; throw new Error('initialization failed'); } } });
+  parent.add(item.object);
+  try {
+    assert(errorOf(() => app.add(item))?.message === 'initialization failed', 'Expected initialization error');
+    assert(item.object.parent === parent && app.scene.children.length === 0, 'Failed add left a partially attached layer');
+    app.add(item);
+    assert(item.object.parent === app.scene, 'Retry after failed initialization must succeed');
+  } finally { app.dispose(); }
+});
+
+await check('Distinct wrappers cannot claim the same Object3D in one or multiple apps', () => {
+  const first = scene(), second = scene(), root = new Group();
+  let aliasUpdates = 0, aliasDisposals = 0;
+  const original = layer({ object: root });
+  const alias = layer({ object: root, update(){ aliasUpdates++; }, dispose(){ aliasDisposals++; } });
+  try {
+    first.add(original);
+    assert(first.add(original) === original, 'Adding an owned wrapper again must remain idempotent');
+    assert(errorOf(() => first.add(alias)), 'One app accepted two wrappers for the same root');
+    assert(errorOf(() => second.add(alias)), 'A second app stole the claimed root through another wrapper');
+    assert(root.parent === first.scene && first.scene.children.length === 1 && second.scene.children.length === 0, 'Alias rejection changed scene attachment');
+    assert(aliasUpdates === 0 && aliasDisposals === 0, 'A rejected alias was initialized or disposed');
+    alias.object = new Group(); second.add(alias);
+    assert(aliasUpdates === 1, 'A rejected wrapper should remain usable with a fresh root');
+  } finally { first.dispose(); second.dispose(); }
+});
+
+await check('Root getters are read once and cleanup uses the recorded root', () => {
+  const app = scene(), root = new Group();
+  let reads = 0, disposals = 0;
+  const item = layer({ dispose(){ disposals++; } });
+  Object.defineProperty(item, 'object', { get(){ if (++reads > 1) throw new Error('object getter reread'); return root; } });
+  try {
+    app.add(item); app.add(item);
+    assert(reads === 1 && root.parent === app.scene, 'Add reread the root getter');
+    app.remove(item);
+    assert(reads === 1 && root.parent === null && disposals === 1, 'Remove relied on a changed getter instead of its recorded root');
+    assert(errorOf(() => app.add(layer({ object: root }))), 'Retired root was reusable through another wrapper');
+  } finally { app.dispose(); }
+});
+
+await check('Changing a wrapper object property cannot detach an unrelated object', () => {
+  const app = scene(), root = new Group(), replacement = new Group(), unrelatedParent = new Group();
+  unrelatedParent.add(replacement);
+  const item = layer({ object: root });
+  try {
+    app.add(item);
+    item.object = replacement;
+    app.clear();
+    assert(root.parent === null && app.scene.children.length === 0, 'Clear abandoned the originally attached root');
+    assert(replacement.parent === unrelatedParent, 'Clear detached a replacement root it never owned');
+    app.add(layer({ object: replacement }));
+    assert(replacement.parent === app.scene, 'Cleanup incorrectly retired the unrelated replacement');
+  } finally { app.dispose(); }
+});
+
+await check('Failed initialization rolls back captured root identity and releases its claim', () => {
+  const first = scene(), second = scene(), root = new Group(), replacement = new Group();
+  const parent = new Group(), replacementParent = new Group();
+  parent.add(root); replacementParent.add(replacement);
+  let firstUpdate = true, disposals = 0;
+  const item = layer({ object: root, update(){ if (firstUpdate) { firstUpdate = false; item.object = replacement; throw new Error('failed after replacing object'); } }, dispose(){ disposals++; } });
+  try {
+    assert(errorOf(() => first.add(item)), 'Expected initialization failure');
+    assert(root.parent === parent && replacement.parent === replacementParent && first.scene.children.length === 0, 'Rollback used the replacement instead of the captured root');
+    assert(disposals === 0, 'Failed initialization disposed caller-owned resources');
+    second.add(layer({ object: root }));
+    assert(root.parent === second.scene, 'Rollback left the root claimed or retired');
+    first.add(item);
+    assert(replacement.parent === first.scene, 'Rollback left the original wrapper claimed or retired');
+  } finally { first.dispose(); second.dispose(); }
+});
+
+await check('Rollback events cannot reentrantly claim a root before restoration completes', () => {
+  const first = scene(), second = scene(), root = new Group(), parent = new Group();
+  parent.add(root);
+  let rollingBack = false, blocked = false;
+  const alias = layer({ object: root });
+  const item = layer({ object: root, update(){ rollingBack = true; throw new Error('initialization failed'); } });
+  root.addEventListener('removed', () => {
+    if (rollingBack) blocked = Boolean(errorOf(() => second.add(alias)));
+  });
+  try {
+    assert(errorOf(() => first.add(item)), 'Expected initialization failure');
+    assert(blocked && root.parent === parent && second.scene.children.length === 0, 'A rollback event claimed a root still being restored');
+    rollingBack = false;
+    second.add(alias);
+    assert(root.parent === second.scene, 'The root claim did not release after rollback finished');
+  } finally { first.dispose(); second.dispose(); }
+});
+
+await check('Root retirement survives failed cleanup and whole-app disposal', () => {
+  const app = scene(), other = scene(), brokenRoot = new Group(), root = new Group();
+  const broken = layer({ object: brokenRoot, dispose(){ throw new Error('custom disposer failed'); } });
+  try {
+    app.add(broken);
+    assert(errorOf(() => app.remove(broken)), 'Expected disposal error');
+    assert(errorOf(() => app.add(layer({ object: brokenRoot }))) && errorOf(() => other.add(layer({ object: brokenRoot }))), 'Failed cleanup made a retired root reusable');
+    app.add(layer({ object: root })); app.dispose();
+    assert(errorOf(() => other.add(layer({ object: root }))), 'Disposed app root was reusable through another wrapper');
+    assert(root.parent === null && brokenRoot.parent === null, 'Retired roots stayed attached');
+  } finally { errorOf(() => app.dispose()); other.dispose(); }
+});
+
+await check('Clear attempts every disposer, retires layers, and leaves the app usable', () => {
+  const app = scene();
+  let brokenDisposals = 0, healthyDisposals = 0;
+  const broken = layer({dispose(){ brokenDisposals++; throw new Error('broken layer cleanup'); }});
+  const healthy = layer({dispose(){ healthyDisposals++; }});
+  app.add(broken); app.add(healthy);
+  try {
+    const error = errorOf(() => app.clear());
+    assert(error, 'Clear must report disposal errors');
+    assert(brokenDisposals === 1 && healthyDisposals === 1, 'One disposer prevented another layer from releasing its resources');
+    assert(app.scene.children.length === 0, 'Clear left scene attachments behind');
+    assert(errorOf(() => app.add(broken)) && errorOf(() => app.add(healthy)), 'Failed cleanup must not make retired layers reusable');
+    const replacement = app.add(layer());
+    assert(replacement.object.parent === app.scene, 'Clear failure unexpectedly destroyed the app');
+  } finally { errorOf(() => app.dispose()); }
+});
+
+await check('Dispose finishes app cleanup after a custom disposer fails', () => {
+  const app = scene();
+  const canvas = app.renderer.domElement;
+  let throwOnce = true, remainingDisposals = 0;
+  app.add(layer({dispose(){ if(throwOnce) { throwOnce=false; throw new Error('custom dispose failure'); } }}));
+  app.add(layer({dispose(){ remainingDisposals++; }}));
+  try {
+    assert(errorOf(() => app.dispose()), 'Dispose must report the failing custom disposer');
+    assert(remainingDisposals === 1, 'Dispose did not release remaining owned layers');
+    assert(!canvas.isConnected, 'Dispose left its canvas attached');
+    assert(errorOf(() => app.setPaused(false)), 'A failed cleanup left the app partially alive');
+    assert(!errorOf(() => app.dispose()), 'Repeated disposal must be harmless');
+  } finally { errorOf(() => app.dispose()); }
+});
+
+await check('Reentrant disposal releases the renderer only once', () => {
+  const app = scene();
+  let rendererDisposals = 0, layerDisposals = 0;
+  const disposeRenderer = app.renderer.dispose.bind(app.renderer);
+  app.renderer.dispose = () => { rendererDisposals++; disposeRenderer(); };
+  app.add(layer({dispose(){ layerDisposals++; app.dispose(); }}));
+  try {
+    app.dispose();
+    assert(layerDisposals === 1 && rendererDisposals === 1, 'Reentrant dispose duplicated renderer teardown');
+  } finally { errorOf(() => app.dispose()); }
+});
+
+await check('A custom update can dispose the app without rendering disposed resources', async () => {
+  const app = scene(), canvas = app.renderer.domElement;
+  let updates = 0, rendersAfterDisposal = 0;
+  const render = app.renderer.render.bind(app.renderer);
+  app.renderer.render = (...args) => { if(!canvas.isConnected) rendersAfterDisposal++; return render(...args); };
+  try {
+    await new Promise(resolve => app.add(layer({update(){ if(++updates === 2) { app.dispose(); resolve(); } }})));
+    await new Promise(requestAnimationFrame);
+    assert(updates === 2 && !canvas.isConnected, 'Custom update did not dispose its app');
+    assert(rendersAfterDisposal === 0, 'The current frame rendered after teardown');
+  } finally { app.dispose(); }
+});
+
+await check('A frame observer can dispose the app without invoking later observers', async () => {
+  const app = scene();
+  let laterObserverCalls = 0;
+  try {
+    await new Promise(resolve => {
+      app.onFrame(() => { app.dispose(); resolve(); });
+      app.onFrame(() => laterObserverCalls++);
+    });
+    assert(laterObserverCalls === 0 && !app.renderer.domElement.isConnected, 'Observers continued after teardown');
+  } finally { app.dispose(); }
+});
+
+await check('Invalid frame observers fail synchronously without breaking the render loop', async () => {
+  const app = scene();
+  try {
+    assert(errorOf(() => app.onFrame(null)) instanceof TypeError, 'Invalid observer was deferred into the animation loop');
+    await new Promise(resolve => { const stop = app.onFrame(() => { stop(); resolve(); }); });
+    assert(app.stats.drawCalls > 0, 'The render loop did not recover');
+  } finally { app.dispose(); }
+});
+
+await check('Capture errors reject without preventing later rendering and capture', async () => {
+  const app = scene(), canvas = app.renderer.domElement;
+  const toBlob = canvas.toBlob;
+  try {
+    canvas.toBlob = callback => callback(null);
+    let rejected = false;
+    try { await app.capture(); } catch { rejected = true; }
+    assert(rejected, 'Null PNG encoding must reject');
+    canvas.toBlob = () => { throw new Error('encoding unavailable'); };
+    rejected = false;
+    try { await app.capture(); } catch { rejected = true; }
+    assert(rejected, 'Thrown PNG encoding must reject');
+    canvas.toBlob = toBlob;
+    const bitmap = await createImageBitmap(await app.capture());
+    assert(bitmap.width === 320 && bitmap.height === 240, 'Capture failed after an earlier encoder error');
+    bitmap.close();
+  } finally { canvas.toBlob = toBlob; app.dispose(); }
+});
+
+results.textContent += `\n\n${failures ? 'FAILED' : 'ALL'} ${checks.length - failures}/${checks.length} CORE PRESSURE CHECKS PASSED`;
+document.title = `${failures ? 'FAIL' : 'PASS'} — 5js core pressure checks`;
+</script></html>

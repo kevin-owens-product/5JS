@@ -15,11 +15,17 @@ export function calculateCapacity(input: CapacityInput) {
   const rows = WORK_CENTERS.map(center => {
     const load = precision(center.load * input.demand);
     const capacity = precision(center.capacity * (1 + input.overtime) * (1 - input.downtime));
-    return { name: center.name, load, capacity, utilization: load / capacity, uncovered: precision(Math.max(0, load - capacity)) };
+    if (!Number.isFinite(load) || !Number.isFinite(capacity) || capacity <= 0) throw new RangeError('Scaled load must remain finite and rounded capacity must remain positive and finite.');
+    const utilization = load / capacity;
+    if (!Number.isFinite(utilization)) throw new RangeError('Utilization must remain finite.');
+    return { name: center.name, load, capacity, utilization, uncovered: precision(Math.max(0, load - capacity)) };
   });
   const load = precision(rows.reduce((sum, row) => sum + row.load, 0));
   const capacity = precision(rows.reduce((sum, row) => sum + row.capacity, 0));
-  return { rows, load, capacity, weightedUtilization: load / capacity, uncovered: precision(rows.reduce((sum, row) => sum + row.uncovered, 0)) };
+  if (!Number.isFinite(load) || !Number.isFinite(capacity)) throw new RangeError('Aggregate load and capacity must remain finite.');
+  const weightedUtilization = load / capacity;
+  if (!Number.isFinite(weightedUtilization)) throw new RangeError('Weighted utilization must remain finite.');
+  return { rows, load, capacity, weightedUtilization, uncovered: precision(rows.reduce((sum, row) => sum + row.uncovered, 0)) };
 }
 const hours = (value: number) => `${value.toLocaleString('en-US', { maximumFractionDigits: 2 })} h`;
 const pct = (value: number) => `${(value * 100).toFixed(1)}%`;

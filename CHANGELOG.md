@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+- Make custom-layer initialization transactional and complete resource cleanup even when a custom disposer throws; stop frames that dispose their scene.
+- Validate JavaScript option objects and graph-data snapshots before mutation; keep oversized deltas and sparse coordinates out of live GPU state.
+- Reconcile decimal-price break-even with operating profit and reject rounded-zero or nonfinite business-model denominators/results.
+- Preserve gallery category/search state in URLs, dismiss stale scenes for invalid links, and give phone controls full-width tracks.
+- Repair documentation links in packed artifacts and prevent source archives from following symlinks or including hidden/ignored local files.
+- Add adversarial API, rendering, navigation, numeric, and archive regression coverage.
+
 ## 0.1.0-alpha.1 — 2026-10-25
 
 First GitHub alpha. The API remains experimental; npm publication is a separate milestone.

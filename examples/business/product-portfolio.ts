@@ -17,12 +17,18 @@ export function calculateProductPortfolio(input: PortfolioInput) {
     const volumeFactor = 1 + product.growth + input.marketShift;
     const revenue = cents(product.revenue * volumeFactor * (1 + input.priceChange));
     const cost = cents(product.revenue * volumeFactor * (1 - product.margin) * (1 + input.costInflation));
+    if (!Number.isFinite(revenue) || revenue <= 0 || !Number.isFinite(cost)) throw new RangeError('Rounded product revenue must remain positive and finite, and product cost must remain finite.');
     const grossProfit = cents(revenue - cost);
-    return { ...product, baselineRevenue: product.revenue, revenue, cost, grossProfit, growth: revenue / product.revenue - 1, margin: grossProfit / revenue };
+    const growth = revenue / product.revenue - 1, margin = grossProfit / revenue;
+    if (![growth, margin].every(Number.isFinite)) throw new RangeError('Product growth and margin must remain finite.');
+    return { ...product, baselineRevenue: product.revenue, revenue, cost, grossProfit, growth, margin };
   });
   const revenue = cents(rows.reduce((sum, row) => sum + row.revenue, 0));
   const grossProfit = cents(rows.reduce((sum, row) => sum + row.grossProfit, 0));
-  return { rows, revenue, grossProfit, weightedMargin: grossProfit / revenue };
+  if (!Number.isFinite(revenue) || !Number.isFinite(grossProfit)) throw new RangeError('Portfolio totals must remain finite.');
+  const weightedMargin = grossProfit / revenue;
+  if (!Number.isFinite(weightedMargin)) throw new RangeError('Portfolio margin must remain finite.');
+  return { rows, revenue, grossProfit, weightedMargin };
 }
 const usd = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 2 });
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`;

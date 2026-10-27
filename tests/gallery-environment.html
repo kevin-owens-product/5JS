@@ -1,0 +1,18 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>5js gallery environment fixture</title><div id="app"></div>
+<script type="module">
+// Fault injection stays in this isolated test document; production code is unchanged.
+const mode=new URLSearchParams(location.search).get('mode');
+if(mode==='no-webgl'){
+ const original=HTMLCanvasElement.prototype.getContext;
+ HTMLCanvasElement.prototype.getContext=function(type,...args){return /webgl/i.test(type)?null:original.call(this,type,...args);};
+}else if(mode==='reduced-motion'){
+ const original=window.matchMedia.bind(window);
+ window.matchMedia=query=>query==='(prefers-reduced-motion: reduce)'?{matches:true,media:query,onchange:null,addListener(){},removeListener(){},addEventListener(){},removeEventListener(){},dispatchEvent(){return true;}}:original(query);
+}
+if(mode==='throwing-cleanup'){
+ const {findExample}=await import('/examples/catalog.ts');
+ const recipe=findExample('fusion-chamber'), setup=recipe.setup;
+ recipe.setup=app=>{const instance=setup(app);return {...instance,dispose(){instance.dispose?.();throw new Error('Fixture custom cleanup failed');}};};
+}
+await import('/examples/gallery/main.ts');
+</script></html>

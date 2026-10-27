@@ -5,17 +5,33 @@ import type { ExampleDefinition } from '../types.js';
 export const BREAK_EVEN_PRICES = Object.freeze([20, 30, 40, 50, 60, 70]);
 export const BREAK_EVEN_VOLUMES = Object.freeze([0, 500, 1_000, 1_500, 2_000, 2_500]);
 export interface BreakEvenInput { fixedCost: number; unitCost: number }
+function operatingProfit(price: number, volume: number, unitCost: number, fixedCost: number) {
+  const revenue = price * volume, variableCost = unitCost * volume;
+  const profit = revenue - variableCost - fixedCost;
+  const roundoff = Number.EPSILON * 4 * Math.max(Math.abs(revenue), Math.abs(variableCost), Math.abs(fixedCost));
+  return Math.abs(profit) <= roundoff ? 0 : profit;
+}
 export function calculateBreakEvenGrid(input: BreakEvenInput) {
   if (![input.fixedCost, input.unitCost].every(value => Number.isFinite(value) && value >= 0)) throw new RangeError('Fixed cost and unit cost must be finite and nonnegative.');
   const rows = BREAK_EVEN_PRICES.flatMap(price => BREAK_EVEN_VOLUMES.map(volume => {
     const revenue = price * volume;
     const totalCost = input.fixedCost + input.unitCost * volume;
-    return { price, volume, revenue, totalCost, profit: revenue - totalCost };
+    if (!Number.isFinite(totalCost)) throw new RangeError('Modeled total cost must remain finite.');
+    return { price, volume, revenue, totalCost, profit: operatingProfit(price, volume, input.unitCost, input.fixedCost) };
   }));
-  const thresholds = BREAK_EVEN_PRICES.map(price => ({
-    price, exactUnits: price > input.unitCost ? input.fixedCost / (price - input.unitCost) : input.fixedCost === 0 ? 0 : null,
-    units: price > input.unitCost ? Math.ceil(input.fixedCost / (price - input.unitCost)) : input.fixedCost === 0 ? 0 : null,
-  }));
+  const thresholds = BREAK_EVEN_PRICES.map(price => {
+    let exactUnits: number | null = input.fixedCost === 0 ? 0 : null;
+    if (input.fixedCost > 0 && price > input.unitCost) {
+      exactUnits = input.fixedCost / (price - input.unitCost);
+      if (!Number.isFinite(exactUnits)) throw new RangeError('Break-even volume exceeds the finite numeric range.');
+      const upper = Math.ceil(exactUnits);
+      if (![upper * price, upper * input.unitCost, upper * input.unitCost + input.fixedCost].every(Number.isFinite)) throw new RangeError('Break-even revenue and costs must remain finite.');
+      const nearest = Math.round(exactUnits);
+      // Do not ceil a floating-point cancellation artifact into an extra unit.
+      if (operatingProfit(price, nearest, input.unitCost, input.fixedCost) === 0) exactUnits = nearest;
+    }
+    return { price, exactUnits, units: exactUnits === null ? null : Math.ceil(exactUnits) };
+  });
   return { ...input, rows, thresholds, profitableCases: rows.filter(row => row.profit > 0).length, zeroCases: rows.filter(row => row.profit === 0).length };
 }
 const usd = (value: number) => value.toLocaleString('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 });

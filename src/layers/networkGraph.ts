@@ -5,10 +5,14 @@ import {
 } from 'three';
 import type { FiveLayer, GraphData, GraphNode, NetworkGraphOptions } from '../types.js';
 import { bounded, colorString, rejectStructural, seededRandom } from './dataMath.js';
-import { scientificColor } from './scientificMath.js';
+import { optionSnapshot, scientificColor } from './scientificMath.js';
 
 const MAX_NODES = 10_000;
 const MAX_EDGES = 100_000;
+const defaults: Required<Omit<NetworkGraphOptions, 'data'>> = {
+  nodeCount: 280, radius: 4.2, nodeSize: 0.045, speed: 0.35, seed: 42,
+  edgeOpacity: 0.22, colorA: '#56f5df', colorB: '#a98aff',
+};
 
 /** A reproducible, grouped sample graph. Its connections are illustrative data. */
 export function createDemoGraph(nodeCount: number, seed: number): GraphData {
@@ -41,37 +45,52 @@ export function createDemoGraph(nodeCount: number, seed: number): GraphData {
   return { nodes, edges };
 }
 
-function validateData(data: GraphData): void {
-  if (!data || !Array.isArray(data.nodes) || !Array.isArray(data.edges)) {
+/** Validate the exact immutable-by-convention snapshot used to allocate GPU buffers. */
+function snapshotData(input: GraphData): GraphData {
+  const { nodes: inputNodes, edges: inputEdges } = optionSnapshot(input, ['nodes', 'edges'], 'Graph data');
+  if (!Array.isArray(inputNodes) || !Array.isArray(inputEdges)) {
     throw new TypeError('Graph data must contain nodes and edges arrays.');
   }
-  bounded(data.nodes.length, 'data.nodes.length', 1, MAX_NODES, true);
-  bounded(data.edges.length, 'data.edges.length', 0, MAX_EDGES, true);
+  const nodeCount = bounded(inputNodes.length, 'data.nodes.length', 1, MAX_NODES, true);
+  const edgeCount = bounded(inputEdges.length, 'data.edges.length', 0, MAX_EDGES, true);
+  const nodes: GraphData['nodes'] = [];
+  const edges: GraphData['edges'] = [];
   const ids = new Set<string>();
-  for (const node of data.nodes) {
-    if (!node || typeof node.id !== 'string' || node.id.trim().length === 0) throw new TypeError('Every graph node needs a nonempty string id.');
-    if (ids.has(node.id)) throw new Error(`Duplicate graph node id: ${node.id}`);
-    ids.add(node.id);
-    if (node.group !== undefined) bounded(node.group, `Node ${node.id} group`, 0, 1_000_000, true);
-    if (node.value !== undefined) bounded(node.value, `Node ${node.id} value`, 0, 1_000_000);
-    if (node.position !== undefined) {
-      if (!Array.isArray(node.position) || node.position.length !== 3) throw new TypeError(`Node ${node.id} position must contain three coordinates.`);
-      node.position.forEach((coordinate) => bounded(coordinate, `Node ${node.id} position`, -1_000_000, 1_000_000));
+  for (let index = 0; index < nodeCount; index++) {
+    const { id, group, value, position } = optionSnapshot(inputNodes[index], ['id', 'group', 'value', 'position'], 'Graph node');
+    if (typeof id !== 'string' || id.trim().length === 0) throw new TypeError('Every graph node needs a nonempty string id.');
+    if (ids.has(id)) throw new Error(`Duplicate graph node id: ${id}`);
+    ids.add(id);
+    const node: GraphNode = { id };
+    if (group !== undefined) node.group = bounded(group, `Node ${id} group`, 0, 1_000_000, true);
+    if (value !== undefined) node.value = bounded(value, `Node ${id} value`, 0, 1_000_000);
+    if (position !== undefined) {
+      if (!Array.isArray(position) || position.length !== 3) throw new TypeError(`Node ${id} position must contain three coordinates.`);
+      // Indexed reads reject sparse tuples and avoid caller-defined iteration methods.
+      node.position = [0, 1, 2].map(axis => bounded(position[axis], `Node ${id} position`, -1_000_000, 1_000_000)) as [number, number, number];
     }
+    nodes.push(node);
   }
-  for (const edge of data.edges) {
-    if (!edge || !ids.has(edge.source) || !ids.has(edge.target)) {
-      throw new Error(`Graph edge references a missing endpoint: ${edge?.source} → ${edge?.target}`);
+  for (let index = 0; index < edgeCount; index++) {
+    const { source, target, weight } = optionSnapshot(inputEdges[index], ['source', 'target', 'weight'], 'Graph edge');
+    if (typeof source !== 'string' || typeof target !== 'string' || !ids.has(source) || !ids.has(target)) {
+      throw new Error('Graph edge references a missing endpoint.');
     }
-    if (edge.weight !== undefined) bounded(edge.weight, 'Edge weight', 0, 1_000_000);
+    const edge = { source, target, weight };
+    if (weight !== undefined) edge.weight = bounded(weight, 'Edge weight', 0, 1_000_000);
+    edges.push(edge);
   }
+  return { nodes, edges };
 }
 
 /** Groups missing positions into deterministic 3D clusters; supplied positions are preserved. */
 export function layoutGraph(data: GraphData, radius: number, seed: number): Float32Array {
-  validateData(data);
   bounded(radius, 'radius', 0.01, 10_000);
   bounded(seed, 'seed', 0, 0xffffffff, true);
+  return layoutSnapshot(snapshotData(data), radius, seed);
+}
+
+function layoutSnapshot(data: GraphData, radius: number, seed: number): Float32Array {
   const random = seededRandom(seed);
   const groups = [...new Set(data.nodes.map((node) => node.group ?? 0))].sort((a, b) => a - b);
   const groupIndices = new Map(groups.map((group, index) => [group, index]));
@@ -96,16 +115,10 @@ export function layoutGraph(data: GraphData, radius: number, seed: number): Floa
 
 /** Instanced nodes with weighted edges. Layout is grouped and deterministic, not a force simulation. */
 export function networkGraph(options: NetworkGraphOptions = {}): FiveLayer<NetworkGraphOptions> {
-  const config = {
-    nodeCount: options.nodeCount ?? 280,
-    radius: options.radius ?? 4.2,
-    nodeSize: options.nodeSize ?? 0.045,
-    speed: options.speed ?? 0.35,
-    seed: options.seed ?? 42,
-    edgeOpacity: options.edgeOpacity ?? 0.22,
-    colorA: options.colorA ?? '#56f5df',
-    colorB: options.colorB ?? '#a98aff',
-  };
+  const keys = [...Object.keys(defaults), 'data'] as (keyof NetworkGraphOptions)[];
+  const supplied = optionSnapshot(options, keys, 'networkGraph options');
+  const { data: suppliedData, ...parameters } = supplied;
+  const config = { ...defaults, ...parameters };
   bounded(config.nodeCount, 'nodeCount', 1, MAX_NODES, true);
   bounded(config.radius, 'radius', 0.01, 10_000);
   bounded(config.seed, 'seed', 0, 0xffffffff, true);
@@ -116,17 +129,11 @@ export function networkGraph(options: NetworkGraphOptions = {}): FiveLayer<Netwo
     colorString(value.colorA, 'colorA'); colorString(value.colorB, 'colorB');
   };
   validateAppearance(config);
-  if (options.data !== undefined && options.nodeCount !== undefined) {
+  if (suppliedData !== undefined && supplied.nodeCount !== undefined) {
     throw new Error('Use either data or nodeCount; explicit graph data determines its node count.');
   }
-  const sourceData = options.data ?? createDemoGraph(config.nodeCount, config.seed);
-  validateData(sourceData);
-  // Retain a snapshot so later caller-side mutations cannot desynchronize GPU buffers.
-  const data: GraphData = {
-    nodes: sourceData.nodes.map((node) => ({ ...node, position: node.position ? [...node.position] as [number, number, number] : undefined })),
-    edges: sourceData.edges.map((edge) => ({ ...edge })),
-  };
-  const positions = layoutGraph(data, config.radius, config.seed);
+  const data = snapshotData(suppliedData === undefined ? createDemoGraph(config.nodeCount, config.seed) : suppliedData);
+  const positions = layoutSnapshot(data, config.radius, config.seed);
   const count = data.nodes.length;
   const nodeIndex = new Map(data.nodes.map((node, index) => [node.id, index]));
   const groups = [...new Set(data.nodes.map((node) => node.group ?? 0))].sort((a, b) => a - b);
@@ -136,7 +143,7 @@ export function networkGraph(options: NetworkGraphOptions = {}): FiveLayer<Netwo
   const nodeScales = data.nodes.map((node) => 0.55 + Math.sqrt((node.value ?? 1) / maximumValue) * 1.25);
   const object = new Group();
   object.name = '5js-network-graph';
-  object.userData = { nodeIds: data.nodes.map((node) => node.id), edgeCount: data.edges.length, synthetic: !options.data };
+  object.userData = { nodeIds: data.nodes.map((node) => node.id), edgeCount: data.edges.length, synthetic: suppliedData === undefined };
   const nodeGeometry = new SphereGeometry(1, 8, 6);
   const nodeMaterial = new MeshBasicMaterial({ toneMapped: false });
   const nodes = new InstancedMesh(nodeGeometry, nodeMaterial, count);
@@ -212,19 +219,22 @@ export function networkGraph(options: NetworkGraphOptions = {}): FiveLayer<Netwo
     update(_time, delta) {
       if (disposed) return;
       if (!Number.isFinite(delta) || delta < 0) return;
-      phase += delta * config.speed;
+      const nextPhase = phase + delta * config.speed;
+      if (!Number.isFinite(nextPhase)) return;
+      phase = nextPhase;
       object.rotation.y = phase * 0.12;
       object.rotation.x = Math.sin(phase * 0.15) * 0.08;
     },
     set(patch) {
       if (disposed) throw new Error('Cannot update a disposed networkGraph layer.');
+      const supplied = optionSnapshot(patch, keys, 'networkGraph.set()');
       rejectStructural(patch, ['data', 'nodeCount', 'radius', 'seed'], 'networkGraph');
-      const next = { ...config, ...patch };
+      const next = { ...config, ...supplied };
       validateAppearance(next);
       Object.assign(config, next);
-      if (patch.nodeSize !== undefined) { refreshNodeSizes(); glowMaterial.uniforms.uSize.value = config.nodeSize; }
-      if (patch.edgeOpacity !== undefined) edgeMaterial.opacity = config.edgeOpacity;
-      if (patch.colorA !== undefined || patch.colorB !== undefined) refreshColors();
+      if (supplied.nodeSize !== undefined) { refreshNodeSizes(); glowMaterial.uniforms.uSize.value = config.nodeSize; }
+      if (supplied.edgeOpacity !== undefined) edgeMaterial.opacity = config.edgeOpacity;
+      if (supplied.colorA !== undefined || supplied.colorB !== undefined) refreshColors();
     },
     dispose() {
       if (disposed) return;
