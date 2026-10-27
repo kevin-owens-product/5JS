@@ -1,6 +1,6 @@
 # Compatibility and validation
 
-5js is an alpha library. This page distinguishes implementation requirements from environments that have actually been checked. It does not promise a frame rate or a complete browser-support matrix.
+Motif (`fivejs`) is an alpha library. This page distinguishes implementation requirements from environments that have actually been checked. It does not promise a frame rate or a complete browser-support matrix.
 
 ## Runtime and package requirements
 
@@ -10,13 +10,13 @@
 | Browser APIs | DOM, canvas, `ResizeObserver`, animation scheduling, and standard Blob APIs |
 | JavaScript package | ESM with TypeScript declarations; no CommonJS entry |
 | Three.js | Peer range `^0.180.0`; current implementation tested with r180 |
-| Development tools | Node.js 22.12+ and npm |
+| Development tools | Node.js 22.12+ and npm for core/site; Node.js 22.16+ for the connector package/demo |
 | Source ZIP generation and package verification | Python 3, invoked by `npm run package:examples`, `npm run build:demo`, and the archive-regression portion of `npm run test:package` |
 | Server rendering | `createFive` requires a mounted browser element; it does not render on a server |
 
 The `@webgpu/types` reference in the declarations supports dependency typing; it does not indicate a WebGPU rendering backend. Three.js remains external to the library bundle, while the static demo bundles its own runtime dependencies.
 
-The local desktop browser checks have exercised all four layers and all 44 gallery recipes. That result is not a verified Safari, Firefox, mobile-device, or GPU compatibility matrix. Record the browser version, OS, GPU/backend, recipe, viewport, and relevant controls when reporting a new environment. Do not infer support solely from a browser's name or nominal WebGL2 availability; device limits and graphics drivers can affect results.
+The local desktop browser checks have exercised all four layers and all 50 gallery recipes. That result is not a verified Safari, Firefox, mobile-device, or GPU compatibility matrix. Record the browser version, OS, GPU/backend, recipe, viewport, and relevant controls when reporting a new environment. Do not infer support solely from a browser's name or nominal WebGL2 availability; device limits and graphics drivers can affect results.
 
 ## Application integration and cleanup
 

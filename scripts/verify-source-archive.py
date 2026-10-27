@@ -37,6 +37,13 @@ class SourceArchiveChecks(unittest.TestCase):
         with ZipFile(self.project / "public/examples/5js-examples.zip") as archive:
             return {name.removeprefix("fivejs-examples/") for name in archive.namelist()}
 
+    def test_preserves_agent_entry_points_without_git(self):
+        for name in ("AGENTS.md", "llms.txt"):
+            shutil.copy2(ROOT / name, self.project / name)
+        result = self.build()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue({"AGENTS.md", "llms.txt"} <= self.names())
+
     def test_prunes_hidden_dependencies_and_generated_files_without_git(self):
         (self.project / "docs/guide.md").write_text("# Public guide\n")
         for name in ("docs/.private.md", "docs/.local/notes.md", "docs/node_modules/vendor.ts", "docs/dist/generated.ts"):

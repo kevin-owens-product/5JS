@@ -1,10 +1,12 @@
-# Contributing to 5js
+# Contributing to Motif
 
-5js is an experimental TypeScript library built on Three.js. Contributions can improve its four public layers, its scene lifecycle, documentation, or the 32-example gallery. See the [API reference](docs/API.md) and [example guide](examples/README.md) before choosing where a change belongs.
+Motif is an experimental TypeScript library built on Three.js. Contributions can improve its four public layers, its scene lifecycle, documentation, or the 50-example gallery. See the [API reference](docs/API.md) and [example guide](examples/README.md) before choosing where a change belongs.
+
+For task-based entry points, use [the documentation map](docs/INDEX.md). Coding agents should also read [AGENTS.md](AGENTS.md).
 
 ## Set up a checkout
 
-Use Node.js 22.12 or newer, npm, and Python 3. A browser with WebGL2 is needed to view the playground and run rendering checks. Clone or fork the repository, open its root directory, then run:
+Use Node.js 22.16 or newer for all demos, npm, and Python 3. The core library/site alone supports Node.js 22.12+. A browser with WebGL2 is needed to view the playground and run rendering checks. Clone or fork the repository, open its root directory, then run:
 
 ```sh
 npm ci
