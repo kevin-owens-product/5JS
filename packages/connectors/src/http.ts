@@ -2,6 +2,7 @@ import { assertServerRuntime, ConnectorError, validateIdentity } from './core.js
 import type { HttpOptions } from './types.js';
 
 export function createHttpClient(config: HttpOptions & { baseUrl: string; headers?: Record<string, string>; maxResponseBytes?: number }) {
+  config = { ...config, headers: config.headers && { ...config.headers } };
   assertServerRuntime(); validateIdentity(config);
   let base: URL;
   try { base = new URL(config.baseUrl); } catch { throw new ConnectorError('INVALID_CONFIG', 'A valid HTTPS source origin is required.'); }
@@ -16,8 +17,10 @@ export function createHttpClient(config: HttpOptions & { baseUrl: string; header
     if (url.origin !== base.origin || url.username || url.password || url.hash) throw new ConnectorError('INVALID_URL', 'Source requests must remain on the configured origin.');
     let response: Response;
     try {
+      if (options.signal?.aborted) throw new ConnectorError('ABORTED', 'The source request was cancelled.');
       const token = await config.token();
-      if (!token || /[\r\n]/.test(token)) throw new ConnectorError('AUTHENTICATION', 'The source token is missing or invalid.');
+      if (options.signal?.aborted) throw new ConnectorError('ABORTED', 'The source request was cancelled.');
+      if (typeof token !== 'string' || !token || /[\r\n]/.test(token)) throw new ConnectorError('AUTHENTICATION', 'The source token is missing or invalid.');
       const headers = new Headers({ accept: 'application/json', ...config.headers, ...options.headers });
       headers.set('authorization', `Bearer ${token}`);
       if (options.body !== undefined && !headers.has('content-type')) headers.set('content-type', 'application/json');
@@ -33,6 +36,9 @@ export function createHttpClient(config: HttpOptions & { baseUrl: string; header
     if (Number(response.headers.get('content-length')) > maxBytes) { await response.body?.cancel().catch(() => {}); throw new ConnectorError('RESPONSE_TOO_LARGE', 'The source response exceeded the byte limit.'); }
     const reader = response.body?.getReader();
     if (!reader) throw new ConnectorError('INVALID_RESPONSE', 'The source returned an empty response.');
+    const cancel = () => { void reader.cancel().catch(() => {}); };
+    options.signal?.addEventListener('abort', cancel, { once: true });
+    if (options.signal?.aborted) cancel();
     const decoder = new TextDecoder(); let total = 0, text = '';
     try {
       for (;;) {
@@ -41,12 +47,14 @@ export function createHttpClient(config: HttpOptions & { baseUrl: string; header
         if (total > maxBytes) throw new ConnectorError('RESPONSE_TOO_LARGE', 'The source response exceeded the byte limit.');
         text += decoder.decode(chunk.value, { stream: true });
       }
+      if (options.signal?.aborted) throw new ConnectorError('ABORTED', 'The source request was cancelled.');
       text += decoder.decode();
       return JSON.parse(text);
     } catch (error) {
-      await reader.cancel().catch(() => {});
+      cancel();
+      if (options.signal?.aborted) throw new ConnectorError('ABORTED', 'The source request was cancelled.');
       if (error instanceof ConnectorError) throw error;
       throw new ConnectorError('INVALID_RESPONSE', 'The source did not return a valid JSON response.');
-    } finally { reader.releaseLock(); }
+    } finally { options.signal?.removeEventListener('abort', cancel); reader.releaseLock(); }
   } };
 }

@@ -241,9 +241,44 @@ test('pre-aborted gateway requests invoke neither authorization nor the connecto
   assert.equal(authorizeCalls, 0); assert.equal(connectorCalls, 0);
 });
 
-test('coverage catalog distinguishes implemented source scopes from the planned provider roadmap', () => {
+test('coverage catalog lists all 39 implemented providers with concrete factories', () => {
   assert.equal(new Set(connectorCatalog.map(item => item.name)).size, connectorCatalog.length);
-  assert.equal(connectorCatalog.filter(item => item.status === 'implemented').length, 13);
-  assert.ok(connectorCatalog.filter(item => item.status === 'planned').length >= 20);
-  assert.equal(connectorCatalog.find(item => item.name === 'PostHog')?.status, 'planned');
+  assert.equal(connectorCatalog.length, 39);
+  assert.equal(connectorCatalog.filter(item => item.status === 'implemented').length, 39);
+  assert.ok(connectorCatalog.every(item => Array.isArray(item.factories) && item.factories.length > 0 && item.factories.every(name => typeof name === 'string' && name.endsWith('Connector'))));
+  assert.equal(connectorCatalog.find(item => item.name === 'PostHog')?.status, 'implemented');
+});
+
+test('HTTP cancellation skips authentication when pre-aborted and skips fetch after late authentication', async () => {
+  let tokens = 0, calls = 0, finishToken!: (token: string) => void;
+  const options = { ...identity, baseUrl: 'https://example.test', token: () => { tokens++; return new Promise<string>(resolve => { finishToken = resolve; }); }, fetch: (async () => { calls++; return Response.json({}); }) as typeof fetch };
+  const http = createHttpClient(options), preAborted = new AbortController(); preAborted.abort();
+  await assert.rejects(http.request('/', { signal: preAborted.signal }), (error: ConnectorError) => error.code === 'ABORTED');
+  assert.equal(tokens, 0); assert.equal(calls, 0);
+  const controller = new AbortController(), pending = http.request('/', { signal: controller.signal });
+  controller.abort(); finishToken('private-token');
+  await assert.rejects(pending, (error: ConnectorError) => error.code === 'ABORTED');
+  assert.equal(tokens, 1); assert.equal(calls, 0);
+});
+
+test('server HTTP and browser endpoint release stalled response readers on cancellation', { timeout: 2000 }, async () => {
+  for (const browser of [false, true]) {
+    let cancelled = 0;
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) { controller.enqueue(new TextEncoder().encode('{"partial":')); },
+      cancel() { cancelled++; return new Promise(() => {}); },
+    });
+    const fetch: typeof globalThis.fetch = async () => new Response(body);
+    if (browser) {
+      const endpoint = endpointConnector({ ...identity, endpoint: '/api/motif', fetch });
+      await assert.rejects(endpoint.read({ operation: 'customers' }, { timeoutMs: 15 }), (error: ConnectorError) => error.code === 'TIMEOUT');
+    } else {
+      const controller = new AbortController();
+      const pending = createHttpClient({ ...identity, baseUrl: 'https://example.test', token: () => 'token', fetch }).request('/', { signal: controller.signal });
+      await new Promise(resolve => setImmediate(resolve)); controller.abort();
+      await assert.rejects(pending, (error: ConnectorError) => error.code === 'ABORTED');
+    }
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(cancelled, 1); assert.equal(body.locked, false);
+  }
 });

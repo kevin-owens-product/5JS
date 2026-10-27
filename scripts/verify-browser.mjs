@@ -15,6 +15,7 @@ const checks = [
   { name: 'core-pressure', path: '/tests/core-pressure.html', timeout: 60_000 },
   { name: 'gallery-pressure', path: '/tests/gallery-pressure.html', timeout: 300_000 },
   { name: 'connected-pressure', path: '/tests/connected-pressure.html', timeout: 300_000 },
+  { name: 'motif-pressure', path: '/tests/motif-browser.html', timeout: 120_000 },
   { name: 'render-pressure', path: '/tests/render-pressure.html', timeout: 210_000 },
 ];
 await mkdir(artifacts, { recursive: true });

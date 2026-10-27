@@ -32,14 +32,18 @@ export function endpointConnector(config: EndpointOptions): DataConnector<Operat
       if (!response.ok) { await response.body?.cancel().catch(() => {}); throw new ConnectorError(response.status === 401 || response.status === 403 ? 'AUTHENTICATION' : 'APPLICATION_ERROR', `The application returned HTTP ${response.status}.`); }
       // Bound untrusted application responses as well as provider responses.
       const reader = response.body?.getReader(); if (!reader) throw new ConnectorError('INVALID_RESPONSE', 'The application returned an empty response.');
+      const cancel = () => { void reader.cancel().catch(() => {}); };
+      scope.signal.addEventListener('abort', cancel, { once: true });
+      if (scope.signal.aborted) cancel();
       const decoder = new TextDecoder(); let text = '', bytes = 0;
       try {
         for (;;) { const next = await reader.read(); if (next.done) break; bytes += next.value.byteLength; if (bytes > 8 * 1024 * 1024) throw new ConnectorError('RESPONSE_TOO_LARGE', 'The application response exceeded 8 MiB.'); text += decoder.decode(next.value, { stream: true }); }
+        if (scope.signal.aborted) throw new ConnectorError('ABORTED', 'The application request was cancelled.');
         text += decoder.decode(); const page = validateDataPage(JSON.parse(text));
         if (page.rows.length > scope.limit) throw new ConnectorError('INVALID_RESPONSE', 'The application exceeded the requested page size.');
         return page;
-      } catch (error) { await reader.cancel().catch(() => {}); if (error instanceof ConnectorError) throw error; throw new ConnectorError('INVALID_RESPONSE', 'The application returned an invalid data page.'); }
-      finally { reader.releaseLock(); }
+      } catch (error) { cancel(); if (scope.signal.aborted) throw new ConnectorError('ABORTED', 'The application request was cancelled.'); if (error instanceof ConnectorError) throw error; throw new ConnectorError('INVALID_RESPONSE', 'The application returned an invalid data page.'); }
+      finally { scope.signal.removeEventListener('abort', cancel); reader.releaseLock(); }
     }); },
   };
 }

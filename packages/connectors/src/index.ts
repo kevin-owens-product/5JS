@@ -5,3 +5,6 @@ export type { EndpointOptions, OperationQuery } from './browser.js';
 export { jsonConnector } from './adapters/json.js';
 export type { JsonOptions } from './adapters/json.js';
 export { connectorCatalog } from './catalog.js';
+export type { ConnectorCatalogEntry } from './catalog.js';
+export { csvConnector, arrowConnector, parquetConnector } from './adapters/files.js';
+export type { CsvOptions, ArrowOptions, ParquetOptions, ArrowTable, ArrowField, ArrowVector, ArrowCellDecoder } from './adapters/files.js';

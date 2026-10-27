@@ -49,3 +49,5 @@
 
 .outcome-workspace,.connected .viewer-content,.record-inspector{scroll-margin-top:95px}
 @media(max-width:760px){.outcome-workspace,.connected .viewer-content,.record-inspector{scroll-margin-top:80px}}
+
+.brand{letter-spacing:-1.7px}.brand span{margin-left:2px}
