@@ -1,0 +1,16 @@
+{
+  "name": "motif-connectors",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "description": "Typed data adapters and a server operation gateway for Motif visualizations",
+  "type": "module",
+  "sideEffects": false,
+  "license": "MIT",
+  "engines": { "node": ">=22.16.0" },
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
+    "./server": { "types": "./dist/server.d.ts", "import": "./dist/server.js" }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "scripts": { "build": "tsc -p tsconfig.json" }
+}

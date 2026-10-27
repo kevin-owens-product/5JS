@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { execFileSync } from 'node:child_process';
-import { cp, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
+import { cp, lstat, mkdtemp, mkdir, readFile, readdir, rm, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -17,6 +17,21 @@ function npm(args, cwd, capture = false) {
     cwd, encoding: 'utf8', stdio: capture ? ['ignore', 'pipe', 'inherit'] : 'inherit',
     timeout: 240_000, maxBuffer: 10 * 1024 * 1024,
   });
+}
+
+const packageFiles = new Set(['connectors/package.json', 'connectors/tsconfig.json', 'connectors/README.md', 'connectors/LICENSE']);
+const packageSourceRoots = ['connectors/src', 'connectors/examples', 'connectors/docs'];
+const sourceSuffixes = new Set(['.ts', '.mts', '.mjs', '.html', '.css', '.md', '.py', '.yml', '.yaml']);
+const excludedDirectories = new Set(['node_modules', 'dist', 'demo-dist', '__pycache__', 'coverage']);
+const privateNames = new Set(['private', 'secret', 'secrets', 'credentials']);
+async function packageSourceFilter(path) {
+  const local = relative(join(root, 'packages'), path).split('\\').join('/');
+  const parts = local.split('/').filter(Boolean);
+  if (parts.some(name => name.startsWith('.') || excludedDirectories.has(name) || name.toLowerCase().split('.').some(part => privateNames.has(part)))) return false;
+  if (local && local !== 'connectors' && !packageFiles.has(local) && !packageSourceRoots.some(folder => local === folder || local.startsWith(`${folder}/`))) return false;
+  const entry = await lstat(path);
+  assert.ok(!entry.isSymbolicLink(), `Refusing to copy a package source symlink: ${local}`);
+  return entry.isDirectory() || packageFiles.has(local) || (entry.isFile() && sourceSuffixes.has(extname(path)));
 }
 
 async function markdownFiles(directory) {
@@ -78,6 +93,9 @@ try {
     'tsconfig.json', 'tsconfig.lib.json', 'vite.config.ts', 'vite.demo.config.ts', 'index.html',
   ];
   for (const name of [...directories, ...files]) await cp(resolve(root, name), join(source, name), { recursive: true });
+  // Keep the connector package runnable from a clean copy without importing its
+  // built dist, installed drivers, private files, or arbitrary JSON snapshots.
+  await cp(join(root, 'packages'), join(source, 'packages'), { recursive: true, filter: packageSourceFilter });
   npm(['ci', '--no-audit', '--no-fund'], source);
   // prepack is responsible for building. This must fail if the public artifact
   // is incomplete, even if npm pack itself would happily emit an empty package.

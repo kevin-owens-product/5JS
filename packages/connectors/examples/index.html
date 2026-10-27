@@ -1,0 +1,227 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Motif — Connector lab</title>
+<style>
+:root{font-family:Inter,ui-sans-serif,system-ui,sans-serif;color:#e6f1e7;background:#09110f;font-synthesis:none}*{box-sizing:border-box}body{margin:0}button,select{font:inherit}button,a,select{touch-action:manipulation}button:focus-visible,a:focus-visible,select:focus-visible{outline:2px solid #d5f6a8;outline-offset:4px}header{display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #293d32;padding:22px 5vw;gap:20px}header strong{font-size:27px;letter-spacing:-1px}header span{font-size:11px;color:#a8bfac;margin-left:15px}header a{font-size:12px;color:#c8e8aa;text-decoration:none}main{max-width:1400px;padding:54px 5vw;margin:auto}.eyebrow{font:10px ui-monospace,monospace;letter-spacing:2px;text-transform:uppercase;color:#aed28c}.intro{display:flex;gap:40px;justify-content:space-between;align-items:end;margin-bottom:40px}h1{font-size:clamp(38px,4.5vw,65px);letter-spacing:-3px;font-weight:500;line-height:1.08;margin:18px 0}h1 em{font-style:normal;color:#b5da8a}.intro p{font-size:14px;line-height:1.8;color:#9db3a3;max-width:560px}.stamp{border:1px solid #3b553d;border-radius:8px;padding:20px;min-width:190px}.stamp strong{display:block;color:#cbe7a8;font-size:33px;font-weight:400}.stamp small{display:block;color:#92ac97;font-size:11px;line-height:1.7;margin-top:6px}.flow{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #344c3c;border-radius:8px;margin-bottom:26px;background:#101d16}.flow>div{padding:18px 22px;border-right:1px solid #344c3c;min-width:0}.flow>div:last-child{border:0}.flow small{display:block;font:9px ui-monospace,monospace;color:#829e87;margin-bottom:8px}.flow strong{font-size:12px;font-weight:500;color:#cce3c2}.workspace{display:grid;grid-template-columns:230px minmax(0,1fr) 290px;gap:18px}.panel{border:1px solid #2e4335;border-radius:8px;background:#101b15;min-width:0;padding:22px}.panel h2{font-size:16px;font-weight:500;margin:10px 0 22px}.op{display:block;width:100%;text-align:left;color:#a8beae;background:none;border:1px solid #344b3b;border-radius:5px;padding:12px;margin:10px 0;font-size:12px;cursor:pointer}.op[aria-pressed=true]{background:#25371e;border-color:#a8cc7f;color:#e1f2d0}.panel label{font-size:10px;color:#9db499;display:block;margin:24px 0 9px}select{width:100%;background:#0b140e;color:#cfe1c9;border:1px solid #3e593f;padding:10px;border-radius:5px;font-size:12px}.hint{font-size:11px;line-height:1.8;color:#8ca28f}.source-badge{display:inline-block;border:1px solid #40583b;color:#c4df9c;padding:5px 8px;font:9px ui-monospace,monospace;border-radius:3px}.results-head{display:flex;justify-content:space-between;gap:12px;align-items:center;margin-bottom:20px}.results-head h2{margin:0}.record{position:relative;display:block;width:100%;text-align:left;background:#101f17;border:1px solid #2f4b38;border-radius:5px;padding:14px;color:#d4e5d2;margin:9px 0;cursor:pointer;overflow:hidden}.record:before{position:absolute;content:'';bottom:0;left:0;width:var(--width,0%);height:3px;background:var(--tint,#a1d781)}.record:hover,.record[aria-pressed=true]{background:#1d3120;border-color:#97bf76}.record strong{display:block;font-size:13px;font-weight:500}.record span{display:flex;justify-content:space-between;gap:8px;font:10px ui-monospace,monospace;margin-top:8px;color:#91ab92}.record b{font-weight:400;color:#d0eab2}.record-summary{font-size:10px;color:#7e9e87;line-height:1.7}.provenance{border-top:1px solid #344c36;margin-top:22px;padding-top:16px;font:9px/1.9 ui-monospace,monospace;color:#8fa78b;overflow-wrap:anywhere}.provenance strong{color:#d1e4bc;font-weight:400}.fields{margin:0}.fields dt{font:9px ui-monospace,monospace;color:#86a38e;margin-top:20px}.fields dd{font-size:12px;line-height:1.8;margin:6px 0 0;overflow-wrap:anywhere;color:#ceddce}.field-type{font:8px ui-monospace,monospace;color:#78947d;margin-left:5px}.catalog{margin-top:38px}.catalog>summary{cursor:pointer;font-size:15px;padding:20px 0;color:#d2e6bb;border-top:1px solid #334b37}.catalog-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.catalog-item{border:1px solid #2b4232;padding:16px;border-radius:6px;min-width:0}.catalog-item strong{font-size:12px;font-weight:500}.catalog-item small{font:8px ui-monospace,monospace;float:right;color:#85b293}.catalog-item p{font-size:10px;line-height:1.7;color:#92a58f}.error{color:#f0bc98;line-height:1.7;font-size:12px}footer{margin:40px 0 0;font-size:10px;color:#718b76}#status{font:10px ui-monospace,monospace;color:#bfdca2}button:disabled,select:disabled{opacity:.4;cursor:default}.record-list{max-height:540px;overflow:auto}.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:16px}.toolbar button{border:1px solid #557348;background:#1e321c;color:#c9e8a8;border-radius:4px;padding:9px 12px;font-size:10px;cursor:pointer}[hidden]{display:none!important}
+@media(max-width:1100px){.workspace{grid-template-columns:200px minmax(0,1fr)}#inspector{grid-column:1/-1}.fields{display:grid;grid-template-columns:1fr 2fr;gap:10px}.fields dt{margin:0}.fields dd{margin:0}.intro{align-items:center}.flow>div{padding:15px}}
+@media(max-width:640px){header{padding:18px}header span{display:block;margin:4px 0 0}header a{max-width:120px;text-align:right;font-size:10px}main{padding:30px 18px}.intro{display:block}.stamp{display:none}h1{letter-spacing:-2px}.flow{grid-template-columns:1fr 1fr}.flow>div:nth-child(2){border-right:0}.flow>div:nth-child(-n+2){border-bottom:1px solid #344c3c}.workspace{grid-template-columns:1fr}.panel{padding:18px}.catalog-grid{grid-template-columns:1fr}.fields{display:block}.fields dt{margin-top:17px}.fields dd{margin-top:5px}.record span{flex-wrap:wrap}.intro p{font-size:12px}}
+</style></head><body>
+<header><div><strong>Motif</strong><span>CONNECTOR LAB · EXPERIMENTAL</span></div><a href="http://127.0.0.1:5185/examples/?category=Decisions">Open 3D decision examples ↗</a></header>
+<main><section class="intro"><div><div class="eyebrow">Connected evidence starts at the source</div><h1>From your source.<br><em>To a clearer decision.</em></h1><p>Run a real local database query, inspect the exact records, and follow the data contract into a view. This lab uses the same fictional customers, checkouts, and interviews as the decision examples.</p></div><div class="stamp"><strong id="implemented-count">13</strong><small>IMPLEMENTED CATALOG ENTRIES<br>Protocol-tested adapters.<br>Cloud account validation pending.</small></div></section>
+<section class="flow" aria-label="Data flow"><div><small>01 / SERVER SOURCE</small><strong id="flow-source">SQLite database</strong></div><div><small>02 / APPLICATION ACCESS</small><strong>Registered operation</strong></div><div><small>03 / SHARED CONTRACT</small><strong>Typed rows + provenance</strong></div><div><small>04 / EXPLORATION</small><strong>Selected record → evidence</strong></div></section>
+<div class="workspace"><aside class="panel"><div class="eyebrow">Choose a question</div><h2>Registered operations</h2><button class="op" data-operation="customer-exposure" aria-pressed="true">Customer exposure</button><button class="op" data-operation="checkout-records" aria-pressed="false">Checkout records</button><button class="op" data-operation="interview-evidence" aria-pressed="false">Interview evidence</button><label for="segment">Customer segment</label><select id="segment"><option value="all">All customers</option><option>Growth</option><option>Enterprise</option></select><p class="hint">The browser sends an operation ID and validated parameters. SQL, source connections, and credentials belong to the server.</p><div class="provenance"><strong>LOCAL DEMONSTRATION</strong><br>SQLite executes the SQL.<br>All records are fictional.<br>Public fixture access only.</div></aside>
+<section class="panel"><div class="results-head"><h2 id="result-title">Customer exposure</h2><span class="source-badge" id="source-badge">SQLITE · FIXTURE</span></div><p class="record-summary" id="interpretation"></p><p id="status" role="status">Loading source…</p><div class="record-list" id="records" aria-label="Source records"></div><div class="toolbar"><span class="record-summary" id="completeness"></span><button id="first-page" hidden>← First page</button><button id="next-page" hidden>Next page →</button></div><div class="provenance" id="provenance"></div><p class="error" id="error" hidden></p></section>
+<aside class="panel" id="inspector"><div class="eyebrow">Exact source values</div><h2 id="record-title" tabindex="-1">Inspect a record</h2><dl id="fields" class="fields"></dl><p class="hint">Integers and decimals can remain strings to preserve precision. Field order and duplicate column names are retained.</p></aside></div>
+<details class="catalog"><summary>Connector coverage — implemented scope and planned integrations</summary><p class="hint">“Implemented” describes code and contract tests, not certification against a live customer account. Planned integrations have no adapter yet.</p><div class="catalog-grid" id="catalog"></div></details><footer>Motif Connectors · MIT · Browser-safe application API / server-side provider adapters</footer></main>
+<script type="module">
+import { endpointConnector, connectorCatalog, mapRows } from '/lib/index.js';
+
+const $ = id => document.getElementById(id),
+  source = endpointConnector({
+    id: 'connector-lab',
+    source: 'Local connector lab',
+    endpoint: '/api/motif'
+  });
+
+let operation = 'customer-exposure',
+  page,
+  selected = -1,
+  pending,
+  generation = 0;
+
+const titles = {
+  'customer-exposure': 'Customer exposure',
+  'checkout-records': 'Checkout records',
+  'interview-evidence': 'Interview evidence'
+};
+
+const notes = {
+  'customer-exposure': 'Bar length shows observed abandoned basket USD by customer. Annual customer value is separate context; neither amount predicts recovered or lost revenue.',
+  'checkout-records': 'Each card is one attempted checkout. Completed and abandoned attempts remain distinct. Values are attempted amounts, not booked revenue.',
+  'interview-evidence': 'Fictional testimony includes supporting, mixed, and contradicting evidence. Twelve interviews are not twelve independent customer organizations.'
+};
+
+function node(tag, text, className) {
+  const el = document.createElement(tag);
+  if (text !== undefined)
+    el.textContent = text;
+  if (className)
+    el.className = className;
+  return el;
+}
+
+function inspect(index, focus = false) {
+  selected = index;
+  document.querySelectorAll('.record').forEach((button, i) =>
+    button.setAttribute('aria-pressed', String(i === index))
+  );
+  $('fields').replaceChildren();
+  if (!page?.rows[index])
+    return;
+
+  $('record-title').textContent = String(page.rows[index][1]);
+  page.fields.forEach((field, i) => {
+    const dt = node('dt', field.name);
+    dt.append(node('span', field.type, 'field-type'));
+    $('fields').append(
+      dt,
+      node(
+        'dd',
+        typeof page.rows[index][i] === 'object'
+          ? JSON.stringify(page.rows[index][i])
+          : String(page.rows[index][i])
+      )
+    );
+  });
+
+  if (focus) {
+    $('record-title').focus({ preventScroll: true });
+    $('inspector').scrollIntoView({ block: 'nearest' });
+  }
+}
+
+async function load(cursor) {
+  pending?.abort();
+  pending = new AbortController();
+  const version = ++generation;
+  $('status').textContent = 'Reading registered operation…';
+  $('error').hidden = true;
+  $('next-page').disabled = true;
+
+  try {
+    const result = await source.read(
+      {
+        operation,
+        parameters: operation === 'interview-evidence'
+          ? {}
+          : { segment: $('segment').value }
+      },
+      {
+        limit: operation === 'interview-evidence' ? 6 : 100,
+        cursor,
+        signal: pending.signal
+      }
+    );
+    if (version !== generation)
+      return;
+
+    page = result;
+    $('result-title').textContent = titles[operation];
+    $('interpretation').textContent = notes[operation];
+    $('flow-source').textContent = operation === 'interview-evidence'
+      ? 'JSON evidence snapshot'
+      : 'SQLite database';
+    $('source-badge').textContent = result.provenance.provider.toUpperCase()
+      + ' · ' + result.provenance.mode.toUpperCase();
+    $('status').textContent = result.rows.length + ' records returned';
+    $('completeness').textContent = result.page.truncated
+      ? 'Partial result — source limit reached'
+      : result.page.hasMore
+        ? 'More source records available'
+        : cursor
+          ? 'Final source page · earlier records on previous pages'
+          : 'Complete result for this operation';
+    $('provenance').replaceChildren(
+      node('strong', result.provenance.source),
+      node('div', 'RETRIEVED ' + new Date(result.provenance.fetchedAt).toLocaleTimeString()),
+      node('div', 'CONNECTOR ' + result.provenance.connectorId)
+    );
+
+    $('records').replaceChildren();
+    const valueIndex = operation === 'customer-exposure'
+      ? 4
+      : operation === 'checkout-records' ? 4 : -1;
+    const max = Math.max(
+      1,
+      ...result.rows.map(row => valueIndex < 0 ? 0 : Number(row[valueIndex]))
+    );
+
+    mapRows(result, (get, i) => {
+      const button = node('button', undefined, 'record');
+      button.setAttribute('aria-pressed', 'false');
+      button.append(node('strong', String(get(1))));
+
+      const detail = node('span');
+      detail.append(
+        node(
+          'span',
+          operation === 'customer-exposure'
+            ? String(get(2)) + ' · ' + String(get(3)) + ' abandoned'
+            : operation === 'checkout-records'
+              ? String(get(2)) + ' · ' + String(get(3))
+              : String(get(2)) + ' · ' + String(get(3))
+        ),
+        node(
+          'b',
+          valueIndex < 0
+            ? 'Read testimony ↗'
+            : '$' + Number(get(valueIndex)).toLocaleString()
+        )
+      );
+      button.append(detail);
+
+      if (valueIndex >= 0)
+        button.style.setProperty('--width', String(Number(get(valueIndex)) / max * 100) + '%');
+      if (operation === 'interview-evidence')
+        button.style.setProperty(
+          '--tint',
+          get(3) === 'contradicts'
+            ? '#de9ea6'
+            : get(3) === 'mixed' ? '#d9c482' : '#94ccbd'
+        );
+
+      button.addEventListener('click', () => inspect(i, true));
+      $('records').append(button);
+    });
+
+    $('first-page').hidden = !cursor;
+    $('next-page').hidden = !result.page.nextCursor;
+    $('next-page').disabled = false;
+    inspect(0);
+  } catch (error) {
+    if (version !== generation || pending.signal.aborted)
+      return;
+
+    $('status').textContent = 'Source request failed';
+    $('error').textContent = error.message;
+    $('error').hidden = false;
+    page = undefined;
+    $('records').replaceChildren();
+    $('fields').replaceChildren();
+    $('provenance').replaceChildren();
+    $('completeness').textContent = '';
+    $('record-title').textContent = 'No current result';
+    $('next-page').hidden = true;
+    $('first-page').hidden = true;
+  }
+}
+
+document.querySelectorAll('[data-operation]').forEach(button =>
+  button.addEventListener('click', () => {
+    operation = button.dataset.operation;
+    document.querySelectorAll('[data-operation]').forEach(item =>
+      item.setAttribute('aria-pressed', String(item === button))
+    );
+    $('segment').disabled = operation === 'interview-evidence';
+    load();
+  })
+);
+
+$('segment').addEventListener('change', () => load());
+$('next-page').addEventListener('click', () => load(page.page.nextCursor));
+$('first-page').addEventListener('click', () => load());
+
+$('implemented-count').textContent = connectorCatalog.filter(
+  entry => entry.status === 'implemented'
+).length;
+
+for (const item of connectorCatalog) {
+  const card = node('div', undefined, 'catalog-item');
+  card.append(
+    node('small', item.status.toUpperCase()),
+    node('strong', item.name),
+    node('p', item.scope)
+  );
+  $('catalog').append(card);
+}
+
+await load();
+</script></body></html>

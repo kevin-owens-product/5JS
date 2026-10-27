@@ -11,6 +11,8 @@ REQUIRED = (
     "package.json", "package-lock.json", "index.html", "README.md", ".gitignore",
     "LICENSE", "THIRD_PARTY_NOTICES.md", "tsconfig.json", "tsconfig.lib.json",
     "vite.config.ts", "vite.demo.config.ts", "scripts/package-examples.py",
+    "packages/connectors/package.json", "packages/connectors/tsconfig.json",
+    "packages/connectors/README.md", "packages/connectors/LICENSE",
 )
 
 
@@ -22,6 +24,7 @@ class SourceArchiveChecks(unittest.TestCase):
         (self.project / "scripts").mkdir(parents=True)
         (self.project / "docs").mkdir()
         for name in REQUIRED:
+            (self.project / name).parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(ROOT / name, self.project / name)
 
     def build(self):
@@ -49,13 +52,56 @@ class SourceArchiveChecks(unittest.TestCase):
     def test_respects_git_ignored_source_when_repository_is_present(self):
         subprocess.run(["git", "init", "--quiet"], cwd=self.project, check=True)
         with (self.project / ".gitignore").open("a") as ignores:
-            ignores.write("\ndocs/private.md\n")
-        (self.project / "docs/private.md").write_text("HARMLESS_IGNORED_CANARY\n")
+            ignores.write("\ndocs/internal-only.md\npackages/connectors/src/internal-only.ts\n")
+        (self.project / "docs/internal-only.md").write_text("HARMLESS_IGNORED_CANARY\n")
+        (self.project / "packages/connectors/src").mkdir()
+        (self.project / "packages/connectors/src/internal-only.ts").write_text("HARMLESS_IGNORED_CANARY\n")
         (self.project / "docs/guide.md").write_text("# Public guide\n")
         result = self.build()
         self.assertEqual(result.returncode, 0, result.stderr)
-        self.assertNotIn("docs/private.md", self.names())
+        self.assertNotIn("docs/internal-only.md", self.names())
+        self.assertNotIn("packages/connectors/src/internal-only.ts", self.names())
         self.assertIn("docs/guide.md", self.names())
+
+    def test_includes_connector_sources_and_exact_manifests_but_no_private_or_generated_files(self):
+        included = {
+            "packages/connectors/src/index.ts", "packages/connectors/src/adapters/example.ts",
+            "packages/connectors/examples/server.ts", "packages/connectors/examples/index.html",
+            "packages/connectors/docs/GUIDE.md",
+        }
+        excluded = {
+            "packages/connectors/.env", "packages/connectors/credentials.json",
+            "packages/connectors/local.json", "packages/connectors/private.md",
+            "packages/connectors/src/credentials.json", "packages/connectors/src/data.json",
+            "packages/connectors/src/client.private.ts", "packages/connectors/src/.local/notes.md",
+            "packages/connectors/src/private/internal.ts", "packages/connectors/docs/secrets/access.md",
+            "packages/connectors/src/client.key", "packages/connectors/examples/certificate.pem",
+            "packages/connectors/dist/index.js", "packages/connectors/dist/index.d.ts",
+            "packages/connectors/node_modules/vendor/index.ts",
+            "packages/connectors/src/dist/nested.ts", "packages/connectors/examples/node_modules/vendor.ts",
+            "packages/connectors/coverage/report.html", "packages/unrelated/src/index.ts",
+        }
+        for name in included | excluded:
+            path = self.project / name
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("HARMLESS_CONNECTOR_CANARY\n")
+        result = self.build()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        names = self.names()
+        self.assertTrue(included <= names)
+        self.assertTrue({name for name in REQUIRED if name.startswith("packages/")} <= names)
+        self.assertFalse(names & excluded)
+
+    def test_requires_connector_manifest_configuration_and_license(self):
+        for name in ("packages/connectors/package.json", "packages/connectors/tsconfig.json", "packages/connectors/LICENSE"):
+            with self.subTest(name=name):
+                path = self.project / name
+                original = path.read_bytes()
+                path.unlink()
+                result = self.build()
+                self.assertNotEqual(result.returncode, 0)
+                self.assertIn(name, result.stderr)
+                path.write_bytes(original)
 
     def test_rejects_file_symlink_without_replacing_previous_archive(self):
         self.assertEqual(self.build().returncode, 0)
