@@ -1,6 +1,6 @@
 # Migrating to Relametric
 
-The 0.1.0-alpha.2 candidate renames 5js/Motif to Relametric. Both packages remain unpublished on npm. Install the built local package or validated tarball as described in the quickstart; do not assume `npm install relametric` resolves this project.
+The 0.1.0-alpha.2 release renames 5js/Motif to Relametric. Both packages remain unpublished on npm. Install the built local package or validated tarball as described in the quickstart; do not assume `npm install relametric` resolves this project.
 
 | Before | Now |
 | --- | --- |
