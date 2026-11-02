@@ -1,16 +1,16 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><title>5js core pressure checks</title>
+<!doctype html><html lang="en"><meta charset="utf-8"><title>relametric core pressure checks</title>
 <style>body{background:#101818;color:#d6ffd7;font:15px/1.7 monospace;padding:28px}#fixture{width:320px;height:240px}pre{white-space:pre-wrap}</style>
-<h1>5js core pressure checks</h1><pre id="results">Running custom-layer failure and lifecycle checks…</pre><div id="fixture"></div>
+<h1>relametric core pressure checks</h1><pre id="results">Running custom-layer failure and lifecycle checks…</pre><div id="fixture"></div>
 <script type="module">
 import { Group } from 'three';
-import { createFive } from '/src/index.ts';
+import { createRelametric } from '/src/index.ts';
 const results = document.querySelector('#results'), container = document.querySelector('#fixture');
 const checks = [];
 let failures = 0;
 const assert = (value, message) => { if (!value) throw new Error(message); };
 const errorOf = fn => { try { fn(); } catch(error) { return error; } return undefined; };
 function layer(patch = {}) { return { object:new Group(), kind:'pressure-test', count:1, update(){}, set(){}, dispose(){}, ...patch }; }
-function scene() { return createFive({container, paused:true, autoRotate:false, bloom:0, pixelRatio:1}); }
+function scene() { return createRelametric({container, paused:true, autoRotate:false, bloom:0, pixelRatio:1}); }
 async function check(name, run) {
   try { await run(); checks.push(`PASS · ${name}`); }
   catch(error) { failures++; checks.push(`FAIL · ${name}\n${error.stack}`); }
@@ -222,5 +222,5 @@ await check('Capture errors reject without preventing later rendering and captur
 });
 
 results.textContent += `\n\n${failures ? 'FAILED' : 'ALL'} ${checks.length - failures}/${checks.length} CORE PRESSURE CHECKS PASSED`;
-document.title = `${failures ? 'FAIL' : 'PASS'} — 5js core pressure checks`;
+document.title = `${failures ? 'FAIL' : 'PASS'} — relametric core pressure checks`;
 </script></html>

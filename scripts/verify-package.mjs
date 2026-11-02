@@ -6,7 +6,7 @@ import { dirname, extname, isAbsolute, join, relative, resolve } from 'node:path
 import { fileURLToPath } from 'node:url';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
-const temporary = await mkdtemp(join(tmpdir(), 'fivejs-package-check-'));
+const temporary = await mkdtemp(join(tmpdir(), 'relametric-package-check-'));
 const source = join(temporary, 'source');
 const consumer = join(temporary, 'consumer');
 const npmCommand = process.env.npm_execpath ? process.execPath : (process.platform === 'win32' ? 'npm.cmd' : 'npm');
@@ -89,7 +89,7 @@ try {
   // hide a missing build hook. Never delete or mutate the developer's checkout.
   const directories = ['src', 'demo', 'examples', 'connectors', 'tests', 'scripts', 'docs'];
   const files = [
-    'package.json', 'package-lock.json', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CHANGELOG.md',
+    'AGENTS.md', 'llms.txt', 'package.json', 'package-lock.json', 'README.md', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CHANGELOG.md',
     'tsconfig.json', 'tsconfig.lib.json', 'vite.config.ts', 'vite.demo.config.ts', 'index.html',
   ];
   for (const name of [...directories, ...files]) await cp(resolve(root, name), join(source, name), { recursive: true });
@@ -105,7 +105,7 @@ try {
   const tarball = join(temporary, tarballs[0]);
 
   await mkdir(consumer);
-  await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'fivejs-external-consumer-check', version: '0.0.0', private: true, type: 'module' }));
+  await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'relametric-external-consumer-check', version: '0.0.0', private: true, type: 'module' }));
   const manifest = JSON.parse(await readFile(join(source, 'package.json'), 'utf8'));
   const lock = JSON.parse(await readFile(join(source, 'package-lock.json'), 'utf8'));
   const threeVersion = lock.packages['node_modules/three'].version;
@@ -117,9 +117,9 @@ try {
   assert.equal(packedManifest.version, manifest.version);
   assert.equal(packedManifest.type, 'module');
   assert.equal(packedManifest.license, 'MIT');
-  assert.equal(packedManifest.exports['.'].import, './dist/fivejs.js');
+  assert.equal(packedManifest.exports['.'].import, './dist/relametric.js');
   assert.equal(packedManifest.exports['.'].types, './dist/index.d.ts');
-  for (const name of ['dist/fivejs.js', 'dist/index.d.ts', 'dist/core.d.ts', 'dist/types.d.ts', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CHANGELOG.md', 'docs/API.md', 'docs/COMPATIBILITY.md']) {
+  for (const name of ['dist/relametric.js', 'dist/index.d.ts', 'dist/core.d.ts', 'dist/types.d.ts', 'LICENSE', 'THIRD_PARTY_NOTICES.md', 'CHANGELOG.md', 'docs/API.md', 'docs/COMPATIBILITY.md']) {
     assert.ok((await stat(join(installed, name))).size > 0, `Published package is missing ${name}.`);
   }
   const installedNames = await readdir(installed);
@@ -141,14 +141,15 @@ try {
 
   // Compile the existing public consumer test from outside the repository, so
   // package self-resolution and local devDependencies cannot make it pass.
-  const consumerTypes = (await readFile(join(root, 'tests/consumer.mts'), 'utf8')).replaceAll("'fivejs'", JSON.stringify(manifest.name));
+  const consumerTypes = (await readFile(join(root, 'tests/consumer.mts'), 'utf8')).replaceAll("'relametric'", JSON.stringify(manifest.name));
   await writeFile(join(consumer, 'consumer.mts'), consumerTypes);
   execFileSync(process.execPath, [join(consumer, 'node_modules/typescript/bin/tsc'), 'consumer.mts', '--module', 'NodeNext', '--moduleResolution', 'NodeNext', '--target', 'es2022', '--strict', '--noEmit'], { cwd: consumer, stdio: 'inherit', timeout: 60_000 });
   await writeFile(join(consumer, 'runtime.mjs'), `
 import assert from 'node:assert/strict';
 import * as five from ${JSON.stringify(manifest.name)};
-assert.deepEqual(Object.keys(five).sort(), ['createFive', 'hypercube', 'networkGraph', 'particleField', 'terrain'].sort());
+assert.deepEqual(Object.keys(five).sort(), ['createFive', 'createRelametric', 'hypercube', 'networkGraph', 'particleField', 'terrain'].sort());
 const layers = [five.particleField({count:8}), five.networkGraph({nodeCount:4}), five.terrain({resolution:4}), five.hypercube({dimensions:4})];
+assert.equal(five.createFive, five.createRelametric);
 assert.deepEqual(layers.map(layer => layer.count), [8,4,25,16]);
 for (const layer of layers) { assert.ok(layer.object.isObject3D); layer.update(1,.1); layer.dispose(); layer.dispose(); }
 console.log('PASS · installed tarball exports and layer lifecycle');

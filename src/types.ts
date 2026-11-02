@@ -1,7 +1,7 @@
 import type { Object3D } from 'three';
 
 /** A visualization unit. The scene owns and disposes layers added to it. */
-export interface FiveLayer<P extends object = Record<string, unknown>> {
+export interface RelametricLayer<P extends object = Record<string, unknown>> {
   readonly object: Object3D;
   readonly kind: string;
   readonly count: number;

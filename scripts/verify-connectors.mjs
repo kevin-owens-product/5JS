@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const source = join(root, 'packages/connectors');
 const typescript = createRequire(import.meta.url)('typescript');
-const temporary = await mkdtemp(join(tmpdir(), 'motif-connectors-package-check-'));
+const temporary = await mkdtemp(join(tmpdir(), 'relametric-connectors-package-check-'));
 const consumer = join(temporary, 'consumer');
 const npmCommand = process.env.npm_execpath ? process.execPath : (process.platform === 'win32' ? 'npm.cmd' : 'npm');
 const npmPrefix = process.env.npm_execpath ? [process.env.npm_execpath] : [];
@@ -28,7 +28,7 @@ function inside(directory, path) {
 
 async function verifyReadme(directory) {
   const markdown = (await readFile(join(directory, 'README.md'), 'utf8')).replace(/^```[^\n]*\n[\s\S]*?^```\s*$/gm, '');
-  assert.match(markdown, /Motif Connectors/);
+  assert.match(markdown, /Relametric Connectors/);
   let checked = 0;
   for (const match of markdown.matchAll(/!?\[[^\]]*\]\((?:<([^>]+)>|([^\s)]+))(?:\s+["'][^\n]*?["'])?\)/g)) {
     const link = match[1] ?? match[2];
@@ -90,7 +90,7 @@ try {
   const tarball = join(temporary, packed[0].filename);
   assert.ok(inside(temporary, tarball), 'Invalid tarball path.');
   await mkdir(consumer);
-  await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'motif-connectors-external-consumer-check', version: '0.0.0', private: true, type: 'module' }));
+  await writeFile(join(consumer, 'package.json'), JSON.stringify({ name: 'relametric-connectors-external-consumer-check', version: '0.0.0', private: true, type: 'module' }));
   npm(['install', '--offline', '--ignore-scripts', '--no-audit', '--no-fund', '--package-lock=false', tarball], consumer);
   const installed = join(consumer, 'node_modules', ...manifest.name.split('/'));
   const actual = JSON.parse(await readFile(join(installed, 'package.json'), 'utf8'));
@@ -224,30 +224,30 @@ void [gateway, browser, values, declaredFactories];
 import assert from 'node:assert/strict';
 globalThis.fetch = async () => { throw new Error('Package verification must not use a network.'); };
 globalThis.window = {};
-const motif = await import(${packageName});
-assert.deepEqual(Object.keys(motif).sort(), ['ConnectorError', 'collectPages', 'connectorCatalog', 'endpointConnector', 'inferFields', 'jsonConnector', 'makePage', 'mapRows', 'normalizeCell', 'validateDataPage', 'csvConnector', 'arrowConnector', 'parquetConnector'].sort());
+const relametric = await import(${packageName});
+assert.deepEqual(Object.keys(relametric).sort(), ['ConnectorError', 'collectPages', 'connectorCatalog', 'endpointConnector', 'inferFields', 'jsonConnector', 'makePage', 'mapRows', 'normalizeCell', 'validateDataPage', 'csvConnector', 'arrowConnector', 'parquetConnector'].sort());
 const rows = [[9007199254740993n, 'first'], [2n, 'second'], [3n, 'third']];
-const snapshot = motif.jsonConnector({ id: 'customer-fixture', source: 'Installed package fixture', mode: 'fixture', fields: [{ name: 'id', type: 'integer' }, { name: 'id', type: 'string' }], rows });
+const snapshot = relametric.jsonConnector({ id: 'customer-fixture', source: 'Installed package fixture', mode: 'fixture', fields: [{ name: 'id', type: 'integer' }, { name: 'id', type: 'string' }], rows });
 rows[0][1] = 'mutated input';
 const first = await snapshot.read(undefined, { limit: 1 });
 assert.deepEqual(first.rows, [['9007199254740993', 'first']]);
 assert.deepEqual(first.fields.map(field => field.name), ['id', 'id']);
 assert.equal(first.page.hasMore, true); assert.ok(first.page.nextCursor);
 assert.deepEqual((await snapshot.read(undefined, { limit: 1, cursor: first.page.nextCursor })).rows, [['2', 'second']]);
-const full = await motif.collectPages(snapshot, undefined, { limit: 1 });
+const full = await relametric.collectPages(snapshot, undefined, { limit: 1 });
 assert.equal(full.rows.length, 3); assert.equal(full.page.truncated, false);
-assert.equal((await motif.collectPages(snapshot, undefined, { limit: 1, maxPages: 2 })).page.truncated, true);
-const csv = motif.csvConnector({ id: 'csv-fixture', source: 'Installed CSV fixture', mode: 'fixture', data: ${JSON.stringify('id,id,notes\r\n9223372036854775807,0001,"line one\nline two"\r\n2,02,plain\r\n')} });
-const csvPage = await motif.collectPages(csv, undefined, { limit: 1 });
+assert.equal((await relametric.collectPages(snapshot, undefined, { limit: 1, maxPages: 2 })).page.truncated, true);
+const csv = relametric.csvConnector({ id: 'csv-fixture', source: 'Installed CSV fixture', mode: 'fixture', data: ${JSON.stringify('id,id,notes\r\n9223372036854775807,0001,"line one\nline two"\r\n2,02,plain\r\n')} });
+const csvPage = await relametric.collectPages(csv, undefined, { limit: 1 });
 assert.deepEqual(csvPage.fields.map(field => field.name), ['id', 'id', 'notes']);
 assert.deepEqual(csvPage.rows, [['9223372036854775807', '0001', 'line one\\nline two'], ['2', '02', 'plain']]);
 assert.equal(csvPage.page.truncated, false);
-assert.equal((await motif.collectPages(csv, undefined, { limit: 1, maxRows: 1 })).page.truncated, true);
+assert.equal((await relametric.collectPages(csv, undefined, { limit: 1, maxRows: 1 })).page.truncated, true);
 const server = await import(${serverName});
 assert.deepEqual(Object.keys(server).sort(), ['createConnectorGateway', 'postgresConnector', 'mysqlConnector', 'sqliteConnector', 'duckdbConnector', 'mongodbConnector', 'createBigQueryConnector', 'createSnowflakeConnector', 'createDatabricksConnector', 'stripeConnector', 'hubspotConnector', 'airtableConnector', 'sqlServerConnector', 'oracleConnector', 'clickHouseConnector', 'elasticsearchConnector', 'opensearchConnector', 'redisConnector', 'neo4jConnector', 'firestoreConnector', 'supabaseConnector', 'dynamoDBConnector', 'redshiftConnector', 'athenaConnector', 'trinoConnector', 'salesforceConnector', 'shopifyConnector', 'zendeskConnector', 'intercomConnector', 'segmentConnector', 'googleAnalyticsConnector', 'mixpanelConnector', 'amplitudeConnector', 'posthogConnector', 'googleSheetsConnector', 'lookerConnector', 'powerBiConnector', 'tableauConnector', 'cubeConnector', 'dbtSemanticConnector'].sort());
-const implementations = { ...motif, ...server };
-assert.equal(motif.connectorCatalog.length, 39);
-for (const entry of motif.connectorCatalog) {
+const implementations = { ...relametric, ...server };
+assert.equal(relametric.connectorCatalog.length, 39);
+for (const entry of relametric.connectorCatalog) {
   assert.equal(entry.status, 'implemented'); assert.ok(entry.factories.length > 0);
   for (const factory of entry.factories) assert.equal(typeof implementations[factory], 'function', entry.name + ' advertises an unavailable factory: ' + factory);
 }
@@ -263,18 +263,18 @@ const gateway = server.createConnectorGateway({
   } },
 });
 const requests = [];
-const endpoint = motif.endpointConnector({ id: 'application', source: 'Authorized fixture', endpoint: '/api/motif/data',
+const endpoint = relametric.endpointConnector({ id: 'application', source: 'Authorized fixture', endpoint: '/api/relametric/data',
   async fetch(url, init) {
-    assert.equal(url, '/api/motif/data'); assert.equal(init.credentials, 'same-origin'); assert.equal(init.redirect, 'error');
+    assert.equal(url, '/api/relametric/data'); assert.equal(init.credentials, 'same-origin'); assert.equal(init.redirect, 'error');
     const payload = JSON.parse(init.body); requests.push(payload); assert.equal(payload.operation, 'customers'); assert.equal(payload.sql, undefined);
     const headers = new Headers(init.headers); headers.set('x-test-subject', 'alice');
-    return gateway(new Request('https://app.invalid/api/motif/data', { ...init, headers }));
+    return gateway(new Request('https://app.invalid/api/relametric/data', { ...init, headers }));
   },
 });
-const result = await motif.collectPages(endpoint, { operation: 'customers', parameters: { cohort: 'retained' } }, { limit: 1 });
+const result = await relametric.collectPages(endpoint, { operation: 'customers', parameters: { cohort: 'retained' } }, { limit: 1 });
 assert.deepEqual(result.rows, full.rows); assert.equal(result.provenance.mode, 'fixture'); assert.equal(result.page.truncated, false);
 assert.equal(authorized, 3); assert.equal(executed, 3); assert.ok(requests[1].cursor); assert.notEqual(requests[1].cursor, first.page.nextCursor);
-const request = (body, subject) => new Request('https://app.invalid/api/motif/data', { method: 'POST', headers: { 'content-type': 'application/json', ...(subject && { 'x-test-subject': subject }) }, body: JSON.stringify(body) });
+const request = (body, subject) => new Request('https://app.invalid/api/relametric/data', { method: 'POST', headers: { 'content-type': 'application/json', ...(subject && { 'x-test-subject': subject }) }, body: JSON.stringify(body) });
 assert.equal((await gateway(request(requests[0]))).status, 403);
 assert.equal((await gateway(request(requests[1], 'bob'))).status, 400);
 assert.equal((await gateway(request({ ...requests[0], sql: 'select unregistered_data' }, 'alice'))).status, 400);

@@ -1,5 +1,5 @@
-import { createFive, particleField, networkGraph, terrain, hypercube } from '../src/index';
-import type { FiveLayer } from '../src/types';
+import { createRelametric, particleField, networkGraph, terrain, hypercube } from '../src/index';
+import type { RelametricLayer } from '../src/types';
 import './style.css';
 
 const icons = {
@@ -42,10 +42,10 @@ const state = { scene: 'particles' as SceneId, palette: 0, speed: .7, bloom: .7,
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="app-shell" id="app-shell">
     <header class="topbar">
-      <a class="brand" href="../" aria-label="Motif home"><div class="wordmark">motif<span>·</span></div><div class="brand-rule"></div><div class="brand-description">Connected data.<br>Better decisions.</div></a>
+      <a class="brand" href="../" aria-label="Relametric home"><div class="wordmark">relametric<span>·</span></div><div class="brand-rule"></div><div class="brand-description">Connected data.<br>Better decisions.</div></a>
       <nav class="top-links" aria-label="Resources">
         <a class="text-link" href="../examples/">Example library ${svg('arrow', 12)}</a>
-        <span class="build-badge"><span class="status-dot"></span>v0.1.0-alpha.1 · EXPERIMENTAL</span>
+        <span class="build-badge"><span class="status-dot"></span>v0.1.0-alpha.2 · EXPERIMENTAL</span>
         <a class="text-link" href="https://threejs.org/" target="_blank" rel="noreferrer">Built on Three.js ${svg('arrow', 12)}</a>
         <button class="source-trigger" id="open-source">${svg('code', 13)} View code</button>
       </nav>
@@ -72,9 +72,9 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
         <div class="inspector-footer">${svg('info', 12)}<span>Every parameter is live.<br>${reducedMotion ? 'Animation starts paused for reduced motion.' : 'A little curiosity goes a long way.'}</span></div>
       </aside>
     </main>
-    <footer class="telemetry" aria-label="Live rendering statistics"><div class="metrics"><span class="metric"><span class="status-dot"></span><b id="stat-fps">—</b><span class="metric-label">FPS</span></span><span class="metric"><b id="stat-points">—</b><span class="metric-label">Points</span></span><span class="metric"><b id="stat-triangles">—</b><span class="metric-label">Triangles</span></span><span class="metric"><b id="stat-calls">—</b><span class="metric-label">Draw calls</span></span><span class="metric"><b id="stat-objects">—</b><span class="metric-label">Objects</span></span></div><span class="footer-signature">MOTIF · FIND THE PATTERN.</span></footer>
+    <footer class="telemetry" aria-label="Live rendering statistics"><div class="metrics"><span class="metric"><span class="status-dot"></span><b id="stat-fps">—</b><span class="metric-label">FPS</span></span><span class="metric"><b id="stat-points">—</b><span class="metric-label">Points</span></span><span class="metric"><b id="stat-triangles">—</b><span class="metric-label">Triangles</span></span><span class="metric"><b id="stat-calls">—</b><span class="metric-label">Draw calls</span></span><span class="metric"><b id="stat-objects">—</b><span class="metric-label">Objects</span></span></div><span class="footer-signature">RELAMETRIC · FIND THE PATTERN.</span></footer>
   </div>
-  <div class="source-panel" id="source-panel" hidden><section class="source-card" role="dialog" aria-modal="true" aria-labelledby="source-title" tabindex="-1"><header class="source-header"><div><h2 id="source-title">Small API. Big possibilities.</h2><p>Your current experiment · TypeScript</p></div><div class="source-buttons"><button class="copy-button" id="copy-source">${svg('copy', 12)}<span>Copy</span></button><button class="icon-button" id="close-source" aria-label="Close code">${svg('close', 13)}</button></div></header><pre class="source-code" id="source-scroll" tabindex="0" aria-label="TypeScript example"><code id="source-code"></code></pre><div class="source-bottom">Add a <code>&lt;div id="canvas"&gt;</code> with a defined height to your page. This example uses the local <code>fivejs</code> package and its <code>three</code> peer dependency.<br>When you're done: <code>app.dispose()</code>.</div></section></div>
+  <div class="source-panel" id="source-panel" hidden><section class="source-card" role="dialog" aria-modal="true" aria-labelledby="source-title" tabindex="-1"><header class="source-header"><div><h2 id="source-title">Small API. Big possibilities.</h2><p>Your current experiment · TypeScript</p></div><div class="source-buttons"><button class="copy-button" id="copy-source">${svg('copy', 12)}<span>Copy</span></button><button class="icon-button" id="close-source" aria-label="Close code">${svg('close', 13)}</button></div></header><pre class="source-code" id="source-scroll" tabindex="0" aria-label="TypeScript example"><code id="source-code"></code></pre><div class="source-bottom">Add a <code>&lt;div id="canvas"&gt;</code> with a defined height to your page. This example uses the local <code>relametric</code> package and its <code>three</code> peer dependency.<br>When you're done: <code>app.dispose()</code>.</div></section></div>
   <div class="toast" id="toast" role="status" hidden></div>`;
 
 function element<T extends HTMLElement = HTMLElement>(id: string) { return document.getElementById(id) as T; }
@@ -93,8 +93,8 @@ function bindSlider(id: string, update: (value: number) => void) {
   input.addEventListener('input', () => { paintSlider(input); update(Number(input.value)); updateSource(); });
 }
 
-let studio: ReturnType<typeof createFive> | undefined;
-let activeLayer: FiveLayer<object> | undefined;
+let studio: ReturnType<typeof createRelametric> | undefined;
+let activeLayer: RelametricLayer<object> | undefined;
 let lastStatsUpdate = 0;
 let sourceOpen = false;
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -133,7 +133,7 @@ function resizeFraming() {
   updateSource();
 }
 
-function createLayer(): FiveLayer<object> {
+function createLayer(): RelametricLayer<object> {
   const palette = palettes[state.palette];
   switch (state.scene) {
     case 'particles': return particleField({ count: 100_000, mode: state.mode, radius: 4, turbulence: state.turbulence, pointSize: particlePointSize, colorA: palette.a, colorB: palette.b, seed: 42 });
@@ -209,7 +209,7 @@ function updateSource() {
   const scene = scenes.find(scene => scene.id === state.scene)!;
   const camera = framedCamera(scene).map(value => Number(value.toFixed(3))).join(', ');
   const target = scene.target ? `, [${scene.target.join(', ')}]` : '';
-  element('source-code').textContent = `import { createFive, ${factory} } from 'fivejs';\n\nconst app = createFive({\n  container: document.querySelector<HTMLElement>('#canvas')!,\n  background: '#070c0b',\n  bloom: ${state.bloom},\n  autoRotate: ${state.autoRotate},\n});\n\nconst layer = ${codeForScene()};\n\napp.add(layer);\napp.setSpeed(${state.speed});\napp.setPaused(${state.paused});\napp.resetCamera([${camera}]${target});`;
+  element('source-code').textContent = `import { createRelametric, ${factory} } from 'relametric';\n\nconst app = createRelametric({\n  container: document.querySelector<HTMLElement>('#canvas')!,\n  background: '#070c0b',\n  bloom: ${state.bloom},\n  autoRotate: ${state.autoRotate},\n});\n\nconst layer = ${codeForScene()};\n\napp.add(layer);\napp.setSpeed(${state.speed});\napp.setPaused(${state.paused});\napp.resetCamera([${camera}]${target});`;
 }
 function openSource() { updateSource(); sourceOpen = true; element('source-panel').hidden = false; element('app-shell').inert = true; document.body.style.overflow = 'hidden'; element('close-source').focus(); }
 function closeSource() { sourceOpen = false; element('source-panel').hidden = true; element('app-shell').inert = false; document.body.style.overflow = ''; element('open-source').focus(); }
@@ -237,7 +237,7 @@ element<HTMLButtonElement>('capture').addEventListener('click', async () => {
   try {
     const blob = await studio.capture();
     const url = URL.createObjectURL(blob);
-    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `motif-${state.scene}-${Date.now()}.png`; anchor.click();
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `relametric-${state.scene}-${Date.now()}.png`; anchor.click();
     setTimeout(() => URL.revokeObjectURL(url), 10_000);
     notify('Canvas exported as PNG');
   } catch { notify('Unable to export this canvas. Please try again.'); }
@@ -261,7 +261,7 @@ document.addEventListener('keydown', event => {
 });
 
 try {
-  studio = createFive({ container: element('viewport'), background: '#070c0b', bloom: state.bloom, autoRotate: state.autoRotate });
+  studio = createRelametric({ container: element('viewport'), background: '#070c0b', bloom: state.bloom, autoRotate: state.autoRotate });
   studio.setSpeed(state.speed);
   studio.setPaused(state.paused);
   selectScene('particles');
@@ -286,6 +286,6 @@ try {
   const heading = document.createElement('h2'); heading.textContent = 'A little more graphics power.';
   const message = document.createElement('p'); message.textContent = 'This playground needs WebGL2. Enable hardware acceleration in your browser, then reload the page.';
   panel.append(heading, message); element('viewport').append(panel);
-  console.error('Motif could not initialize:', error);
+  console.error('Relametric could not initialize:', error);
 }
 window.addEventListener('pagehide', event => { if (!event.persisted) { framingObserver?.disconnect(); studio?.dispose(); } });

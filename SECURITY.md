@@ -12,6 +12,6 @@ Private vulnerability reporting is enabled for [kevin-owens-product/5JS](https:/
 
 ## Scope
 
-Reports about 5js source, distributed packages, examples, and build/deployment workflows are welcome. For a dependency vulnerability, identify the affected dependency/version and how it reaches 5js; upstream reports should follow that project's own reporting policy.
+Reports about relametric source, distributed packages, examples, and build/deployment workflows are welcome. For a dependency vulnerability, identify the affected dependency/version and how it reaches relametric; upstream reports should follow that project's own reporting policy.
 
 Example business and analytics datasets are synthetic. Do not attach real customer or company data to reproduction cases.

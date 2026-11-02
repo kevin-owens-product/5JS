@@ -1,8 +1,8 @@
-# Motif example library
+# Relametric example library
 
-Fifty editable recipes span eleven categories, including twenty-six business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. Six decision recipes connect source records to proposed investigations: three earlier workflows use a 99-record fixture, and three new companion views lead to the Motif homepage's 540-record decision lab. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. The preceding visual refresh redesigned seventeen of the original forty-four scenes; the other twenty-seven original scenes were reviewed and retained.
+Fifty editable recipes span eleven categories, including twenty-six business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. Six decision recipes connect source records to proposed investigations: three earlier workflows use a 99-record fixture, and three new companion views lead to the Relametric homepage's 540-record decision lab. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. The preceding visual refresh redesigned seventeen of the original forty-four scenes; the other twenty-seven original scenes were reviewed and retained.
 
-Motif is the working project name and website brand. Existing library imports remain `fivejs`, with `createFive` and `FiveLayer` unchanged. The repository and package names have not been renamed, and neither the visualization package nor the independent `motif-connectors` package has been published to npm.
+Relametric is the working project name and website brand. Existing library imports remain `relametric`, with `createRelametric` and `RelametricLayer` unchanged. The repository and package names have not been renamed, and neither the visualization package nor the independent `relametric-connectors` package has been published to npm.
 
 ## Run locally
 
@@ -15,7 +15,7 @@ npm run dev
 
 Open **http://127.0.0.1:5185/examples/**. If Vite reports another port, use that address.
 
-The Motif homepage and full decision workspace are at [http://127.0.0.1:5185/#decision-lab](http://127.0.0.1:5185/#decision-lab). The original playground remains at [http://127.0.0.1:5185/demo/playground.html](http://127.0.0.1:5185/demo/playground.html).
+The Relametric homepage and full decision workspace are at [http://127.0.0.1:5185/#decision-lab](http://127.0.0.1:5185/#decision-lab). The original playground remains at [http://127.0.0.1:5185/demo/playground.html](http://127.0.0.1:5185/demo/playground.html).
 
 Use the [connector directory](http://127.0.0.1:5185/connectors/) when adapting a fixture to a source. Its 45 guides cover 44 factories and 39 catalog entries, with separate MySQL/MariaDB guides for their shared adapter. Each `/connectors/<slug>/` URL provides setup, exact TypeScript samples, runtime/limits, provider documentation and a related conversion, retention or product workflow. Copy/download controls and directory search use JavaScript; the guide text and code remain readable without it. The linked decision lab still uses fictional data.
 
@@ -107,7 +107,7 @@ The viewer produces a local file. It does not contact customers, send messages, 
 
 ## Source-backed decision workspace
 
-The three new gallery recipes share the fixture and scene model used by the Motif homepage. Their **Open the decision workspace** link opens the corresponding outcome at `/?outcome=conversion|retention|product#decision-lab`, with account inspection, source receipts, linked record dialogs and a downloadable investigation brief. The gallery provides companion scene controls and readouts; the full workspace supplies these deeper investigation tools.
+The three new gallery recipes share the fixture and scene model used by the Relametric homepage. Their **Open the decision workspace** link opens the corresponding outcome at `/?outcome=conversion|retention|product#decision-lab`, with account inspection, source receipts, linked record dialogs and a downloadable investigation brief. The gallery provides companion scene controls and readouts; the full workspace supplies these deeper investigation tools.
 
 | Recipe ID and full workspace | What the scene measures | Decision boundary |
 | --- | --- | --- |
@@ -133,7 +133,7 @@ The source-contract panel shows each connector receipt's fields, row count, prov
 
 ## Adapt a connected workflow
 
-For the earlier 99-record workflows, the adapter boundary lives in [connected/types.ts](connected/types.ts), [connected/fixture.ts](connected/fixture.ts), and [connected/explorer.ts](connected/explorer.ts). These are example-project utilities, not additions to the four public `fivejs` layer factories.
+For the earlier 99-record workflows, the adapter boundary lives in [connected/types.ts](connected/types.ts), [connected/fixture.ts](connected/fixture.ts), and [connected/explorer.ts](connected/explorer.ts). These are example-project utilities, not additions to the four public `relametric` layer factories.
 
 - `createConnectedData()` supplies a fresh deterministic `ConnectedDataset`. Replace that source with a validated snapshot or an application adapter while preserving the calculation grain: one session belongs to one customer, person, and product; one checkout belongs to one session; interviews retain their participant and source-session IDs.
 - `buildEntityRecords(data)` normalizes the domain data into `EntityRecord[]`: stable IDs, kind, label, summary, fields, related-ID links, evidence with a stated basis, and optional timelines. Use an equivalent mapper for another domain. Validate source freshness, keys, relationships, units, and missing outcomes before calculating a workflow; the fixture mapper is not a general data-quality validator.
@@ -142,9 +142,9 @@ For the earlier 99-record workflows, the adapter boundary lives in [connected/ty
 
 The present evidence-basis types and shared viewer/brief copy explicitly describe synthetic observations and fictional interviews. Adapting this to real records also requires accurate provenance labels and copy, appropriate access handling, and application-owned loading/error states. Replacing fixture arrays alone does not provide a production connector, live refresh, authentication, or external-action execution.
 
-### Adapt the Motif decision lab
+### Adapt the Relametric decision lab
 
-The new workspace uses [outcomes/model.ts](outcomes/model.ts), [outcomes/scene.ts](outcomes/scene.ts), [outcomes/recipe.ts](outcomes/recipe.ts), and the homepage controller [../demo/motif.ts](../demo/motif.ts). These remain example/application code, separate from the public rendering API.
+The new workspace uses [outcomes/model.ts](outcomes/model.ts), [outcomes/scene.ts](outcomes/scene.ts), [outcomes/recipe.ts](outcomes/recipe.ts), and the homepage controller [../demo/relametric.ts](../demo/relametric.ts). These remain example/application code, separate from the public rendering API.
 
 - `OutcomeDataset` defines the seven source tables above. `createOutcomeDataset()` creates the deterministic fixture. `loadOutcomeDataset()` reads that fixture through seven JSON connectors and returns `{ data, receipts }`; each `SourceReceipt` pairs its table name with a `DataPage`. A truncated snapshot is rejected before the workspace calculates outcomes.
 - Replace the loader with authorized source operations and a schema mapper into `OutcomeDataset`. Keep credentials, tenant filters and query construction on the server through `createConnectorGateway`; browser code can use `endpointConnector` to request registered operations. Preserve source receipts, exact identifiers and explicit completeness. The [connector guide](../packages/connectors/README.md) covers all 39 constrained catalog entries and 44 factories, along with pagination, precision and authentication boundaries. Protocol tests do not establish live-cloud readiness.
@@ -215,11 +215,11 @@ Transit calculates departures, headway, and capacity from synthetic train counts
 - [connected/types.ts](connected/types.ts), [connected/fixture.ts](connected/fixture.ts), and [connected/explorer.ts](connected/explorer.ts) define the linked-record model, fictional source, and shared selection contract.
 - [gallery/outcomes.ts](gallery/outcomes.ts) renders linked records and proposals; [connected/brief.ts](connected/brief.ts) exports the local investigation brief.
 - [outcomes/model.ts](outcomes/model.ts), [outcomes/scene.ts](outcomes/scene.ts), and [outcomes/recipe.ts](outcomes/recipe.ts) supply the seven-source fixture, connector receipts, calculations, shared scenes and three new gallery definitions.
-- [../demo/motif.ts](../demo/motif.ts) runs the homepage decision lab, source inspection, joins, initiative selection and local brief export.
+- [../demo/relametric.ts](../demo/relametric.ts) runs the homepage decision lab, source inspection, joins, initiative selection and local brief export.
 - [../packages/connectors/README.md](../packages/connectors/README.md) documents the private connector package and its 39 implemented catalog entries.
 - [../connectors/content/index.ts](../connectors/content/index.ts) assembles the 45 authored source guides; [../connectors/render.ts](../connectors/render.ts) prerenders their body content and code, and [../connectors/client.ts](../connectors/client.ts) adds search, code tabs, copy and download.
 - [../scripts/generate-connector-pages.ts](../scripts/generate-connector-pages.ts) creates the `/connectors/` directory and individual guide pages before development or a static site build.
-- [../src/index.ts](../src/index.ts) exports the rendering library under its retained `fivejs` API; [../README.md](../README.md) documents Motif and local setup.
+- [../src/index.ts](../src/index.ts) exports the rendering library under its retained `relametric` API; [../README.md](../README.md) documents Relametric and local setup.
 
 Recipe modules avoid browser globals at import time. The shared chart helper draws camera-facing text labels only when a browser canvas is available; Node tests exercise the same numeric geometry without text textures. Their `setup(app)` functions can run against a small app substitute in CPU tests; browser work belongs in the shared runner.
 
@@ -274,7 +274,7 @@ The current categories are Space, Biology, Climate, Energy, Cities, Engineering,
 
 Return one to three meaningful controls from `setup`. Each control needs a unique ID, label, numeric bounds, positive step, initial value, and `apply(value)`. Match initial values to the constructed layers and keep them on the slider's step grid. Call `layer.set()` for supported live changes, or edit the layer's ordinary Three.js object transform.
 
-An optional control `format(value)` presents a percentage, currency, or category label instead of a raw slider number. An optional instance `readout()` supplies metric cards, legend entries, and a table; the viewer refreshes these after every control change. Compute the chart and readout from the same rows so filtering cannot leave stale summaries. The [shared chart helper](shared/chart.ts) supplies geometry and animation used by analytical, Business, and domain recipes. It belongs to the examples project and is not exported by the public `fivejs` package.
+An optional control `format(value)` presents a percentage, currency, or category label instead of a raw slider number. An optional instance `readout()` supplies metric cards, legend entries, and a table; the viewer refreshes these after every control change. Compute the chart and readout from the same rows so filtering cannot leave stale summaries. The [shared chart helper](shared/chart.ts) supplies geometry and animation used by analytical, Business, and domain recipes. It belongs to the examples project and is not exported by the public `relametric` package.
 
 The shared viewer supplies playback speed, bloom, auto-orbit, and pause. New instances start from recipe defaults. Structural options such as particle count generally require a new layer; see the library API before exposing them as controls.
 
@@ -286,7 +286,7 @@ Animate custom layers in `update(time, delta)` by integrating `delta`. When `del
 
 ## Shared scene helper
 
-`createChartLayer(build)` returns a normal `FiveLayer` plus `redraw(build)`. Coordinates are world units. Construct the layer before adding it so TypeScript retains the extra `redraw` method:
+`createChartLayer(build)` returns a normal `RelametricLayer` plus `redraw(build)`. Coordinates are world units. Construct the layer before adding it so TypeScript retains the extra `redraw` method:
 
 ```ts
 const layer = createChartLayer(chart => {

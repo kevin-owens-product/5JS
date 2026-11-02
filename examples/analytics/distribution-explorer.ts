@@ -2,7 +2,7 @@ import type { ExampleDefinition } from '../types.js';
 import { createChartLayer } from '../shared/chart.js';
 import type { ChartBuilder, Position } from '../shared/chart.js';
 import { BufferAttribute, BufferGeometry, Color, Points, PointsMaterial } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 
 export function createLatencyObservations(): number[] {
   return Array.from({ length: 96 }, (_, i) => 90 + i * 17 % 60 + (i % 7) ** 2 * 8 + (i % 23 === 0 ? 360 : 0));
@@ -108,7 +108,7 @@ const example: ExampleDefinition = {
       positions.needsUpdate = true; colors.needsUpdate = true; geometry.computeBoundingBox();
     };
     animateSamples();
-    const sampleLayer: FiveLayer = { object: samples, kind: 'histogramSamples', count: observations.length,
+    const sampleLayer: RelametricLayer = { object: samples, kind: 'histogramSamples', count: observations.length,
       update(_time, delta) { if (disposed || !Number.isFinite(delta) || delta <= 0) return; elapsed += delta; animateSamples(); }, set() {},
       dispose() { if (disposed) return; disposed = true; geometry.dispose(); samples.material.dispose(); samples.removeFromParent(); },
     };

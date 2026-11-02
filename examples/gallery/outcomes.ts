@@ -1,4 +1,4 @@
-import type { FiveApp } from '../../src/index.js';
+import type { RelametricApp } from '../../src/index.js';
 import type { OutcomeExplorer, EntityRecord, OutcomeView } from '../connected/types.js';
 import { investigationBrief, type BriefItem } from '../connected/brief.js';
 import { bindEntityPicking } from '../connected/picking.js';
@@ -14,7 +14,7 @@ const get = <T extends HTMLElement = HTMLElement>(id: string) => document.getEle
 const kinds = ['customer', 'product', 'service', 'person', 'interview', 'session', 'checkout'];
 
 /** UI adapter for the shared example contract. It never writes to an external system. */
-export function mountOutcomeUI(title: string, explorer: OutcomeExplorer, app: FiveApp): () => void {
+export function mountOutcomeUI(title: string, explorer: OutcomeExplorer, app: RelametricApp): () => void {
   const dialog = get('viewer'), aside = document.querySelector<HTMLElement>('.example-info')!;
   const heading = get('outcome-heading'), tabs = get('outcome-tabs'), inspector = get('record-inspector'), workspace = get('outcome-workspace'), tooltip = get('entity-tooltip');
   const settings = [...aside.children].filter(child => child !== tabs && child !== inspector) as HTMLElement[];
@@ -74,7 +74,7 @@ export function mountOutcomeUI(title: string, explorer: OutcomeExplorer, app: Fi
   const briefBar = element('section', undefined, 'brief-bar'); briefBar.setAttribute('aria-label', 'Investigation brief');
   const briefStatus = element('span'); briefStatus.id = 'brief-status'; briefStatus.setAttribute('role', 'status');
   const download = actionButton('Download investigation brief', () => {
-    downloadBlob(new Blob([investigationBrief(title, [...brief.values()], explorer.records, [...pinned])], { type: 'text/markdown;charset=utf-8' }), `5js-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-brief.md`);
+    downloadBlob(new Blob([investigationBrief(title, [...brief.values()], explorer.records, [...pinned])], { type: 'text/markdown;charset=utf-8' }), `relametric-${title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-brief.md`);
   }, 'brief-download'); download.id = 'download-brief';
   const clear = actionButton('Clear brief', () => { brief.clear(); pinned.clear(); renderActions(explorer.view()); renderInspector(); updateBrief(); }); clear.id = 'clear-brief';
   const note = element('small', 'Brief items keep the evidence, scope, and assumptions you selected. This demo creates a local file; it does not contact customers or create tasks.');

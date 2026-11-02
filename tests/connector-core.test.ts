@@ -114,7 +114,7 @@ function setupGateway() {
   const gateway = createConnectorGateway({ authorize(request) { authorizations++; const user = request.headers.get('x-test-subject'); return user ? { subject: user, scope: { tenant: user } } : null; }, operations: {
     customers: { connector, parameters: { segment: { type: 'string', values: ['all', 'Growth'] } }, maxPageSize: 2, query(parameters, access) { seen.push([parameters.segment, access.scope?.tenant]); return undefined; } },
   } });
-  const request = (payload: unknown, user = 'alice') => gateway(new Request('https://app.test/api/motif', { method: 'POST', headers: { 'content-type': 'application/json', ...(user && { 'x-test-subject': user }) }, body: JSON.stringify(payload) }));
+  const request = (payload: unknown, user = 'alice') => gateway(new Request('https://app.test/api/relametric', { method: 'POST', headers: { 'content-type': 'application/json', ...(user && { 'x-test-subject': user }) }, body: JSON.stringify(payload) }));
   return { gateway, request, seen, authorizations: () => authorizations };
 }
 
@@ -143,7 +143,7 @@ test('gateway binds continuation to authorized subject, operation and validated 
 
 test('browser endpoint and server gateway execute the same registered operation end to end', async () => {
   const { gateway } = setupGateway();
-  const client = endpointConnector({ ...identity, endpoint: '/api/motif', fetch: (async (_url, init) => { const headers = new Headers(init?.headers); headers.set('x-test-subject', 'alice'); return gateway(new Request('https://app.test/api/motif', { ...init, headers })); }) as typeof fetch });
+  const client = endpointConnector({ ...identity, endpoint: '/api/relametric', fetch: (async (_url, init) => { const headers = new Headers(init?.headers); headers.set('x-test-subject', 'alice'); return gateway(new Request('https://app.test/api/relametric', { ...init, headers })); }) as typeof fetch });
   const result = await collectPages(client, { operation: 'customers', parameters: { segment: 'all' } }, { limit: 1 });
   assert.equal(result.rows.length, 3); assert.equal(result.page.truncated, false); assert.equal(result.provenance.mode, 'fixture');
   assert.throws(() => endpointConnector({ ...identity, endpoint: 'https://user:pass@example.test' }), /without credentials/);
@@ -153,7 +153,7 @@ test('browser boundary rejects malformed schemas and never includes application 
   const page = await snapshot().read();
   assert.throws(() => validateDataPage({ ...page, rows: [[null]] }), /invalid data page/);
   assert.throws(() => validateDataPage({ ...page, page: { hasMore: false, truncated: false, nextCursor: 'unexpected' } }), /continuation/);
-  const connector = endpointConnector({ ...identity, endpoint: '/api/motif', fetch: (async () => new Response('private database password', { status: 500 })) as typeof fetch });
+  const connector = endpointConnector({ ...identity, endpoint: '/api/relametric', fetch: (async () => new Response('private database password', { status: 500 })) as typeof fetch });
   await assert.rejects(connector.read({ operation: 'customers' }), error => !String(error).includes('password'));
 });
 
@@ -181,7 +181,7 @@ test('browser validation rejects sparse fields, rows, cells, nested cells, and w
 
 test('browser endpoint rejects a valid data page that exceeds the caller requested limit', async () => {
   const page = await snapshot().read(undefined, { limit: 2 });
-  const connector = endpointConnector({ ...identity, endpoint: '/api/motif', fetch: (async (_url, init) => {
+  const connector = endpointConnector({ ...identity, endpoint: '/api/relametric', fetch: (async (_url, init) => {
     assert.equal(JSON.parse(String(init?.body)).limit, 1);
     return Response.json(page);
   }) as typeof fetch });
@@ -205,7 +205,7 @@ test('gateway deadline covers stalled authorization and prevents later authoriza
   const gateway = createConnectorGateway({ timeoutMs: 15, authorize() { authorizeCalls++; return pendingAuthorization; }, operations: {
     customers: { connector, parameters: {}, query: () => undefined },
   } });
-  const response = await gateway(new Request('https://app.test/api/motif', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"operation":"customers"}' }));
+  const response = await gateway(new Request('https://app.test/api/relametric', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"operation":"customers"}' }));
   assert.equal(response.status, 504); assert.equal((await response.json()).error.code, 'TIMEOUT');
   assert.equal(authorizeCalls, 1); assert.equal(connectorCalls, 0);
   finishAuthorization({ subject: 'late-user' });
@@ -224,7 +224,7 @@ test('gateway deadline cancels a stalled request body before authorization or pr
     customers: { connector, parameters: {}, query: () => undefined },
   } });
   const init = { method: 'POST', headers: { 'content-type': 'application/json' }, body: stream, duplex: 'half' } as RequestInit & { duplex: 'half' };
-  const response = await gateway(new Request('https://app.test/api/motif', init));
+  const response = await gateway(new Request('https://app.test/api/relametric', init));
   assert.equal(response.status, 504); assert.equal((await response.json()).error.code, 'TIMEOUT');
   assert.equal(bodyCancelled, true); assert.equal(authorizeCalls, 0); assert.equal(connectorCalls, 0);
 });
@@ -236,7 +236,7 @@ test('pre-aborted gateway requests invoke neither authorization nor the connecto
     customers: { connector, parameters: {}, query: () => undefined },
   } });
   const controller = new AbortController(); controller.abort();
-  const response = await gateway(new Request('https://app.test/api/motif', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"operation":"customers"}', signal: controller.signal }));
+  const response = await gateway(new Request('https://app.test/api/relametric', { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"operation":"customers"}', signal: controller.signal }));
   assert.equal(response.status, 499); assert.equal((await response.json()).error.code, 'ABORTED');
   assert.equal(authorizeCalls, 0); assert.equal(connectorCalls, 0);
 });
@@ -270,7 +270,7 @@ test('server HTTP and browser endpoint release stalled response readers on cance
     });
     const fetch: typeof globalThis.fetch = async () => new Response(body);
     if (browser) {
-      const endpoint = endpointConnector({ ...identity, endpoint: '/api/motif', fetch });
+      const endpoint = endpointConnector({ ...identity, endpoint: '/api/relametric', fetch });
       await assert.rejects(endpoint.read({ operation: 'customers' }, { timeoutMs: 15 }), (error: ConnectorError) => error.code === 'TIMEOUT');
     } else {
       const controller = new AbortController();

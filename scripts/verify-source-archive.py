@@ -18,7 +18,7 @@ REQUIRED = (
 
 class SourceArchiveChecks(unittest.TestCase):
     def setUp(self):
-        self.temporary = tempfile.TemporaryDirectory(prefix="fivejs-archive-check-")
+        self.temporary = tempfile.TemporaryDirectory(prefix="relametric-archive-check-")
         self.addCleanup(self.temporary.cleanup)
         self.project = Path(self.temporary.name) / "source"
         (self.project / "scripts").mkdir(parents=True)
@@ -34,8 +34,15 @@ class SourceArchiveChecks(unittest.TestCase):
         )
 
     def names(self):
-        with ZipFile(self.project / "public/examples/5js-examples.zip") as archive:
-            return {name.removeprefix("fivejs-examples/") for name in archive.namelist()}
+        with ZipFile(self.project / "public/examples/relametric-examples.zip") as archive:
+            return {name.removeprefix("relametric-examples/") for name in archive.namelist()}
+
+    def test_preserves_agent_entry_points_without_git(self):
+        for name in ("AGENTS.md", "llms.txt"):
+            shutil.copy2(ROOT / name, self.project / name)
+        result = self.build()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertTrue({"AGENTS.md", "llms.txt"} <= self.names())
 
     def test_prunes_hidden_dependencies_and_generated_files_without_git(self):
         (self.project / "docs/guide.md").write_text("# Public guide\n")
@@ -118,7 +125,7 @@ class SourceArchiveChecks(unittest.TestCase):
 
     def test_rejects_file_symlink_without_replacing_previous_archive(self):
         self.assertEqual(self.build().returncode, 0)
-        archive = self.project / "public/examples/5js-examples.zip"
+        archive = self.project / "public/examples/relametric-examples.zip"
         before = archive.read_bytes()
         outside = Path(self.temporary.name) / "outside.md"
         outside.write_text("HARMLESS_OUTSIDE_CANARY\n")

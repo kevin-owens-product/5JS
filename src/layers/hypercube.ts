@@ -2,7 +2,7 @@ import {
   AdditiveBlending, BufferAttribute, BufferGeometry, Color, DynamicDrawUsage, Group,
   LineBasicMaterial, LineSegments, Points, ShaderMaterial,
 } from 'three';
-import type { FiveLayer, HypercubeOptions } from '../types.js';
+import type { RelametricLayer, HypercubeOptions } from '../types.js';
 import {
   finiteRange, hypercubeTopology, optionSnapshot, projectHypercubeVertex, rotateHypercubeVertex, scientificColor,
 } from './scientificMath.js';
@@ -25,13 +25,13 @@ function validate(options: Required<HypercubeOptions>): void {
  * hypercube edge length, before projection. count reports vertices (16 or 32).
  * Animation integrates delta seconds, so changing speed preserves the phase.
  */
-export function hypercube(options: HypercubeOptions = {}): FiveLayer<HypercubeOptions> {
+export function hypercube(options: HypercubeOptions = {}): RelametricLayer<HypercubeOptions> {
   const keys = Object.keys(defaults) as (keyof HypercubeOptions)[];
   let settings = { ...defaults, ...optionSnapshot(options, keys, 'hypercube options') };
   validate(settings);
   let topology = hypercubeTopology(settings.dimensions);
   const object = new Group();
-  object.name = 'fivejs:hypercube';
+  object.name = 'relametric:hypercube';
   const color = scientificColor(settings.color, 'color');
   const lineMaterial = new LineBasicMaterial({
     vertexColors: true, transparent: true, opacity: 0.8,

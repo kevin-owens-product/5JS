@@ -5,7 +5,7 @@ import {
   Points, ShaderMaterial, TorusGeometry, TubeGeometry,
 } from 'three';
 import type { Material, Object3D, Texture } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 
 export type Position = [number, number, number];
 export interface Tick { value: number; label: string }
@@ -33,7 +33,7 @@ export interface ChartBuilder {
   glow(position: Position, color: string, size?: number): void;
   flow(points: Position[], options: { color: string; count?: number; speed?: number; size?: number; spread?: number; seed?: number }): void;
 }
-export interface ChartLayer extends FiveLayer<Record<string, never>> {
+export interface ChartLayer extends RelametricLayer<Record<string, never>> {
   redraw(build: (chart: ChartBuilder) => void): void;
 }
 
@@ -57,7 +57,7 @@ function release(group: Group) {
   group.clear();
 }
 
-/** Small example utility, not a new public 5js layer API. Coordinates are world units. */
+/** Small example utility, not a new public relametric layer API. Coordinates are world units. */
 export function createChartLayer(build: (chart: ChartBuilder) => void): ChartLayer {
   const object = new Group(); object.name = 'example:analytical-chart';
   let content = new Group(), disposed = false, count = 0, elapsed = 0;

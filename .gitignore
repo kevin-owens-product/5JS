@@ -16,3 +16,5 @@ public/THIRD_PARTY_NOTICES.md
 # Connector HTML is generated from typed guide content.
 /connectors/index.html
 /connectors/*/index.html
+
+/public/llms.txt

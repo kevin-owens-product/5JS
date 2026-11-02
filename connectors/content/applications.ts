@@ -1,14 +1,14 @@
 import type { ConnectorGuide } from './types.js';
 
 const serverPrerequisites = [
-  'Build and install the private motif-connectors package from your checkout; run the sample with your ESM TypeScript runner on Node.js 22.16+. Include Node typings for type checking. It is not a registry installation claim.',
+  'Build and install the private relametric-connectors package from your checkout; run the sample with your ESM TypeScript runner on Node.js 22.16+. Include Node typings for type checking. It is not a registry installation claim.',
   'Populate the named process.env values in your server environment. The sample includes its own environment helper; your application owns credential refresh, authorization and tenant binding before exposing registered operations to a browser.',
 ];
 
 function serverSample(factory: string, filename: string, title: string, description: string, body: string): ConnectorGuide['sample'] {
   return {
     title, filename, description,
-    code: `import { ${factory} } from 'motif-connectors/server';
+    code: `import { ${factory} } from 'relametric-connectors/server';
 
 function env(name: string): string {
   const value = process.env[name];
@@ -99,7 +99,7 @@ const page = await connector.read({
     slug: 'salesforce', catalogName: 'Salesforce', name: 'Salesforce', factory: 'salesforceConnector',
     monogram: 'Sf', accent: '#8fcaff', runtime: 'server', outcome: 'retention',
     headline: 'Give account reviews a traceable CRM starting point.',
-    description: 'Execute approved SOQL through REST query and query-more, with native batches buffered into bounded Motif pages.',
+    description: 'Execute approved SOQL through REST query and query-more, with native batches buffered into bounded Relametric pages.',
     prerequisites: [...serverPrerequisites, 'Set SALESFORCE_INSTANCE_URL to your HTTPS instance origin without a path, and SALESFORCE_ACCESS_TOKEN to an authorized OAuth token. The sample pins REST API 66.0.', 'Authorize Account and the Id, Name and OwnerId fields. The example assumes the token may read this approved account set; replace the fixed statement with an appropriately scoped server-owned query.'],
     capabilities: [
       { title: 'Server-owned SOQL', body: 'Read the selected fields and preserve each returned SOQL record in one record JSON column.' },

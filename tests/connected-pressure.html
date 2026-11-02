@@ -2,13 +2,13 @@
 <html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>RUNNING — 5js connected workflow pressure verification</title>
+<title>RUNNING — relametric connected workflow pressure verification</title>
 <style>
   body { background:#101818; color:#d6ffd7; font:14px/1.6 monospace; padding:20px; }
   pre { white-space:pre-wrap; }
   iframe { width:1100px; height:820px; border:1px solid #62746a; max-width:100%; }
 </style>
-<h1>5js connected workflow pressure verification</h1>
+<h1>relametric connected workflow pressure verification</h1>
 <p>Real gallery checks for linked records, keyboard tabs, scoped investigation briefs, cleanup, and phone layout. The final empty-cohort case uses an explicitly injected fixture.</p>
 <pre id="results">Starting connected workflow checks…</pre>
 <iframe id="gallery" title="Connected gallery under test"></iframe>
@@ -58,7 +58,7 @@ if (new URLSearchParams(location.search).get('fixture') === 'empty') {
     if (fatal) { failures.push(fatal); checks.push('FAIL · ' + fatal); }
     if (errors.length) { failures.push(...errors); checks.push(...errors.map(error => 'FAIL · iframe error: ' + error)); }
     results.textContent = checks.join('\n') + '\n\n' + (failures.length ? `${failures.length} PRESSURE CHECKS FAILED` : `ALL ${checks.length} PRESSURE CHECKS PASSED`);
-    document.title = (failures.length ? 'FAIL' : 'PASS') + ' — 5js connected workflow pressure verification';
+    document.title = (failures.length ? 'FAIL' : 'PASS') + ' — relametric connected workflow pressure verification';
     document.body.dataset.status = failures.length ? 'fail' : 'pass';
   }
   async function until(fn, message, timeout = 15000) {

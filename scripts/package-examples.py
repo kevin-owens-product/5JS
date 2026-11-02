@@ -5,7 +5,7 @@ import subprocess
 from zipfile import ZipFile, ZIP_DEFLATED
 
 root = Path(__file__).resolve().parent.parent
-destination = root / "public/examples/5js-examples.zip"
+destination = root / "public/examples/relametric-examples.zip"
 required_files = [root / name for name in (
     "package.json", "package-lock.json", "index.html", "README.md", ".gitignore", "LICENSE", "THIRD_PARTY_NOTICES.md",
     "tsconfig.json", "tsconfig.lib.json", "vite.config.ts", "vite.demo.config.ts",
@@ -16,7 +16,7 @@ files = list(required_files)
 files.extend(root / name for name in (
     "LICENSE.md", "LICENSE.txt", "NOTICE", "NOTICE.md",
     "CONTRIBUTING.md", "SECURITY.md",
-    "CODE_OF_CONDUCT.md", "CHANGELOG.md",
+    "CODE_OF_CONDUCT.md", "CHANGELOG.md", "AGENTS.md", "llms.txt",
     "artifacts/business-motion-reactor.jpg",
 ) if (root / name).exists())
 excluded_directories = {"node_modules", "dist", "demo-dist", "__pycache__", "coverage"}
@@ -76,5 +76,5 @@ for path in files:
 destination.parent.mkdir(parents=True, exist_ok=True)
 with ZipFile(destination, "w", compression=ZIP_DEFLATED, compresslevel=9) as archive:
     for path in files:
-        archive.write(path, Path("fivejs-examples") / path.relative_to(root))
+        archive.write(path, Path("relametric-examples") / path.relative_to(root))
 print(f"Created {destination.relative_to(root)} ({len(files)} files, {destination.stat().st_size:,} bytes)")

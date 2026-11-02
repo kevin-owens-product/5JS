@@ -1,17 +1,17 @@
 {
-  "name": "fivejs",
-  "version": "0.1.0-alpha.1",
+  "name": "relametric",
+  "version": "0.1.0-alpha.2",
   "description": "Composable scientific, data, and cinematic visualizations on Three.js",
   "private": true,
   "type": "module",
   "sideEffects": false,
-  "main": "./dist/fivejs.js",
-  "module": "./dist/fivejs.js",
+  "main": "./dist/relametric.js",
+  "module": "./dist/relametric.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/fivejs.js"
+      "import": "./dist/relametric.js"
     }
   },
   "files": [
@@ -58,7 +58,7 @@
   "license": "MIT",
   "author": "Kevin Owens",
   "engines": {
-    "node": ">=22.12.0"
+    "node": ">=22.16.0"
   },
   "keywords": [
     "threejs",

@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Box3, Scene } from 'three';
 import type { BufferGeometry, Material, Object3D } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import cohorts, { createRetentionData, retentionRows, weightedRetention } from '../examples/analytics/cohort-retention.js';
 import segments, { createCustomerData, segmentCustomer, selectCustomers, summarizeCustomers } from '../examples/analytics/customer-segments.js';
 import correlations, { createCorrelationData, correlationCells, pearson } from '../examples/analytics/correlation-matrix.js';
@@ -11,8 +11,8 @@ import anomalies, { createTimeSeries, residualRows, summarizeResiduals } from '.
 import experiment, { createExperimentData, summarizeExperiment } from '../examples/analytics/ab-experiment.js';
 
 function fakeApp() {
-  const layers: FiveLayer<object>[] = [], scene = new Scene();
-  const app = { add<P extends object>(layer: FiveLayer<P>) { layers.push(layer); scene.add(layer.object); return layer; } } as FiveApp;
+  const layers: RelametricLayer<object>[] = [], scene = new Scene();
+  const app = { add<P extends object>(layer: RelametricLayer<P>) { layers.push(layer); scene.add(layer.object); return layer; } } as RelametricApp;
   return { app, layers, scene };
 }
 const close = (actual: number, expected: number, tolerance = 1e-12) => assert.ok(Math.abs(actual - expected) < tolerance, `${actual} != ${expected}`);

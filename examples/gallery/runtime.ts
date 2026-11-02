@@ -1,15 +1,15 @@
-import { createFive } from '../../src/index.js';
-import type { FiveApp, FiveLayer } from '../../src/index.js';
+import { createRelametric } from '../../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../../src/index.js';
 import type { ExampleDefinition, ExampleInstance } from '../types.js';
 
-export interface MountedExample extends ExampleInstance { layers: FiveLayer<object>[] }
+export interface MountedExample extends ExampleInstance { layers: RelametricLayer<object>[] }
 
 /** Keep preview rendering, viewer and browser checks on the same setup path. */
-export function mountExample(example: ExampleDefinition, app: FiveApp, preview = false): MountedExample {
-  const layers: FiveLayer<object>[] = [];
+export function mountExample(example: ExampleDefinition, app: RelametricApp, preview = false): MountedExample {
+  const layers: RelametricLayer<object>[] = [];
   const context = new Proxy(app, {
     get(target, key) {
-      if (key === 'add') return <P extends object>(layer: FiveLayer<P>) => { layers.push(layer); return target.add(layer); };
+      if (key === 'add') return <P extends object>(layer: RelametricLayer<P>) => { layers.push(layer); return target.add(layer); };
       return Reflect.get(target, key);
     },
   });
@@ -43,7 +43,7 @@ export function cameraScale(example: ExampleDefinition, width: number, height: n
 }
 
 export function makeRenderer(container: HTMLElement) {
-  return createFive({ container, background: '#070a0e', bloom: 0.45, paused: true, autoRotate: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5) });
+  return createRelametric({ container, background: '#070a0e', bloom: 0.45, paused: true, autoRotate: false, pixelRatio: Math.min(window.devicePixelRatio || 1, 1.5) });
 }
 
 export function downloadBlob(blob: Blob, filename: string) {

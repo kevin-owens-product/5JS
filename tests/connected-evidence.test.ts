@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Scene } from 'three';
 import type { BufferGeometry, Material, Mesh, Points, BufferAttribute } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import evidence, { evidenceToRoadmapModel } from '../examples/analytics/evidence-to-roadmap.js';
 import { createConnectedData, buildEntityRecords } from '../examples/connected/fixture.js';
 import type { Theme } from '../examples/connected/types.js';
@@ -10,8 +10,8 @@ import type { Theme } from '../examples/connected/types.js';
 const themes = ['all', 'checkout', 'activation', 'visibility'] as const;
 const segments = ['all', 'Growth', 'Enterprise'] as const;
 function mount() {
-  const scene = new Scene(), layers: FiveLayer<object>[] = [];
-  const app = { add<P extends object>(layer: FiveLayer<P>) { layers.push(layer); scene.add(layer.object); return layer; } } as FiveApp;
+  const scene = new Scene(), layers: RelametricLayer<object>[] = [];
+  const app = { add<P extends object>(layer: RelametricLayer<P>) { layers.push(layer); scene.add(layer.object); return layer; } } as RelametricApp;
   return { scene, layers, instance: evidence.setup(app) };
 }
 

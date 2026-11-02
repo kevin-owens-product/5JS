@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { performance } from 'node:perf_hooks';
 import { BufferGeometry, Color, Group, InstancedMesh, Matrix4, Mesh, Points, ShaderMaterial } from 'three';
-import type { FiveLayer, GraphData } from '../src/types.js';
+import type { RelametricLayer, GraphData } from '../src/types.js';
 import { particleField } from '../src/layers/particleField.js';
 import { hypercube } from '../src/layers/hypercube.js';
 import { createDemoGraph, layoutGraph, networkGraph } from '../src/layers/networkGraph.js';
@@ -17,12 +17,12 @@ const factories = [
   { name: 'terrain', create: terrain, small: { resolution: 2 }, key: 'height', value: 7 },
 ];
 
-function shader(layer: FiveLayer<any>): ShaderMaterial {
+function shader(layer: RelametricLayer<any>): ShaderMaterial {
   if (layer.kind === 'networkGraph') return (layer.object.getObjectByName('network-glow') as Points).material as ShaderMaterial;
   return (layer.object as Mesh).material as ShaderMaterial;
 }
 
-function snapshot(layer: FiveLayer<any>) {
+function snapshot(layer: RelametricLayer<any>) {
   const records: unknown[] = [];
   layer.object.traverse(object => {
     const draw = object as Mesh;
@@ -228,7 +228,7 @@ test('repeated topology changes dispose only owned resources and rejected change
   b.update(0, 0.1); b.dispose(); assert.equal(siblingDisposals, 1);
 });
 
-function arrayBytes(layer: FiveLayer<any>): number {
+function arrayBytes(layer: RelametricLayer<any>): number {
   const buffers = new Set<ArrayBufferLike>();
   layer.object.traverse(object => {
     const geometry = (object as Mesh).geometry as BufferGeometry | undefined;

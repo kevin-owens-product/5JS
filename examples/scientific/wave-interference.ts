@@ -1,6 +1,6 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, LineSegments, ShaderMaterial } from 'three';
 import type { Points } from 'three';
-import { particleField, type FiveLayer } from '../../src/index.js';
+import { particleField, type RelametricLayer } from '../../src/index.js';
 import type { ExampleDefinition } from '../types.js';
 
 const example: ExampleDefinition = {
@@ -65,7 +65,7 @@ const example: ExampleDefinition = {
       object: mesh, kind: 'waveProfiles', count: vertices.length / 3,
       update() {}, set() {},
       dispose() { if (disposed) return; disposed = true; mesh.removeFromParent(); geometry.dispose(); material.dispose(); },
-    } satisfies FiveLayer<Record<string, never>>);
+    } satisfies RelametricLayer<Record<string, never>>);
     // The field remains an ordinary public layer; both use the same vertical scale.
     app.add(field);
     return { controls: [

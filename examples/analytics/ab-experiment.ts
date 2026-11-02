@@ -2,7 +2,7 @@ import type { ExampleDefinition } from '../types.js';
 import { createChartLayer } from '../shared/chart.js';
 import type { ChartBuilder, Position } from '../shared/chart.js';
 import { BufferAttribute, BufferGeometry, Color, Points, PointsMaterial } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 
 export type ExperimentSegment = 'Desktop' | 'Mobile' | 'Tablet';
 export interface ExperimentRow { segment: ExperimentSegment; variant: 'A' | 'B'; visitors: number; conversions: number }
@@ -110,7 +110,7 @@ const example: ExampleDefinition = {
       population.geometry.dispose(); population.geometry = geometry;
     };
     rebuildPopulation();
-    const populationLayer: FiveLayer = { object: population, kind: 'experimentPopulation', get count() { return visitorCount; }, update() {}, set() {}, dispose() { if (populationDisposed) return; populationDisposed = true; population.geometry.dispose(); population.material.dispose(); population.removeFromParent(); } };
+    const populationLayer: RelametricLayer = { object: population, kind: 'experimentPopulation', get count() { return visitorCount; }, update() {}, set() {}, dispose() { if (populationDisposed) return; populationDisposed = true; population.geometry.dispose(); population.material.dispose(); population.removeFromParent(); } };
     app.add(populationLayer);
     const refresh = () => { rows = data.filter(row => segment === 0 || row.segment === SEGMENTS[segment - 1]); layer.redraw(draw); rebuildPopulation(); };
     return {

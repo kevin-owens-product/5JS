@@ -1,8 +1,8 @@
-# Motif Connectors
+# Relametric Connectors
 
-Typed data adapters that connect Motif visualizations to application data, databases, and warehouses. The current implementation supplies a common table format, explicit pagination and truncation, source provenance, and an application gateway for registered operations.
+Typed data adapters that connect Relametric visualizations to application data, databases, and warehouses. The current implementation supplies a common table format, explicit pagination and truncation, source provenance, and an application gateway for registered operations.
 
-**Motif is the working project name.** This package is an early, private workspace package named `motif-connectors`; it has not been published to npm, and the name is not a registry or trademark availability claim. The package carries the repository's MIT license. Public release and broad production certification remain separate work.
+**Relametric is the working project name.** This package is an early, private workspace package named `relametric-connectors`; it has not been published to npm, and the name is not a registry or trademark availability claim. The package carries the repository's MIT license. Public release and broad production certification remain separate work.
 
 All **39 catalog entries now have a constrained implementation**, including JSON and the application endpoint. Grouped entries have actual factories for their constituent tools: Elasticsearch/OpenSearch, Zendesk/Intercom, dbt/Cube, and CSV/Parquet/Arrow; MySQL/MariaDB share the `mysql2` adapter. “Implemented” means the adapter and its contract tests exist. It does not mean every provider feature is supported or a live account has been certified. The [packaged catalog](./dist/catalog.js) contains the maintained coverage list; the scope tables below describe the implemented boundaries.
 
@@ -19,7 +19,7 @@ npm run demo:connectors
 
 The connector demo runs at [http://127.0.0.1:5190](http://127.0.0.1:5190). It uses local SQLite and JSON fixtures through a registered application gateway; it does not require cloud credentials. Its fixture identity and authorization are demonstrations, not a production login system.
 
-For the main Motif site, run `npm run dev` and open the [decision lab](http://127.0.0.1:5185/#decision-lab). Its conversion, retention and product workflows connect seven fictional JSON source snapshots, including 36 accounts, sessions, checkouts, usage, support, interviews and features. Explore 3D evidence scenes, filter records, inspect exact source values and download an investigation brief. These workflows use real JSON connectors with synthetic records; they are not connected to live provider accounts. The original playground is at `/demo/playground.html`, and the example gallery remains at `/examples/`.
+For the main Relametric site, run `npm run dev` and open the [decision lab](http://127.0.0.1:5185/#decision-lab). Its conversion, retention and product workflows connect seven fictional JSON source snapshots, including 36 accounts, sessions, checkouts, usage, support, interviews and features. Explore 3D evidence scenes, filter records, inspect exact source values and download an investigation brief. These workflows use real JSON connectors with synthetic records; they are not connected to live provider accounts. The original playground is at `/demo/playground.html`, and the example gallery remains at `/examples/`.
 
 The [connector directory](http://127.0.0.1:5185/connectors/) provides **45 source-specific guides** at `/connectors/<slug>/`, covering 44 factories and all 39 catalog entries. MySQL and MariaDB have separate guides for their shared adapter. Each guide includes setup, exact TypeScript samples with copy/download controls, supported operations, runtime/limits, provider documentation and related source/outcome links. The static page text and code remain readable without JavaScript; browser enhancements do not execute samples or collect credentials.
 
@@ -28,14 +28,14 @@ In the full repository, `npm run dev` and `npm run build:demo` generate these pa
 For a separate local application, build first and install the package by filesystem path, adjusting the path for your checkout:
 
 ```sh
-npm install ../fivejs/packages/connectors
+npm install ../relametric/packages/connectors
 ```
 
 Do not use a registry installation command until an actual release is announced. Database drivers are caller-owned, optional integrations; this package does not install every database SDK.
 
 ## Browser and server boundaries
 
-Import `motif-connectors` for browser-safe helpers: `jsonConnector`, `csvConnector`, `arrowConnector`, `parquetConnector`, `endpointConnector`, `mapRows`, `collectPages`, the table types, and the catalog. Import `motif-connectors/server` for database, warehouse, application and semantic adapters, plus `createConnectorGateway`. Arrow/Parquet readers are injected by the application; these factories do not bundle those SDKs.
+Import `relametric-connectors` for browser-safe helpers: `jsonConnector`, `csvConnector`, `arrowConnector`, `parquetConnector`, `endpointConnector`, `mapRows`, `collectPages`, the table types, and the catalog. Import `relametric-connectors/server` for database, warehouse, application and semantic adapters, plus `createConnectorGateway`. Arrow/Parquet readers are injected by the application; these factories do not bundle those SDKs.
 
 ```text
 Visualization → registered application operation → authorized server adapter → source
@@ -69,7 +69,7 @@ Field types describe source meaning; an `integer` or `decimal` field may therefo
 `fetchedAt` records retrieval time, not the age or completeness of the underlying source. `mode: 'fixture'` identifies synthetic/local demonstration data. A `live` label alone is not a validation claim.
 
 ```ts
-import { jsonConnector, mapRows } from 'motif-connectors';
+import { jsonConnector, mapRows } from 'relametric-connectors';
 
 const customers = jsonConnector({
   id: 'customer-fixture', source: 'Synthetic customer outcomes', mode: 'fixture',
@@ -96,7 +96,7 @@ The gateway requires an `authorize` callback and invokes it for every operation 
 This server example assumes your application supplies `readOnlyPgPool`, `authenticateSession`, and `canReadAnalytics`:
 
 ```ts
-import { createConnectorGateway, postgresConnector } from 'motif-connectors/server';
+import { createConnectorGateway, postgresConnector } from 'relametric-connectors/server';
 import { readOnlyPgPool } from './database.js';
 import { authenticateSession, canReadAnalytics } from './auth.js';
 
@@ -133,15 +133,15 @@ export const POST = createConnectorGateway({
 });
 ```
 
-Mount the returned handler on your application's `/api/motif/data` POST route, with your usual session, origin/CSRF, rate-limit, and access policies. The extra result row in this example allows a 500-row read to report truncation. A truncated SQL snapshot requires a narrower registered query or an application-defined pagination operation.
+Mount the returned handler on your application's `/api/relametric/data` POST route, with your usual session, origin/CSRF, rate-limit, and access policies. The extra result row in this example allows a 500-row read to report truncation. A truncated SQL snapshot requires a narrower registered query or an application-defined pagination operation.
 
 ```ts
 // Browser: no database credentials, SQL, provider URL, or client-selected tenant.
-import { endpointConnector } from 'motif-connectors';
+import { endpointConnector } from 'relametric-connectors';
 
 const data = endpointConnector({
   id: 'application-data', source: 'Authorized customer activity',
-  endpoint: '/api/motif/data',
+  endpoint: '/api/relametric/data',
 });
 const page = await data.read(
   { operation: 'customer.activity', parameters: { days: 30 } },
@@ -157,7 +157,7 @@ Database access must be constrained by **provider-side read-only roles**, views 
 
 “Protocol” means local tests against mocked official-driver/API shapes, including failures and pagination where supported. No live cloud credentials were used. SDK typechecks confirm structural compatibility, not successful production queries. Real checks are identified separately: in-memory SQLite, a temporary official DuckDB Node API installation, and an Arrow/Parquet roundtrip using `apache-arrow` 21.2.0 and `parquet-wasm` 0.9.0. Optional SDKs used for these checks were installed in a temporary directory, not added as runtime dependencies.
 
-Unless identified as universal, factories below are exported from `motif-connectors/server`. “Snapshot” means a bounded preview with explicit truncation and no continuation cursor. Every listed factory has an implementation; broader features outside its stated scope remain future work.
+Unless identified as universal, factories below are exported from `relametric-connectors/server`. “Snapshot” means a bounded preview with explicit truncation and no continuation cursor. Every listed factory has an implementation; broader features outside its stated scope remain future work.
 
 ### Databases — 14 catalog entries
 
@@ -231,7 +231,7 @@ The following are actual factory shapes. `pgPool`, `mysqlConnection`, `sqliteDat
 import {
   postgresConnector, mysqlConnector, sqliteConnector,
   duckdbConnector, mongodbConnector,
-} from 'motif-connectors/server';
+} from 'relametric-connectors/server';
 
 const postgres = postgresConnector({ id: 'pg', source: 'Product warehouse', client: pgPool });
 const mysql = mysqlConnector({ id: 'mysql', source: 'Commerce database', client: mysqlConnection });
@@ -259,7 +259,7 @@ import {
   sqlServerConnector, oracleConnector, clickHouseConnector,
   elasticsearchConnector, opensearchConnector, redisConnector,
   neo4jConnector, firestoreConnector, supabaseConnector,
-} from 'motif-connectors/server';
+} from 'relametric-connectors/server';
 
 const sqlServer = sqlServerConnector({
   id: 'sql-server', source: 'Approved customer data', request: () => sqlPool.request(),
@@ -321,7 +321,7 @@ Each token callback is called afresh for every HTTP request. Your server owns to
 ```ts
 import {
   createBigQueryConnector, createSnowflakeConnector, createDatabricksConnector,
-} from 'motif-connectors/server';
+} from 'relametric-connectors/server';
 
 const bigquery = createBigQueryConnector({
   id: 'bq', source: 'Customer analytics', projectId: 'your-project', location: 'US',
@@ -334,7 +334,7 @@ await bigquery.read({
 
 const snowflake = createSnowflakeConnector({
   id: 'sf', source: 'Revenue warehouse', accountUrl: 'https://your-account.snowflakecomputing.com',
-  warehouse: 'ANALYTICS_WH', database: 'ANALYTICS', schema: 'PUBLIC', role: 'MOTIF_READER',
+  warehouse: 'ANALYTICS_WH', database: 'ANALYTICS', schema: 'PUBLIC', role: 'RELAMETRIC_READER',
   tokenType: 'OAUTH', token: () => credentials.snowflakeAccessToken(),
 });
 await snowflake.read({
@@ -360,7 +360,7 @@ BigQuery `maximumBytesBilled` is a provider cost control; a page size alone is n
 AWS integrations accept an official SDK client and small command-constructor functions. This keeps SDK versions, credentials, regions and retries under application control. The command names below are imported from the corresponding AWS SDK v3 package in your application.
 
 ```ts
-import { dynamoDBConnector, redshiftConnector, athenaConnector, trinoConnector } from 'motif-connectors/server';
+import { dynamoDBConnector, redshiftConnector, athenaConnector, trinoConnector } from 'relametric-connectors/server';
 
 const dynamo = dynamoDBConnector({
   id: 'dynamo', source: 'Customer events', client: dynamoClient,
@@ -385,7 +385,7 @@ await redshift.read({ text: 'SELECT customer_id FROM approved_customers WHERE te
 
 const athena = athenaConnector({
   id: 'athena', source: 'Product lake', client: athenaClient,
-  workGroup: 'motif-readers', database: 'analytics',
+  workGroup: 'relametric-readers', database: 'analytics',
   commands: {
     start: input => new StartQueryExecutionCommand(input),
     execution: input => new GetQueryExecutionCommand(input),
@@ -396,7 +396,7 @@ await athena.read({ text: 'SELECT customer_id FROM approved_customers WHERE acti
 
 const trino = trinoConnector({
   id: 'trino', source: 'Federated product data', baseUrl: 'https://trino.example.com',
-  user: 'motif-reader', catalog: 'analytics', schema: 'approved',
+  user: 'relametric-reader', catalog: 'analytics', schema: 'approved',
   token: () => credentials.trinoAccessToken(),
 });
 await trino.read({ text: 'SELECT customer_id FROM customer_summary' }, { limit: 100 });
@@ -409,7 +409,7 @@ Redshift requires exactly one of `clusterIdentifier` or `workgroupName`; `dbUser
 ### Application APIs
 
 ```ts
-import { stripeConnector, hubspotConnector, airtableConnector } from 'motif-connectors/server';
+import { stripeConnector, hubspotConnector, airtableConnector } from 'relametric-connectors/server';
 
 const billing = stripeConnector({
   id: 'billing', source: 'Billing customers', token: () => credentials.stripeSecret(),
@@ -449,7 +449,7 @@ All provider IDs, API versions, allowed queries and credential callbacks in thes
 import {
   salesforceConnector, shopifyConnector, zendeskConnector,
   intercomConnector, segmentConnector, googleSheetsConnector,
-} from 'motif-connectors/server';
+} from 'relametric-connectors/server';
 
 const salesforce = salesforceConnector({
   id: 'salesforce', source: 'Approved CRM accounts',
@@ -505,7 +505,7 @@ Sheets reads a fixed inclusive row interval, with `fields` defining the column c
 ```ts
 import {
   googleAnalyticsConnector, mixpanelConnector, amplitudeConnector, posthogConnector,
-} from 'motif-connectors/server';
+} from 'relametric-connectors/server';
 
 const ga4 = googleAnalyticsConnector({
   id: 'ga4', source: 'Website conversion aggregates', propertyId: ga4PropertyId,
@@ -544,7 +544,7 @@ PostHog uses the **named SQL Endpoint API**, pinned to a configured endpoint/ver
 ```ts
 import {
   lookerConnector, powerBiConnector, tableauConnector, cubeConnector, dbtSemanticConnector,
-} from 'motif-connectors/server';
+} from 'relametric-connectors/server';
 
 const looker = lookerConnector({ id: 'looker', source: 'Customer explore', baseUrl: lookerOrigin, token: () => credentials.lookerAccessToken() });
 await looker.read({ model: 'commerce', view: 'orders', fields: ['orders.customer_id', 'orders.count'], filters: { 'orders.created_date': '30 days' } }, { limit: 100 });
@@ -582,7 +582,7 @@ Authentication follows each native protocol: Looker `token`, Power BI/dbt bearer
 ### Supplied CSV, Arrow and Parquet
 
 ```ts
-import { csvConnector, arrowConnector, parquetConnector } from 'motif-connectors';
+import { csvConnector, arrowConnector, parquetConnector } from 'relametric-connectors';
 import { tableFromIPC } from 'apache-arrow'; // Optional application dependency.
 
 const csv = csvConnector({
@@ -616,7 +616,7 @@ The application owns SDK loading, WASM initialization and file access. Decoding 
 Always inspect `page.hasMore`, `page.nextCursor`, `page.truncated`, and `warnings` together. A page with more data and a cursor is an ordinary partial page. A truncated SQL or MongoDB snapshot can have `hasMore: true` without a continuation cursor; the adapter is not promising resumability. Never present either case as a complete dataset.
 
 ```ts
-import { collectPages } from 'motif-connectors';
+import { collectPages } from 'relametric-connectors';
 
 const result = await collectPages(billing, { resource: 'customers' }, {
   limit: 100, maxRows: 2_000, maxPages: 20, timeoutMs: 10_000,

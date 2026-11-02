@@ -7,7 +7,7 @@ const snapshotOutput = `  if (page.page.truncated || page.page.hasMore) {
   console.log(page.fields, page.provenance, page.warnings);
   console.table(page.rows);`;
 
-const server = 'Node.js 22.16+ on your server. Build the private motif-connectors workspace package and install it by local path; install the named SDK separately. No npm release is implied. Keep credentials and authorization on the server.';
+const server = 'Node.js 22.16+ on your server. Build the private relametric-connectors workspace package and install it by local path; install the named SDK separately. No npm release is implied. Keep credentials and authorization on the server.';
 const snapshot = 'One bounded snapshot, without a continuation cursor. If hasMore or truncated is true, narrow the query before treating the result as complete.';
 const sqlLimit = 'Returned-row limits do not cap scans, sorting, execution cost, or driver memory. Use approved queries, read-only privileges, and provider execution budgets.';
 
@@ -25,7 +25,7 @@ export const databaseGuides: ConnectorGuide[] = [
     ],
     limitations: [snapshot, sqlLimit, 'The pg result may fully materialize before slicing. Timeout is cooperative and does not cancel the server query; configure statement_timeout. Driver parsing can already have rounded values; cast exact numbers and timestamps to text or configure parsers.'],
     sample: { title: 'Read payment failures for an approved tenant', filename: 'postgres-checkouts.ts', description: 'SQL returns up to one lookahead row. The sample casts identifiers and amount to text before they reach JavaScript.', code: `import { Pool } from 'pg';
-import { postgresConnector } from 'motif-connectors/server';
+import { postgresConnector } from 'relametric-connectors/server';
 
 const url = process.env.DATABASE_URL;
 if (!url) throw new Error('Set DATABASE_URL.');
@@ -61,7 +61,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, sqlLimit, 'Use mysql2/promise and disable multipleStatements. Results can materialize before slicing; cooperative timeout does not stop server work. Precision lost by a driver parser cannot be recovered.'],
     sample: { title: 'Inspect orders awaiting payment', filename: 'mysql-orders.ts', description: 'This one-shot server script owns the connection. Long-running applications can inject their configured pool instead.', code: `import mysql from 'mysql2/promise';
-import { mysqlConnector } from 'motif-connectors/server';
+import { mysqlConnector } from 'relametric-connectors/server';
 
 const { MYSQL_HOST: host, MYSQL_USER: user, MYSQL_PASSWORD: password,
   MYSQL_DATABASE: database } = process.env;
@@ -99,7 +99,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, sqlLimit, 'Compatibility depends on your MariaDB server and mysql2 configuration. Disable multiple statements; the adapter supplies no MariaDB-specific SQL translation, streaming, or native query cancellation.'],
     sample: { title: 'Read upcoming renewals', filename: 'mariadb-renewals.ts', description: 'Contract value is context for review, not a prediction of churn or recovered revenue.', code: `import mysql from 'mysql2/promise';
-import { mysqlConnector } from 'motif-connectors/server';
+import { mysqlConnector } from 'relametric-connectors/server';
 
 const { MARIADB_HOST: host, MARIADB_USER: user, MARIADB_PASSWORD: password,
   MARIADB_DATABASE: database } = process.env;
@@ -139,7 +139,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'SQLite runs synchronously. A JavaScript timeout or new abort event cannot interrupt a statement blocking the event loop; sorting and scans can still be expensive.', 'SQLite REAL is binary floating-point. Store exact monetary amounts as integer minor units or text; the connector cannot reconstruct lost decimal precision.'],
     sample: { title: 'Read feature adoption from a local snapshot', filename: 'sqlite-feature-usage.ts', description: 'The application owns the read-only file and closes it after the read.', code: `import { DatabaseSync } from 'node:sqlite';
-import { sqliteConnector } from 'motif-connectors/server';
+import { sqliteConnector } from 'relametric-connectors/server';
 
 const path = process.env.SQLITE_PATH;
 if (!path) throw new Error('Set SQLITE_PATH.');
@@ -174,7 +174,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'DuckDB reads vector-sized chunks and can overfetch. A returned-row cap does not limit query processing or memory used for joins and aggregates.', 'Cancellation is cooperative and does not interrupt a shared connection. Bindings support null, booleans, numbers, bigints, and strings; complex bindings need an application-owned operation.'],
     sample: { title: 'Compare adoption and research coverage', filename: 'duckdb-feature-summary.ts', description: 'The source view defines the account and interview grains; their counts should not be treated as equivalent evidence.', code: `import { DuckDBInstance } from '@duckdb/node-api';
-import { duckdbConnector } from 'motif-connectors/server';
+import { duckdbConnector } from 'relametric-connectors/server';
 
 const path = process.env.DUCKDB_PATH;
 if (!path) throw new Error('Set DUCKDB_PATH.');
@@ -211,7 +211,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'This adapter supports find, not aggregation pipelines, change streams, or writes. Canonical EJSON documents need explicit mapping before visualization.', 'Provider indexing and query shape still determine execution cost. A returned document is one record, not automatically one distinct customer.'],
     sample: { title: 'Inspect accounts approaching renewal', filename: 'mongodb-account-health.ts', description: 'The wrapper values are intentional. Do not flatten exact BSON numbers into JavaScript numbers without a precision policy.', code: `import { BSON, MongoClient } from 'mongodb';
-import { mongodbConnector } from 'motif-connectors/server';
+import { mongodbConnector } from 'relametric-connectors/server';
 
 const uri = process.env.MONGODB_URI;
 if (!uri) throw new Error('Set MONGODB_URI.');
@@ -248,7 +248,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, sqlLimit, 'The driver can materialize the full result before slicing. Use one result set; multiple result sets are rejected. Cast large integers, exact decimals, and precise timestamps to text before a lossy driver conversion.'],
     sample: { title: 'Read renewal usage signals', filename: 'sql-server-account-usage.ts', description: 'The request factory returns a new object for each read; the application retains the connection pool.', code: `import sql from 'mssql';
-import { sqlServerConnector } from 'motif-connectors/server';
+import { sqlServerConnector } from 'relametric-connectors/server';
 
 const connectionString = process.env.MSSQL_CONNECTION_STRING;
 if (!connectionString) throw new Error('Set MSSQL_CONNECTION_STRING.');
@@ -285,7 +285,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, sqlLimit, 'Configure connection.callTimeout. Cooperative cancellation does not call break() on your shared connection. Oracle numeric/date conversion must happen before precision is lost; the sample uses TO_CHAR for numeric values.'],
     sample: { title: 'Inspect unresolved billing context', filename: 'oracle-billing-issues.ts', description: 'The NLS clause makes the amount’s decimal separator explicit. Currency and scale remain part of your source schema.', code: `import oracledb from 'oracledb';
-import { oracleConnector } from 'motif-connectors/server';
+import { oracleConnector } from 'relametric-connectors/server';
 
 const { ORACLE_USER: user, ORACLE_PASSWORD: password,
   ORACLE_CONNECT_STRING: connectString } = process.env;
@@ -324,7 +324,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'ClickHouse enforces result limits at block boundaries and can overfetch a block. Rows returned do not cap scanned data or aggregate cost.', 'Aborting HTTP does not guarantee immediate query cancellation. SQL defines the grain; counts of events are not automatically counts of attempts, sessions, or customers.'],
     sample: { title: 'Count checkout events by session', filename: 'clickhouse-checkout-events.ts', description: 'The sample exposes event counts for investigation; it does not call an event ratio a conversion rate.', code: `import { createClient } from '@clickhouse/client';
-import { clickHouseConnector } from 'motif-connectors/server';
+import { clickHouseConnector } from 'relametric-connectors/server';
 
 const { CLICKHOUSE_URL: url, CLICKHOUSE_USERNAME: username,
   CLICKHOUSE_PASSWORD: password } = process.env;
@@ -362,7 +362,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'No point-in-time search, search_after pagination, aggregation API, or live subscription is exposed. A bounded hit set cannot establish complete incident prevalence.', 'Store exact large identifiers and decimals as strings in source JSON. The adapter cannot repair precision already lost before or during JSON parsing.'],
     sample: { title: 'Read recent errors for a reviewed account', filename: 'elasticsearch-account-errors.ts', description: 'The account scope must be approved by your server. A hit list is evidence to investigate, not a churn score.', code: `import { Client } from '@elastic/elasticsearch';
-import { elasticsearchConnector } from 'motif-connectors/server';
+import { elasticsearchConnector } from 'relametric-connectors/server';
 
 const node = process.env.ELASTICSEARCH_URL, apiKey = process.env.ELASTICSEARCH_API_KEY;
 if (!node || !apiKey) throw new Error('Set Elasticsearch connection variables.');
@@ -400,7 +400,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'No PIT, search_after, aggregation, or automatic IAM credential setup is provided. Configure your own signed client if your deployment requires it.', 'Cancellation is cooperative and transport cancellation belongs to your client. Source numbers may already be rounded; keep exact identifiers and decimals as strings.'],
     sample: { title: 'Inspect feedback on one feature', filename: 'opensearch-feature-feedback.ts', description: 'Retrieved comments need qualitative review and account deduplication before they inform a roadmap discussion.', code: `import { Client } from '@opensearch-project/opensearch';
-import { opensearchConnector } from 'motif-connectors/server';
+import { opensearchConnector } from 'relametric-connectors/server';
 
 const { OPENSEARCH_URL: node, OPENSEARCH_USERNAME: username,
   OPENSEARCH_PASSWORD: password } = process.env;
@@ -439,7 +439,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'MGET covers string keys only; missing keys and non-string values both return null. It does not distinguish expiration from an unsupported value type.', 'At most 100,000 keys may be supplied; only the requested prefix is read. Cluster keys must share a slot. Cancellation is cooperative and does not disconnect your client.'],
     sample: { title: 'Compare known checkout cache entries', filename: 'redis-checkout-state.ts', description: 'A null cache entry is not proof that a checkout failed. Reconcile it with the ledger before drawing conclusions.', code: `import { createClient } from 'redis';
-import { redisConnector } from 'motif-connectors/server';
+import { redisConnector } from 'relametric-connectors/server';
 
 const url = process.env.REDIS_URL;
 if (!url) throw new Error('Set REDIS_URL.');
@@ -474,8 +474,8 @@ ${snapshotOutput}
     ],
     limitations: ['Query only: no Scan, writes, or automatic cross-partition discovery. Limits count evaluated items before filtering, so an empty page can still have a continuation.', 'Even strongly consistent pages are not a cross-page snapshot. Global secondary indexes do not support strongly consistent reads.', 'Cursors live in this adapter instance for five minutes, with at most 32 stored states. Keep the instance alive; persist application checkpoints separately if required. Read limits do not cap total read capacity cost.'],
     sample: { title: 'Collect a bounded account event window', filename: 'dynamodb-account-events.ts', description: 'collectPages follows continuation even when a filtered page is empty, and reports when its own budgets stop collection.', code: `import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { collectPages } from 'motif-connectors';
-import { dynamoDBConnector } from 'motif-connectors/server';
+import { collectPages } from 'relametric-connectors';
+import { dynamoDBConnector } from 'relametric-connectors/server';
 
 const region = process.env.AWS_REGION;
 if (!region) throw new Error('Set AWS_REGION and configure AWS credentials.');
@@ -515,7 +515,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'READ routing is not an authorization boundary; database privileges must restrict writes. Query execution and traversal cost can exceed the returned-row limit.', 'No automatic graph flattening is provided. Extend your serializer deliberately for nodes, relationships, temporal or spatial values; the sample rejects them. Cancellation is cooperative.'],
     sample: { title: 'Separate interviewed accounts from interviews', filename: 'neo4j-feature-evidence.ts', description: 'The sample returns scalar fields only and defines its serializer locally. It does not silently turn graph objects into chart rows.', code: `import neo4j from 'neo4j-driver';
-import { neo4jConnector } from 'motif-connectors/server';
+import { neo4jConnector } from 'relametric-connectors/server';
 
 const { NEO4J_URI: uri, NEO4J_USERNAME: username, NEO4J_PASSWORD: password } = process.env;
 if (!uri || !username || !password) throw new Error('Set Neo4j connection variables.');
@@ -557,7 +557,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'The read method accepts undefined; it does not accept a browser-selected collection or arbitrary query. The adapter does not expose Firestore cursor pagination or listeners.', 'A local timeout does not cancel provider work or billing. Extend the serializer for any additional Timestamp, GeoPoint, DocumentReference, byte, or nested values you select.'],
     sample: { title: 'Read an approved activity projection', filename: 'firestore-account-usage.ts', description: 'The serializer validates this specific schema and retains timestamp nanoseconds. Additional document fields require an explicit mapping.', code: `import { Firestore, Timestamp } from '@google-cloud/firestore';
-import { firestoreConnector } from 'motif-connectors/server';
+import { firestoreConnector } from 'relametric-connectors/server';
 
 const projectId = process.env.GOOGLE_CLOUD_PROJECT;
 if (!projectId) throw new Error('Set GOOGLE_CLOUD_PROJECT and configure credentials.');
@@ -597,7 +597,7 @@ ${snapshotOutput}
     ],
     limitations: [snapshot, 'This adapter exposes selected table reads, not arbitrary SQL, RPCs, joins, writes, or Realtime subscriptions. Exact counts add query cost.', 'Authorization follows your configured credentials. Service-role credentials can bypass RLS; security-definer views need particular review. JSON numeric rounding must be prevented in the source projection.'],
     sample: { title: 'Read payment failures with a user access context', filename: 'supabase-checkout-attempts.ts', description: 'The sample passes a server-held user token and disables session persistence. Your application owns token validation, refresh, and policy review.', code: `import { createClient } from '@supabase/supabase-js';
-import { supabaseConnector } from 'motif-connectors/server';
+import { supabaseConnector } from 'relametric-connectors/server';
 
 const { SUPABASE_URL: url, SUPABASE_PUBLISHABLE_KEY: key,
   SUPABASE_USER_ACCESS_TOKEN: token } = process.env;

@@ -20,7 +20,7 @@ body:
     id: environment
     attributes:
       label: Environment
-      description: 5js version or commit, Three.js version, browser/version, operating system, and GPU if relevant.
+      description: relametric version or commit, Three.js version, browser/version, operating system, and GPU if relevant.
     validations:
       required: true
   - type: textarea

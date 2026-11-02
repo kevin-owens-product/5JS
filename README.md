@@ -1,18 +1,20 @@
-# Motif
+# Relametric
 
-An experimental TypeScript visualization library on Three.js, connecting source records, relationships and evidence to conversion, retention and product decisions. Motif includes an interactive decision lab, 50 editable examples, a connector library, and four composable visualization layers for scientific, data and cinematic scenes.
+An experimental TypeScript visualization library on Three.js, connecting source records, relationships and evidence to conversion, retention and product decisions. Relametric includes an interactive decision lab, 50 editable examples, a connector library, and four composable visualization layers for scientific, data and cinematic scenes.
 
-**Motif is the project's working name and homepage brand.** Existing code keeps the `fivejs` import, `createFive` API, `FiveLayer` contract and `dist/fivejs.js` output. The repository remains `kevin-owens-product/5JS`; this update does not rename the npm package or repository. This MIT-licensed alpha has not been published to npm; `private: true` prevents accidental publication. Naming rights and registry acceptance have not been established.
+**Relametric is the new project name.** The rendering package is `relametric`, with `createRelametric` and `RelametricLayer`; data adapters live in `relametric-connectors`. Both packages are private and unpublished while the alpha release is prepared. The public GitHub repository and Pages URLs remain under `kevin-owens-product/5JS`. Legacy `createFive` and `Five*` type names remain exported as compatibility aliases. See [migration notes](https://github.com/kevin-owens-product/5JS/blob/main/docs/MIGRATION.md).
 
-[Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
+[Public demo (latest deployed revision)](https://kevin-owens-product.github.io/5JS/) · [Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
+
+Start here: [Documentation map](https://github.com/kevin-owens-product/5JS/blob/main/docs/INDEX.md) · [Quickstart](https://github.com/kevin-owens-product/5JS/blob/main/docs/GETTING_STARTED.md) · [Architecture](https://github.com/kevin-owens-product/5JS/blob/main/docs/ARCHITECTURE.md) · [Agent instructions](https://github.com/kevin-owens-product/5JS/blob/main/AGENTS.md) · [Ecosystem review](https://github.com/kevin-owens-product/5JS/blob/main/docs/ECOSYSTEM_REVIEW.md).
 
 Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) · [Connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/5JS/blob/main/docs/RELEASING.md).
 
 ![Conversion reactor example](https://raw.githubusercontent.com/kevin-owens-product/5JS/main/artifacts/business-motion-reactor.jpg)
 
-## Run Motif locally
+## Run Relametric locally
 
-Requires Node.js 22.12+ and a browser with WebGL2.
+Requires Node.js 22.16+ and a browser with WebGL2.
 
 From the cloned or extracted project root:
 
@@ -21,9 +23,9 @@ npm ci
 npm run dev
 ```
 
-Open [http://127.0.0.1:5185/](http://127.0.0.1:5185/) for the Motif homepage and [decision lab](http://127.0.0.1:5185/#decision-lab). Choose [conversion](http://127.0.0.1:5185/?outcome=conversion#decision-lab), [retention](http://127.0.0.1:5185/?outcome=retention#decision-lab), or [product decisions](http://127.0.0.1:5185/?outcome=product#decision-lab), then follow a 3D evidence scene into exact source records and a local investigation brief.
+Open [http://127.0.0.1:5185/](http://127.0.0.1:5185/) for the Relametric homepage and [decision lab](http://127.0.0.1:5185/#decision-lab). Choose [conversion](http://127.0.0.1:5185/?outcome=conversion#decision-lab), [retention](http://127.0.0.1:5185/?outcome=retention#decision-lab), or [product decisions](http://127.0.0.1:5185/?outcome=product#decision-lab), then follow a 3D evidence scene into exact source records and a local investigation brief.
 
-The decision lab reads **seven fictional JSON snapshots containing 540 records** through the actual Motif JSON connector: 36 accounts, 144 sessions, 144 checkouts, 144 usage observations, 24 support tickets, 45 interviews and three initiatives. Source receipts expose fields, joins, provenance and completeness. Record dialogs link accounts, sessions, attempts, usage, support and interviews. Retention exposes every observed week; selecting a product interview keeps its initiative context, and the exported brief uses that initiative's owner, measure and guardrail. Recovery rates, review capacity and discovery effort are explicit assumptions. These are fixture workflows, not live provider data or demonstrated business impact.
+The decision lab reads **seven fictional JSON snapshots containing 540 records** through the actual Relametric JSON connector: 36 accounts, 144 sessions, 144 checkouts, 144 usage observations, 24 support tickets, 45 interviews and three initiatives. Source receipts expose fields, joins, provenance and completeness. Record dialogs link accounts, sessions, attempts, usage, support and interviews. Retention exposes every observed week; selecting a product interview keeps its initiative context, and the exported brief uses that initiative's owner, measure and guardrail. Recovery rates, review capacity and discovery effort are explicit assumptions. These are fixture workflows, not live provider data or demonstrated business impact.
 
 The original four-scene playground is at [http://127.0.0.1:5185/demo/playground.html](http://127.0.0.1:5185/demo/playground.html). It retains live parameters, palettes, camera orbit, pause, bloom, measured rendering statistics, PNG export, and copyable code. Fonts use system fallbacks when optional Google Fonts are unavailable; rendering and application code are served locally.
 
@@ -37,19 +39,19 @@ The preceding visual refresh redesigned **17 of the original 44 scenes**: the or
 
 Every category uses the same larger interactive stage. Search or filter, open a scene, adjust its controls, and expand **How to read this scene** for units, encodings, assumptions, and the role of motion. The correlation example's **Explore a pair** control connects signed strands and a floor matrix to raw daily observations; constant variables produce undefined correlations, not zero. Source inspection and standalone views remain available. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) describes every recipe and explains how to add your own.
 
-These compositions use the four public layers, custom `FiveLayer` implementations, and example-only helpers for tubes, ribbons, rings, surfaces, glow, and path tracers in `examples/shared/chart.ts`. The helpers do not add factories to the public library API. Tracer motion is illustrative; it does not create transactions, observations, or statistical evidence. Each recipe states which geometry encodes data and which merely connects or highlights it.
+These compositions use the four public layers, custom `RelametricLayer` implementations, and example-only helpers for tubes, ribbons, rings, surfaces, glow, and path tracers in `examples/shared/chart.ts`. The helpers do not add factories to the public library API. Tracer motion is illustrative; it does not create transactions, observations, or statistical evidence. Each recipe states which geometry encodes data and which merely connects or highlights it.
 
-The connected examples use `EntityRecord` and `OutcomeExplorer` contracts in `examples/connected/`. `buildEntityRecords()` maps the deterministic fixture into inspectable records and links; a different validated source can supply that adapter boundary. These contracts and the investigation-brief UI belong to the examples project, not the public `fivejs` API. Replacing the fixture also requires appropriate source provenance, units, relationships, and updated synthetic-only UI/export labels. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-a-connected-workflow) explains the integration points.
+The connected examples use `EntityRecord` and `OutcomeExplorer` contracts in `examples/connected/`. `buildEntityRecords()` maps the deterministic fixture into inspectable records and links; a different validated source can supply that adapter boundary. These contracts and the investigation-brief UI belong to the examples project, not the public `relametric` API. Replacing the fixture also requires appropriate source provenance, units, relationships, and updated synthetic-only UI/export labels. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-a-connected-workflow) explains the integration points.
 
-The new decision lab uses `OutcomeDataset` and `SourceReceipt` in [examples/outcomes/model.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/model.ts), shared scenes in [examples/outcomes/scene.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/scene.ts), gallery definitions in [examples/outcomes/recipe.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/recipe.ts), and the homepage controller in [demo/motif.ts](https://github.com/kevin-owens-product/5JS/blob/main/demo/motif.ts). Replace its fixture loader with authorized connector pages and an explicit schema mapper, retain completeness checks, and validate join grain before calculating outcomes. The [source-adaptation guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-the-motif-decision-lab) describes these contracts and their limits.
+The new decision lab uses `OutcomeDataset` and `SourceReceipt` in [examples/outcomes/model.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/model.ts), shared scenes in [examples/outcomes/scene.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/scene.ts), gallery definitions in [examples/outcomes/recipe.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/recipe.ts), and the homepage controller in [demo/relametric.ts](https://github.com/kevin-owens-product/5JS/blob/main/demo/relametric.ts). Replace its fixture loader with authorized connector pages and an explicit schema mapper, retain completeness checks, and validate join grain before calculating outcomes. The [source-adaptation guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-the-relametric-decision-lab) describes these contracts and their limits.
 
-`npm run package:examples` creates a portable source project at `public/examples/5js-examples.zip`. Unzip it, run `npm ci`, then `npm run dev` to explore or edit. It includes the library source, Motif homepage, shared runner, recipes, connector source, tests and build configuration. Node.js 22.12+ is needed to run the website; Python 3 is only needed to regenerate the ZIP. `npm run build:demo` regenerates the download and includes the homepage, original playground, gallery and standalone runner in the static output.
+`npm run package:examples` creates a portable source project at `public/examples/relametric-examples.zip`. Unzip it, run `npm ci`, then `npm run dev` to explore or edit. It includes the library source, Relametric homepage, shared runner, recipes, connector source, tests and build configuration. Node.js 22.16+ is needed to run the website; Python 3 is only needed to regenerate the ZIP. `npm run build:demo` regenerates the download and includes the homepage, original playground, gallery and standalone runner in the static output.
 
-## Motif connector preview
+## Relametric connector preview
 
-The independent `motif-connectors` workspace package is private and unpublished. **All 39 catalog entries have constrained implementations through 44 factories**, covering relational/document/search databases, warehouses, CRM/commerce/support tools, product analytics, BI/semantic APIs, JSON/CSV/Arrow/Parquet and the application endpoint. Grouped catalog entries have separate factories where needed. Implemented scope is specific: for example, PostHog uses pinned named SQL Endpoints, Amplitude returns daily segmentation, and Redis reads explicit keys.
+The independent `relametric-connectors` workspace package is private and unpublished. **All 39 catalog entries have constrained implementations through 44 factories**, covering relational/document/search databases, warehouses, CRM/commerce/support tools, product analytics, BI/semantic APIs, JSON/CSV/Arrow/Parquet and the application endpoint. Grouped catalog entries have separate factories where needed. Implemented scope is specific: for example, PostHog uses pinned named SQL Endpoints, Amplitude returns daily segmentation, and Redis reads explicit keys.
 
-Browse the [searchable connector directory](http://127.0.0.1:5185/connectors/) for **45 individually shareable guides** at `/connectors/<slug>/`, including [PostgreSQL](http://127.0.0.1:5185/connectors/postgresql/), [Stripe](http://127.0.0.1:5185/connectors/stripe/) and [JSON](http://127.0.0.1:5185/connectors/json/). MySQL and MariaDB have separate guides for their shared factory. Each page includes prerequisites, a source-specific TypeScript sample with copy/download controls, runtime and scope limits, provider documentation, related sources and a decision-workflow link. Page text and code are prerendered and readable without JavaScript; search, code tabs, copy and download enhance that static content. Guides do not execute queries or collect credentials.
+Browse the [live searchable connector directory](https://kevin-owens-product.github.io/5JS/connectors/) for **45 individually shareable guides** at `/connectors/<slug>/`, including [PostgreSQL](https://kevin-owens-product.github.io/5JS/connectors/postgresql/), [Stripe](https://kevin-owens-product.github.io/5JS/connectors/stripe/) and [JSON](https://kevin-owens-product.github.io/5JS/connectors/json/). MySQL and MariaDB have separate guides for their shared factory. Each page includes prerequisites, a source-specific TypeScript sample with copy/download controls, runtime and scope limits, provider documentation, related sources and a decision-workflow link. Page text and code are prerendered and readable without JavaScript; search, code tabs, copy and download enhance that static content. Guides do not execute queries or collect credentials.
 
 `npm run dev` and `npm run build:demo` automatically generate the directory and guide HTML from `connectors/content/*.ts` through `scripts/generate-connector-pages.ts`; run `npm run prepare:connectors` to refresh them explicitly after editing guide content. Generated HTML is ignored rather than maintained by hand. The downloadable source ZIP includes the authored content, renderer, client and generator so an extracted project can recreate the pages. These are local package guides, not an npm release announcement.
 
@@ -66,23 +68,23 @@ Verification includes real SQLite reads, a real DuckDB smoke check, and an Arrow
 ## Build and use the library
 
 ```sh
-npm run build          # dist/fivejs.js + TypeScript declarations
-npm run build:demo     # static Motif site, playground and gallery in demo-dist/
+npm run build          # dist/relametric.js + TypeScript declarations
+npm run build:demo     # static Relametric site, playground and gallery in demo-dist/
 npm run preview       # serve the production site
 ```
 
 Install this local folder into another project after building:
 
 ```sh
-npm install /absolute/path/to/fivejs three@0.180.0
+npm install /absolute/path/to/relametric three@0.180.0
 ```
 
 ```ts
-import { createFive, particleField } from 'fivejs';
+import { createRelametric, particleField } from 'relametric';
 
 const container = document.querySelector<HTMLElement>('#canvas')!;
 // The container needs a nonzero width and height, e.g. height: 600px.
-const app = createFive({ container, bloom: 0.7 });
+const app = createRelametric({ container, bloom: 0.7 });
 
 const particles = app.add(particleField({
   count: 100_000,
@@ -99,7 +101,7 @@ app.setPaused(false);
 app.dispose();
 ```
 
-Three.js is a peer dependency and is not bundled into `dist/fivejs.js`. The prototype is tested against Three.js r180. The library works without a UI framework; `createFive` requires a browser, while layer construction and validation can be tested in Node.
+Three.js is a peer dependency and is not bundled into `dist/relametric.js`. The prototype is tested against Three.js r180. The library works without a UI framework; `createRelametric` requires a browser, while layer construction and validation can be tested in Node.
 
 ## Layers
 
@@ -110,14 +112,14 @@ Three.js is a peer dependency and is not bundled into `dist/fivejs.js`. The prot
 | `terrain(options)` | Animated procedural heightfield with shader normals, contours, and a wireframe option | Height, frequency, speed, wireframe, two colors |
 | `hypercube(options)` | Actual 4D/5D plane rotations followed by successive perspective projection into 3D | Dimensions, size, rotation speed, point size, color |
 
-All factories return a `FiveLayer` with `object`, `kind`, `count`, `update(time, delta)`, `set(options)`, and `dispose()`. The `object` is a normal Three.js Object3D: transform it, group it, or place it in your own scene. When using layers without `createFive`, drive `update()` yourself with elapsed time and nonnegative delta in seconds, and dispose them when finished.
+All factories return a `RelametricLayer` with `object`, `kind`, `count`, `update(time, delta)`, `set(options)`, and `dispose()`. The `object` is a normal Three.js Object3D: transform it, group it, or place it in your own scene. When using layers without `createRelametric`, drive `update()` yourself with elapsed time and nonnegative delta in seconds, and dispose them when finished.
 
 Count means particles for a field, nodes for a graph, `(resolution + 1)²` vertices for terrain, and 16/32 vertices for a 4D/5D hypercube. Live settings are validated before mutation. Structural particle count/seed, graph data/count/radius/seed, and terrain resolution/size/seed require creating a new layer. `hypercube.set({ dimensions: 4 })` safely replaces its geometry.
 
 ### Visualize your data
 
 ```ts
-import { networkGraph } from 'fivejs';
+import { networkGraph } from 'relametric';
 
 app.add(networkGraph({
   data: {
@@ -140,7 +142,7 @@ Omitted positions use the seeded grouped layout. `value` controls node radius; `
 ### Compose layers and extend Three.js
 
 ```ts
-import { terrain, hypercube } from 'fivejs';
+import { terrain, hypercube } from 'relametric';
 
 app.add(terrain({ size: 12, height: 1.2, colorA: '#a3edff' }));
 const cube = app.add(hypercube({ dimensions: 5, size: 1.5 }));
@@ -148,13 +150,13 @@ cube.object.position.y = 3;
 app.resetCamera([10, 7, 12]);
 ```
 
-`app.scene`, `app.camera`, and `app.renderer` are exposed for Three.js interoperability. Implement `FiveLayer<MyOptions>` to add a custom visualization. The app owns layers you add; resources placed directly into `app.scene` remain your responsibility. A layer can belong to only one app. `app.remove(layer)` disposes it; `app.clear()` disposes every owned layer. Create a new layer to replace one that has been removed.
+`app.scene`, `app.camera`, and `app.renderer` are exposed for Three.js interoperability. Implement `RelametricLayer<MyOptions>` to add a custom visualization. The app owns layers you add; resources placed directly into `app.scene` remain your responsibility. A layer can belong to only one app. `app.remove(layer)` disposes it; `app.clear()` disposes every owned layer. Create a new layer to replace one that has been removed.
 
 ## Scene API
 
 | Method/property | Behavior |
 | --- | --- |
-| `createFive({ container, background, bloom, autoRotate, paused, pixelRatio })` | Owns canvas, camera, orbit controls, resizing, render loop, and bloom/output passes |
+| `createRelametric({ container, background, bloom, autoRotate, paused, pixelRatio })` | Owns canvas, camera, orbit controls, resizing, render loop, and bloom/output passes |
 | `add(layer)` | Adds a layer and returns that layer; repeated addition is idempotent |
 | `remove(layer)` / `clear()` | Removes and disposes owned layers |
 | `setPaused(boolean)` | Pauses simulation and auto-orbit; manual camera control remains available |
@@ -194,4 +196,4 @@ Construction limits (250,000 particles, 10,000 graph nodes, 100,000 edges, 512 t
 
 ## License and community
 
-Motif is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/5JS/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.
+Relametric is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/5JS/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.

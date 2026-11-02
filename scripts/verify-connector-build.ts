@@ -18,6 +18,6 @@ for (const path of paths) {
     assert.ok(!relative(root, destination).startsWith('..'), `${path}: link leaves the static artifact: ${href}`);
     assert.ok(await stat(destination).then(value => value.isFile()).catch(() => false), `${path}: missing static target ${href}`);
   }
-  if (path !== 'connectors/index.html') assert.match(html, /motif-connectors/);
+  if (path !== 'connectors/index.html') assert.match(html, /relametric-connectors/);
 }
 console.log(`PASS · ${paths.length} prerendered connector pages, assets, and internal links work under a hosting subpath.`);

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { BufferAttribute, BufferGeometry, Material, Mesh, Points } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import jet, { jetLatitude, globePosition } from '../examples/climate/jet-stream.js';
 import ocean, { gyrePath } from '../examples/climate/ocean-gyres.js';
 import grid, { calculateDispatch } from '../examples/energy/grid-dispatch.js';
@@ -59,8 +59,8 @@ test('fusion helices close at integer winding and remain inside their declared t
 });
 
 for (const example of [jet, ocean, grid, fusion]) test(`${example.id} animates, pauses, preserves readouts, and disposes finite scenario geometry`, () => {
-  const layers: FiveLayer<object>[] = [];
-  const instance = example.setup({ add(layer: FiveLayer<object>) { layers.push(layer); return layer; } } as unknown as FiveApp);
+  const layers: RelametricLayer<object>[] = [];
+  const instance = example.setup({ add(layer: RelametricLayer<object>) { layers.push(layer); return layer; } } as unknown as RelametricApp);
   const moving = () => layers.flatMap(layer => {
     const values: number[] = [];
     layer.object.traverse(object => {

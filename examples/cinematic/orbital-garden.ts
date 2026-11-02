@@ -1,12 +1,12 @@
 import { Group, Mesh, MeshBasicMaterial, TorusGeometry } from 'three';
 import { networkGraph, particleField } from '../../src/index.js';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 import type { ExampleDefinition } from '../types.js';
 
 interface OrbitOptions { speed: number }
 
-/** A regular Three.js mesh and a 5js layer can share one lifecycle. */
-function orbit(radius: number, initialPhase: number, tilt: number, color: string, seed: number): FiveLayer<OrbitOptions> {
+/** A regular Three.js mesh and a relametric layer can share one lifecycle. */
+function orbit(radius: number, initialPhase: number, tilt: number, color: string, seed: number): RelametricLayer<OrbitOptions> {
   const object = new Group();
   object.name = 'orbital-garden:orbit';
   object.rotation.set(tilt, 0, tilt * .45);

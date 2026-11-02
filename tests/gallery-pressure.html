@@ -1,6 +1,6 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><title>RUNNING — 5js gallery pressure verification</title>
+<!doctype html><html lang="en"><meta charset="utf-8"><title>RUNNING — relametric gallery pressure verification</title>
 <style>body{background:#101818;color:#d6ffd7;font:14px/1.6 monospace;padding:20px}pre{white-space:pre-wrap}iframe{width:1100px;height:760px;border:1px solid #62746a;max-width:100%}</style>
-<h1>5js gallery pressure verification</h1><pre id="results">Starting navigation, narrow-layout, and repeated mounting checks…</pre><iframe id="gallery" title="Gallery under test"></iframe>
+<h1>relametric gallery pressure verification</h1><pre id="results">Starting navigation, narrow-layout, and repeated mounting checks…</pre><iframe id="gallery" title="Gallery under test"></iframe>
 <script type="module">
 const results=document.querySelector('#results'), frame=document.querySelector('iframe'), checks=[], failures=[];
 const wait=ms=>new Promise(resolve=>setTimeout(resolve,ms));
@@ -96,7 +96,7 @@ await check('WebGL2 failure leaves an explanation and readable source',async()=>
  el('source-section').open=true;assert(el('source').textContent.includes('fusion-chamber'),'Source unavailable without WebGL');
 });
 results.textContent=checks.join('\n')+'\n\n'+(failures.length?`${failures.length} PRESSURE CHECKS FAILED`:`ALL ${checks.length} PRESSURE CHECKS PASSED`);
-document.title=(failures.length?'FAIL':'PASS')+' — 5js gallery pressure verification';
+document.title=(failures.length?'FAIL':'PASS')+' — relametric gallery pressure verification';
 if(!failures.length && new URLSearchParams(location.search).get('review')==='mobile') {
  frame.style.width='375px';frame.style.height='900px';
  await load('/examples/#correlation-matrix',false);

@@ -1,5 +1,5 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, Group, Points, ShaderMaterial } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 import { createChartLayer } from '../shared/chart.js';
 import type { ExampleDefinition } from '../types.js';
 
@@ -17,7 +17,7 @@ export function chamberNodes(mode: number) {
   return Array.from({length:mode},(_,i)=>(i+.5)/mode);
 }
 
-export function createAcousticChamber(): FiveLayer<ChamberSettings> {
+export function createAcousticChamber(): RelametricLayer<ChamberSettings> {
   const object=new Group();object.name='acoustic-chamber';
   const positions:number[]=[],coordinates:number[][]=[];
   for(let x=0;x<36;x++)for(let y=0;y<27;y++)for(let z=0;z<31;z++){

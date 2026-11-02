@@ -1,8 +1,8 @@
 import { BufferGeometry, CanvasTexture, CatmullRomCurve3, Color, CylinderGeometry, Float32BufferAttribute, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, Points, PointsMaterial, SphereGeometry, Sprite, SpriteMaterial, SRGBColorSpace, Vector3 } from 'three';
-import type { FiveLayer } from '../../src/types.js';
+import type { RelametricLayer } from '../../src/types.js';
 import { conversionModel, palette, productModel, retentionModel, type Decision, type OutcomeDataset, type Segment } from './model.js';
 
-export interface DecisionScene extends FiveLayer {
+export interface DecisionScene extends RelametricLayer {
   configure(decision: Decision, segment: Segment, scenario: number): void;
   select(id: string): void;
   readonly targets: readonly Mesh[];
@@ -124,7 +124,7 @@ export function createDecisionScene(data: OutcomeDataset, initial: Decision = 'c
   }
   draw();
   return {
-    object, kind: 'motif-decision', get count() { return targets.length; }, get targets() { return targets; },
+    object, kind: 'relametric-decision', get count() { return targets.length; }, get targets() { return targets; },
     update(_time, delta) {
       if (disposed || !Number.isFinite(delta) || delta <= 0) return;
       phase = (phase + Math.min(delta, 1) * .075) % 1;

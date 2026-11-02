@@ -2,18 +2,18 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { BufferGeometry, Material } from 'three';
 import type { Mesh, ShaderMaterial } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import orbital, { orbitalPosition } from '../examples/space/orbital-resonance.js';
 import stellar, { stellarLoop } from '../examples/space/stellar-magnetic-field.js';
 import neural, { neuralPositions } from '../examples/biology/neural-connectome.js';
 import vascular, { vascularSegments } from '../examples/biology/vascular-flow.js';
 
 function setup(example:typeof orbital){
-  const layers:FiveLayer<object>[]=[];
-  const instance=example.setup({add(layer:FiveLayer<object>){layers.push(layer);return layer;}} as unknown as FiveApp);
+  const layers:RelametricLayer<object>[]=[];
+  const instance=example.setup({add(layer:RelametricLayer<object>){layers.push(layer);return layer;}} as unknown as RelametricApp);
   return {layers,instance};
 }
-function snapshot(layers:FiveLayer<object>[]){
+function snapshot(layers:RelametricLayer<object>[]){
   const values:unknown[]=[];
   for(const layer of layers)layer.object.traverse(object=>{
     values.push(object.position.toArray(),object.quaternion.toArray());
@@ -22,7 +22,7 @@ function snapshot(layers:FiveLayer<object>[]){
   });
   return JSON.stringify(values);
 }
-function finiteGeometry(layers:FiveLayer<object>[]){
+function finiteGeometry(layers:RelametricLayer<object>[]){
   for(const layer of layers)layer.object.traverse(object=>{
     assert.ok([...object.position.toArray(),...object.quaternion.toArray()].every(Number.isFinite));
     const geometry=(object as Mesh).geometry;

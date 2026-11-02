@@ -1,5 +1,5 @@
 import { hypercube, terrain } from '../../src/index.js';
-import type { FiveLayer, HypercubeOptions } from '../../src/index.js';
+import type { RelametricLayer, HypercubeOptions } from '../../src/index.js';
 import type { ExampleDefinition } from '../types.js';
 
 const example: ExampleDefinition = {
@@ -26,7 +26,7 @@ const example: ExampleDefinition = {
     let hoverPhase = 0;
     let hoverAmplitude = .3;
     let disposed = false;
-    const hoveringCrystal: FiveLayer<HypercubeOptions> = {
+    const hoveringCrystal: RelametricLayer<HypercubeOptions> = {
       object: crystal.object,
       kind: 'crystal-summit:hover',
       get count() { return crystal.count; },

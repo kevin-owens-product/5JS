@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import { createChartLayer } from '../examples/shared/chart.js';
 import budget, { budgetRows } from '../examples/business/budget-variance.js';
 import quality, { auditRecords, qualityRecords } from '../examples/analytics/data-quality.js';
@@ -53,8 +53,8 @@ test('chart signed bars use base + value and redraw releases replaced resources'
 });
 
 for (const example of [budget, quality]) test(`${example.id}: controls keep chart and current-data table usable`, () => {
-  const owned: FiveLayer<any>[] = [];
-  const app = { add: (layer: FiveLayer<any>) => { owned.push(layer); return layer; } } as unknown as FiveApp;
+  const owned: RelametricLayer<any>[] = [];
+  const app = { add: (layer: RelametricLayer<any>) => { owned.push(layer); return layer; } } as unknown as RelametricApp;
   const instance = example.setup(app);
   const initial = JSON.stringify(instance.readout?.());
   let changed = false;
