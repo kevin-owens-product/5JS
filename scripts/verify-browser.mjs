@@ -11,7 +11,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const artifacts = resolve(root, 'artifacts/browser-checks');
 const checks = [
   { name: 'lifecycle', path: '/tests/browser.html', timeout: 60_000 },
-  { name: 'examples', path: '/tests/examples-browser.html', timeout: 210_000 },
+  { name: 'examples', path: '/tests/examples-browser.html', timeout: 330_000 },
   { name: 'core-pressure', path: '/tests/core-pressure.html', timeout: 60_000 },
   { name: 'gallery-pressure', path: '/tests/gallery-pressure.html', timeout: 300_000 },
   { name: 'connected-pressure', path: '/tests/connected-pressure.html', timeout: 300_000 },

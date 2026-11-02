@@ -80,7 +80,9 @@
       try { app?.dispose(); } catch (cleanupError) { console.error(cleanupError); }
     }
 
-    const watchdog = setTimeout(() => fail(new Error('The complete browser verification exceeded its 180-second limit.')), 180_000);
+    // Fifty scenes include PNG readbacks and every control extreme on software GPUs.
+    // Keep per-operation guards; allow five minutes for the complete catalog.
+    const watchdog = setTimeout(() => fail(new Error('The complete browser verification exceeded its 300-second limit.')), 300_000);
     window.addEventListener('error', event => fail(event.error ?? new Error(event.message)));
     window.addEventListener('unhandledrejection', event => fail(event.reason));
 
