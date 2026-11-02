@@ -7,10 +7,10 @@ import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { finiteRange, scientificColor } from './layers/scientificMath.js';
-import type { FiveLayer } from './types.js';
+import type { RelametricLayer } from './types.js';
 import type { Object3D } from 'three';
 
-export interface FiveOptions {
+export interface RelametricOptions {
   container: HTMLElement;
   background?: string;
   bloom?: number;
@@ -19,7 +19,7 @@ export interface FiveOptions {
   pixelRatio?: number;
 }
 
-export interface FiveStats {
+export interface RelametricStats {
   fps: number;
   drawCalls: number;
   triangles: number;
@@ -29,20 +29,20 @@ export interface FiveStats {
   renderer: 'WebGL2';
 }
 
-export interface FiveApp {
+export interface RelametricApp {
   readonly scene: Scene;
   readonly camera: PerspectiveCamera;
   readonly renderer: WebGLRenderer;
-  readonly stats: FiveStats;
-  add<P extends object>(layer: FiveLayer<P>): FiveLayer<P>;
-  remove<P extends object>(layer: FiveLayer<P>): void;
+  readonly stats: RelametricStats;
+  add<P extends object>(layer: RelametricLayer<P>): RelametricLayer<P>;
+  remove<P extends object>(layer: RelametricLayer<P>): void;
   clear(): void;
   setBloom(strength: number): void;
   setAutoRotate(enabled: boolean): void;
   setPaused(paused: boolean): void;
   setSpeed(speed: number): void;
   resetCamera(position?: [number, number, number], target?: [number, number, number]): void;
-  onFrame(callback: (stats: FiveStats) => void): () => void;
+  onFrame(callback: (stats: RelametricStats) => void): () => void;
   capture(): Promise<Blob>;
   dispose(): void;
 }
@@ -53,9 +53,9 @@ const rootOwners = new WeakMap<Object3D, object>();
 const retiredRoots = new WeakSet<Object3D>();
 
 /** Create a WebGL2 scene and own its canvas, animation loop, controls and layers. */
-export function createFive(options: FiveOptions): FiveApp {
+export function createRelametric(options: RelametricOptions): RelametricApp {
   if (typeof window === 'undefined' || !options?.container?.appendChild) {
-    throw new TypeError('createFive requires a browser and an HTML container.');
+    throw new TypeError('createRelametric requires a browser and an HTML container.');
   }
   const { container } = options;
   const background = scientificColor(options.background ?? '#05070e', 'background');
@@ -71,7 +71,7 @@ export function createFive(options: FiveOptions): FiveApp {
   canvas.style.width = '100%';
   canvas.style.height = '100%';
   canvas.style.display = 'block';
-  canvas.setAttribute('aria-label', 'Motif visualization; drag to orbit and scroll to zoom');
+  canvas.setAttribute('aria-label', 'Relametric visualization; drag to orbit and scroll to zoom');
   canvas.tabIndex = 0;
   container.appendChild(canvas);
 
@@ -94,9 +94,9 @@ export function createFive(options: FiveOptions): FiveApp {
   composer.addPass(bloom);
   composer.addPass(output);
 
-  const layers = new Set<FiveLayer<object>>();
-  const roots = new Map<FiveLayer<object>, Object3D>();
-  const callbacks = new Set<(stats: FiveStats) => void>();
+  const layers = new Set<RelametricLayer<object>>();
+  const roots = new Map<RelametricLayer<object>, Object3D>();
+  const callbacks = new Set<(stats: RelametricStats) => void>();
   const owner = {};
   let disposed = false;
   let paused = options.paused ?? reduceMotion;
@@ -106,13 +106,13 @@ export function createFive(options: FiveOptions): FiveApp {
   let previous = 0;
   let fpsStart = 0;
   let frames = 0;
-  let stats: FiveStats = { fps: 0, drawCalls: 0, triangles: 0, points: 0, objects: 0, time: 0, renderer: 'WebGL2' };
+  let stats: RelametricStats = { fps: 0, drawCalls: 0, triangles: 0, points: 0, objects: 0, time: 0, renderer: 'WebGL2' };
 
-  function alive() { if (disposed) throw new Error('This 5js scene has been disposed. Create a new scene to continue.'); }
+  function alive() { if (disposed) throw new Error('This relametric scene has been disposed. Create a new scene to continue.'); }
   function reportCleanupErrors(errors: unknown[], message: string) {
     if (errors.length) throw new AggregateError(errors, message);
   }
-  function releaseLayer(layer: FiveLayer<object>, errors: unknown[]) {
+  function releaseLayer(layer: RelametricLayer<object>, errors: unknown[]) {
     if (!layers.delete(layer)) return;
     const root = roots.get(layer)!;
     roots.delete(layer);
@@ -176,24 +176,24 @@ export function createFive(options: FiveOptions): FiveApp {
   }
   renderer.setAnimationLoop(frame);
 
-  const app: FiveApp = {
+  const app: RelametricApp = {
     scene, camera, renderer,
     get stats() { return { ...stats }; },
-    add<P extends object>(layer: FiveLayer<P>) {
+    add<P extends object>(layer: RelametricLayer<P>) {
       alive();
       if (!layer || (typeof layer !== 'object' && typeof layer !== 'function')) {
-        throw new TypeError('add() expects a FiveLayer with an Object3D, update() and dispose().');
+        throw new TypeError('add() expects a RelametricLayer with an Object3D, update() and dispose().');
       }
       if (retired.has(layer)) throw new Error('This layer has been disposed. Create a new layer before adding it.');
       const existing = owners.get(layer);
-      if (existing && existing !== owner) throw new Error('A layer can only belong to one 5js scene at a time.');
+      if (existing && existing !== owner) throw new Error('A layer can only belong to one relametric scene at a time.');
       if (layers.has(layer)) return layer;
       if (existing) throw new Error('This layer is still rolling back a failed initialization.');
       // The wrapper may expose a getter or later mutate its object property.
       // Ownership and cleanup must refer to the root actually attached here.
       const root = layer.object;
       if (!root?.isObject3D || typeof layer.update !== 'function' || typeof layer.dispose !== 'function') {
-        throw new TypeError('add() expects a FiveLayer with an Object3D, update() and dispose().');
+        throw new TypeError('add() expects a RelametricLayer with an Object3D, update() and dispose().');
       }
       if (retiredRoots.has(root)) throw new Error('This Object3D root has been disposed. Create a new root before adding it.');
       if (rootOwners.has(root)) throw new Error('An Object3D root can only belong to one layer at a time.');

@@ -1,9 +1,9 @@
 import { Vector3 } from 'three';
-import type { FiveApp } from '../../src/index.js';
+import type { RelametricApp } from '../../src/index.js';
 import type { OutcomeExplorer, SelectableEntity } from './types.js';
 
 /** Screen-space picking keeps thin glyphs usable; a drag remains an orbit gesture. */
-export function nearestEntity(targets: readonly SelectableEntity[], camera: FiveApp['camera'], rect: { left: number; top: number; width: number; height: number }, x: number, y: number): string | null {
+export function nearestEntity(targets: readonly SelectableEntity[], camera: RelametricApp['camera'], rect: { left: number; top: number; width: number; height: number }, x: number, y: number): string | null {
   if (rect.width <= 0 || rect.height <= 0) return null;
   let nearest: { id: string; distance: number; depth: number } | undefined;
   for (const target of targets) {
@@ -18,7 +18,7 @@ export function nearestEntity(targets: readonly SelectableEntity[], camera: Five
   return nearest?.id ?? null;
 }
 
-export function bindEntityPicking(app: FiveApp, explorer: OutcomeExplorer, tooltip: HTMLElement, onPick?: () => void): () => void {
+export function bindEntityPicking(app: RelametricApp, explorer: OutcomeExplorer, tooltip: HTMLElement, onPick?: () => void): () => void {
   const canvas = app.renderer.domElement;
   const records = new Map(explorer.records.map(record => [record.id, record]));
   let down: { x: number; y: number; pointer: number; moved: boolean } | null = null;

@@ -172,8 +172,8 @@ export interface DbtSemanticQuery {
   groupBy?: { name: string; grain?: string }[];
   where?: { sql: string }[];
 }
-const createDbtQuery = 'mutation MotifQuery($environmentId: BigInt!, $metrics: [MetricInput!]!, $groupBy: [GroupByInput!], $where: [WhereInput!], $limit: Int!) { createQuery(environmentId: $environmentId, metrics: $metrics, groupBy: $groupBy, where: $where, limit: $limit) { queryId } }';
-const getDbtQuery = 'query MotifResult($environmentId: BigInt!, $queryId: String!, $pageNum: Int!) { query(environmentId: $environmentId, queryId: $queryId, pageNum: $pageNum) { status error totalPages arrowResult } }';
+const createDbtQuery = 'mutation RelametricQuery($environmentId: BigInt!, $metrics: [MetricInput!]!, $groupBy: [GroupByInput!], $where: [WhereInput!], $limit: Int!) { createQuery(environmentId: $environmentId, metrics: $metrics, groupBy: $groupBy, where: $where, limit: $limit) { queryId } }';
+const getDbtQuery = 'query RelametricResult($environmentId: BigInt!, $queryId: String!, $pageNum: Int!) { query(environmentId: $environmentId, queryId: $queryId, pageNum: $pageNum) { status error totalPages arrowResult } }';
 export function dbtSemanticConnector(options: DbtSemanticOptions): DataConnector<DbtSemanticQuery> {
   const config = { ...options }; assertServerRuntime();
   if (!/^\d+$/.test(config.environmentId) || typeof config.environmentId !== 'string' || typeof config.tableFromIPC !== 'function') throw new ConnectorError('INVALID_CONFIG', 'Provide a dbt environment ID and an Apache Arrow tableFromIPC reader.');

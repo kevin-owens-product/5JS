@@ -1,11 +1,11 @@
 import { AdditiveBlending, BufferAttribute, BufferGeometry, DoubleSide, Mesh, MeshBasicMaterial } from 'three';
 import type { Points } from 'three';
-import { hypercube, type FiveLayer, type HypercubeOptions } from '../../src/index.js';
+import { hypercube, type RelametricLayer, type HypercubeOptions } from '../../src/index.js';
 import { createChartLayer } from '../shared/chart.js';
 import type { ExampleDefinition } from '../types.js';
 
 /** Fill the actual square 2-faces using the same projected vertices as the edges. */
-function facetedCube(dimensions: 4 | 5, color: string, speed: number): FiveLayer<HypercubeOptions> {
+function facetedCube(dimensions: 4 | 5, color: string, speed: number): RelametricLayer<HypercubeOptions> {
   const cube = hypercube({ dimensions, size: 2.2, speed, color, pointSize: .12 });
   const geometry = new BufferGeometry();
   const material = new MeshBasicMaterial({ color, side: DoubleSide, transparent: true, opacity: dimensions === 4 ? .045 : .025, depthWrite: false, blending: AdditiveBlending });

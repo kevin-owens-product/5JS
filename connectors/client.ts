@@ -26,7 +26,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-download]').forEach(button =
     const code = document.getElementById(button.dataset.download!);
     if (!code) return;
     const url = URL.createObjectURL(new Blob([code.textContent ?? ''], { type: 'text/typescript;charset=utf-8' }));
-    const link = document.createElement('a'); link.href = url; link.download = button.dataset.filename ?? 'motif-example.ts'; link.click();
+    const link = document.createElement('a'); link.href = url; link.download = button.dataset.filename ?? 'relametric-example.ts'; link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
     if (status) status.textContent = 'Code sample downloaded. Configure its prerequisites before running it.';
   });

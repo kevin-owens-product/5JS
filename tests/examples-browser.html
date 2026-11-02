@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RUNNING — 5js example browser verification</title>
+  <title>RUNNING — relametric example browser verification</title>
   <style>
     body { margin: 0; padding: 28px; background: #101818; color: #d6ffd7; font: 14px/1.6 ui-monospace, monospace; }
     h1 { font-size: 22px; margin: 0 0 12px; }
@@ -26,7 +26,7 @@
   </style>
 </head>
 <body data-status="running">
-  <h1>5js example browser verification</h1>
+  <h1>relametric example browser verification</h1>
   <p>Real WebGL2 rendering, PNG pixel verification, control boundaries, and resource cleanup for every gallery recipe. The scene stays paused; rendering continues.</p>
   <pre id="results" role="status" aria-live="polite">Loading the example catalog…</pre>
   <div id="fixture"></div>
@@ -73,9 +73,9 @@
       clearTimeout(watchdog);
       abort.abort(error);
       document.body.dataset.status = 'fail';
-      document.title = 'FAIL — 5js example browser verification';
+      document.title = 'FAIL — relametric example browser verification';
       results.textContent = [...lines, '', `FAIL · ${current}`, error?.stack ?? String(error), '', `${passed}/${total} RECIPES PASSED`].join('\n');
-      console.error('5js example browser verification failed:', error);
+      console.error('relametric example browser verification failed:', error);
       try { mounted?.dispose?.(); } catch (cleanupError) { console.error(cleanupError); }
       try { app?.dispose(); } catch (cleanupError) { console.error(cleanupError); }
     }
@@ -163,7 +163,7 @@
     }
 
     try {
-      const [{ createFive }, { examples }, { mountExample }, { exampleCategories }, { sourceFor }] = await bounded(Promise.all([
+      const [{ createRelametric }, { examples }, { mountExample }, { exampleCategories }, { sourceFor }] = await bounded(Promise.all([
         import('/src/index.ts'),
         import('/examples/catalog.ts'),
         import('/examples/gallery/runtime.ts'),
@@ -192,7 +192,7 @@
 
       current = 'empty renderer baseline';
       progress(current);
-      app = createFive({ container: fixture, background: '#070a0e', paused: true, autoRotate: false, pixelRatio: 1, bloom: 0.45 });
+      app = createRelametric({ container: fixture, background: '#070a0e', paused: true, autoRotate: false, pixelRatio: 1, bloom: 0.45 });
       app.renderer.debug.onShaderError = (gl, program, vertexShader, fragmentShader) => {
         throw new Error(`WebGL shader failed: ${gl.getProgramInfoLog(program)}\nVertex: ${gl.getShaderInfoLog(vertexShader)}\nFragment: ${gl.getShaderInfoLog(fragmentShader)}`);
       };
@@ -284,7 +284,7 @@
       clearTimeout(watchdog);
       document.body.dataset.status = 'pass';
       showReview();
-      document.title = 'PASS — 5js example browser verification';
+      document.title = 'PASS — relametric example browser verification';
       results.textContent = [...lines, '', `ALL ${passed}/${total} EXAMPLE BROWSER CHECKS PASSED`].join('\n');
     } catch (error) {
       // If a watchdog/context error already finished the run, retain its original cause.

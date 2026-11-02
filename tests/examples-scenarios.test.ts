@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { BufferGeometry, Mesh } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import unit, { calculateUnitEconomics } from '../examples/business/unit-economics.js';
 import demand, { calculateDemandScenarios, HISTORICAL_DEMAND } from '../examples/analytics/demand-scenarios.js';
 import portfolio, { calculateProductPortfolio, PRODUCTS } from '../examples/business/product-portfolio.js';
@@ -132,8 +132,8 @@ test('fixed chart domains contain every combination of control extremes', () => 
 
 for (const example of [unit, demand, portfolio, capacity, inventory, breakEven]) {
   test(`${example.id}: controls redraw, refresh exact readouts, and release replaced resources`, () => {
-    const owned: FiveLayer<object>[] = [];
-    const app = { add<P extends object>(layer: FiveLayer<P>) { owned.push(layer); return layer; } } as unknown as FiveApp;
+    const owned: RelametricLayer<object>[] = [];
+    const app = { add<P extends object>(layer: RelametricLayer<P>) { owned.push(layer); return layer; } } as unknown as RelametricApp;
     const instance = example.setup(app);
     assert.equal(owned.length, 1);
     assert.match(example.dataNote!, /^Synthetic/);
@@ -170,8 +170,8 @@ for (const example of [unit, demand, portfolio, capacity, inventory, breakEven])
 
 for (const example of [unit, subscription, breakEven]) {
   test(`${example.id}: directional particles animate, pause, and leave financial data unchanged`, () => {
-    const layers: FiveLayer<object>[] = [];
-    const app = { add<P extends object>(layer: FiveLayer<P>) { layers.push(layer); return layer; } } as unknown as FiveApp;
+    const layers: RelametricLayer<object>[] = [];
+    const app = { add<P extends object>(layer: RelametricLayer<P>) { layers.push(layer); return layer; } } as unknown as RelametricApp;
     const instance = example.setup(app);
     const initial = instance.readout!();
     const flows: Float32Array[] = [];
@@ -192,8 +192,8 @@ for (const example of [unit, subscription, breakEven]) {
 }
 
 test('profit terrain vertices evaluate the same operating model as the sampled table', () => {
-  const layers: FiveLayer<object>[] = [];
-  const app = { add<P extends object>(layer: FiveLayer<P>) { layers.push(layer); return layer; } } as unknown as FiveApp;
+  const layers: RelametricLayer<object>[] = [];
+  const app = { add<P extends object>(layer: RelametricLayer<P>) { layers.push(layer); return layer; } } as unknown as RelametricApp;
   const instance = breakEven.setup(app);
   let terrain: any;
   layers[0].object.traverse(object => {

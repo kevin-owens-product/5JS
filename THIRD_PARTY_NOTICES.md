@@ -1,6 +1,6 @@
 # Third-party notices
 
-5js is built on Three.js. This file accompanies the project license; it does not replace the licenses supplied with independently installed dependencies.
+relametric is built on Three.js. This file accompanies the project license; it does not replace the licenses supplied with independently installed dependencies.
 
 ## Three.js r180 (`three@0.180.0`)
 

@@ -1,6 +1,6 @@
 # Compatibility and validation
 
-Motif (`fivejs`) is an alpha library. This page distinguishes implementation requirements from environments that have actually been checked. It does not promise a frame rate or a complete browser-support matrix.
+Relametric (`relametric`) is an alpha library. This page distinguishes implementation requirements from environments that have actually been checked. It does not promise a frame rate or a complete browser-support matrix.
 
 ## Runtime and package requirements
 
@@ -10,9 +10,9 @@ Motif (`fivejs`) is an alpha library. This page distinguishes implementation req
 | Browser APIs | DOM, canvas, `ResizeObserver`, animation scheduling, and standard Blob APIs |
 | JavaScript package | ESM with TypeScript declarations; no CommonJS entry |
 | Three.js | Peer range `^0.180.0`; current implementation tested with r180 |
-| Development tools | Node.js 22.12+ and npm for core/site; Node.js 22.16+ for the connector package/demo |
+| Development tools | Node.js 22.16+ and npm for core/site; Node.js 22.16+ for the connector package/demo |
 | Source ZIP generation and package verification | Python 3, invoked by `npm run package:examples`, `npm run build:demo`, and the archive-regression portion of `npm run test:package` |
-| Server rendering | `createFive` requires a mounted browser element; it does not render on a server |
+| Server rendering | `createRelametric` requires a mounted browser element; it does not render on a server |
 
 The `@webgpu/types` reference in the declarations supports dependency typing; it does not indicate a WebGPU rendering backend. Three.js remains external to the library bundle, while the static demo bundles its own runtime dependencies.
 

@@ -2,7 +2,7 @@ import { createChartLayer } from '../shared/chart.js';
 import type { ChartBuilder } from '../shared/chart.js';
 import type { ExampleDefinition, ExampleReadout } from '../types.js';
 import { BufferAttribute, BufferGeometry, Color, Points, PointsMaterial } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 
 export interface QualityRecord { source: string; id: string; amount: number | null; email: string | null }
 const sourceNames = ['Store', 'App', 'Partner', 'Import'];
@@ -110,7 +110,7 @@ const example: ExampleDefinition = {
       tracers.geometry.dispose(); tracers.geometry = geometry; animateRecords();
     }
     rebuildReplay();
-    const replay: FiveLayer = { object: tracers, kind: 'qualityRecordReplay', get count() { return routes.length; }, update(_time, delta) { if (replayDisposed || !Number.isFinite(delta) || delta <= 0) return; replayPhase = (replayPhase + delta * 0.075) % 1; animateRecords(); }, set() {}, dispose() { if (replayDisposed) return; replayDisposed = true; tracers.geometry.dispose(); tracers.material.dispose(); tracers.removeFromParent(); } };
+    const replay: RelametricLayer = { object: tracers, kind: 'qualityRecordReplay', get count() { return routes.length; }, update(_time, delta) { if (replayDisposed || !Number.isFinite(delta) || delta <= 0) return; replayPhase = (replayPhase + delta * 0.075) % 1; animateRecords(); }, set() {}, dispose() { if (replayDisposed) return; replayDisposed = true; tracers.geometry.dispose(); tracers.material.dispose(); tracers.removeFromParent(); } };
     app.add(replay);
     function refresh() { rows = calculate(); layer.redraw(draw); rebuildReplay(); }
     return {

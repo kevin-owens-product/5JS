@@ -3,7 +3,7 @@ import {
   InstancedMesh, LineBasicMaterial, LineSegments, MeshBasicMaterial,
   Object3D, Points, ShaderMaterial, SphereGeometry,
 } from 'three';
-import type { FiveLayer, GraphData, GraphNode, NetworkGraphOptions } from '../types.js';
+import type { RelametricLayer, GraphData, GraphNode, NetworkGraphOptions } from '../types.js';
 import { bounded, colorString, rejectStructural, seededRandom } from './dataMath.js';
 import { optionSnapshot, scientificColor } from './scientificMath.js';
 
@@ -114,7 +114,7 @@ function layoutSnapshot(data: GraphData, radius: number, seed: number): Float32A
 }
 
 /** Instanced nodes with weighted edges. Layout is grouped and deterministic, not a force simulation. */
-export function networkGraph(options: NetworkGraphOptions = {}): FiveLayer<NetworkGraphOptions> {
+export function networkGraph(options: NetworkGraphOptions = {}): RelametricLayer<NetworkGraphOptions> {
   const keys = [...Object.keys(defaults), 'data'] as (keyof NetworkGraphOptions)[];
   const supplied = optionSnapshot(options, keys, 'networkGraph options');
   const { data: suppliedData, ...parameters } = supplied;
@@ -142,7 +142,7 @@ export function networkGraph(options: NetworkGraphOptions = {}): FiveLayer<Netwo
   const maximumWeight = data.edges.reduce((max, edge) => Math.max(max, edge.weight ?? 1), 0) || 1;
   const nodeScales = data.nodes.map((node) => 0.55 + Math.sqrt((node.value ?? 1) / maximumValue) * 1.25);
   const object = new Group();
-  object.name = '5js-network-graph';
+  object.name = 'relametric-network-graph';
   object.userData = { nodeIds: data.nodes.map((node) => node.id), edgeCount: data.edges.length, synthetic: suppliedData === undefined };
   const nodeGeometry = new SphereGeometry(1, 8, 6);
   const nodeMaterial = new MeshBasicMaterial({ toneMapped: false });

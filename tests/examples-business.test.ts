@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import type { ExampleReadout } from '../examples/types.js';
 import revenue, { calculateRevenue } from '../examples/business/revenue-landscape.js';
 import funnel, { calculateFunnel } from '../examples/business/conversion-funnel.js';
@@ -157,8 +157,8 @@ const recipes = [
 
 for (const { example, rows, domainLabel } of recipes) {
   test(`${example.id}: live controls, readout, fixed domain and headless disposal`, () => {
-    const layers: FiveLayer<object>[] = [];
-    const fake = { add: (layer: FiveLayer<object>) => { layers.push(layer); return layer; } } as unknown as FiveApp;
+    const layers: RelametricLayer<object>[] = [];
+    const fake = { add: (layer: RelametricLayer<object>) => { layers.push(layer); return layer; } } as unknown as RelametricApp;
     const instance = example.setup(fake);
     assert.ok(instance.readout);
     const initial = instance.readout!();
@@ -186,8 +186,8 @@ for (const { example, rows, domainLabel } of recipes) {
 
 test('revenue rivers, conversion gates, and marketing paths animate only their illustrative tracers', () => {
   for (const example of [revenue, funnel, marketing]) {
-    const layers: FiveLayer<object>[] = [];
-    const app = { add: (layer: FiveLayer<object>) => { layers.push(layer); return layer; } } as unknown as FiveApp;
+    const layers: RelametricLayer<object>[] = [];
+    const app = { add: (layer: RelametricLayer<object>) => { layers.push(layer); return layer; } } as unknown as RelametricApp;
     const instance = example.setup(app);
     const readout = instance.readout!();
     const positions: { array: ArrayLike<number> }[] = [];

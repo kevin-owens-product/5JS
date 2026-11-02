@@ -1,7 +1,7 @@
 import {
   AdditiveBlending, BufferAttribute, BufferGeometry, Points, ShaderMaterial, Sphere, Vector3,
 } from 'three';
-import type { FiveLayer, ParticleFieldOptions } from '../types.js';
+import type { RelametricLayer, ParticleFieldOptions } from '../types.js';
 import { finiteRange, integerRange, optionSnapshot, scientificColor, seededRandom } from './scientificMath.js';
 
 const defaults: Required<ParticleFieldOptions> = {
@@ -106,7 +106,7 @@ const fragmentShader = /* glsl */ `
  * pointSize is in framebuffer pixels at a reference camera distance of 14 units.
  * Animation integrates delta seconds, so changing speed preserves the phase.
  */
-export function particleField(options: ParticleFieldOptions = {}): FiveLayer<ParticleFieldOptions> {
+export function particleField(options: ParticleFieldOptions = {}): RelametricLayer<ParticleFieldOptions> {
   const keys = Object.keys(defaults) as (keyof ParticleFieldOptions)[];
   let settings = { ...defaults, ...optionSnapshot(options, keys, 'particleField options') };
   validate(settings);
@@ -129,7 +129,7 @@ export function particleField(options: ParticleFieldOptions = {}): FiveLayer<Par
     depthWrite: false, blending: AdditiveBlending,
   });
   const object = new Points(geometry, material);
-  object.name = 'fivejs:particleField';
+  object.name = 'relametric:particleField';
   // Shader-generated positions cannot be used for Three.js's CPU raycasting.
   object.raycast = () => {};
   let disposed = false;

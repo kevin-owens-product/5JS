@@ -4,9 +4,9 @@
 
 | Surface | Source of truth | Contract |
 | --- | --- | --- |
-| Rendering library | `src/index.ts`, `src/types.ts`, `src/core.ts`, `src/layers/` | `createFive`, four layer factories, public types; exports from `fivejs` |
+| Rendering library | `src/index.ts`, `src/types.ts`, `src/core.ts`, `src/layers/` | `createRelametric`, four layer factories, public types; exports from `relametric` |
 | Connector package | `packages/connectors/src/index.ts`, `server.ts`, `types.ts` | Typed data pages and constrained read adapters; separate browser/server entry points |
-| Example applications | `demo/motif.ts`, `examples/outcomes/`, `examples/connected/`, `examples/catalog.ts` | Domain models, selection, records, calculations, scenarios and briefs; source to adapt, not package exports |
+| Example applications | `demo/relametric.ts`, `examples/outcomes/`, `examples/connected/`, `examples/catalog.ts` | Domain models, selection, records, calculations, scenarios and briefs; source to adapt, not package exports |
 
 The main library does not depend on a particular connector. A connector does not automatically choose a visualization, infer entity relationships, or decide a business action.
 
@@ -24,7 +24,7 @@ Browser-safe JSON/file adapters can also consume supplied snapshots directly. Th
 
 ## Rendering lifecycle
 
-`createFive` owns its canvas, renderer, resize observer, controls, clock and added layers. `app.remove()` disposes the removed layer; `clear()` disposes all owned layers; `dispose()` releases the app. Do not re-add a disposed layer. Objects added directly to `app.scene` remain caller-owned. Custom layers implement `FiveLayer` and advance through `update(time, delta)`; zero delta must freeze motion. See [API ownership](API.md#app-methods-and-ownership).
+`createRelametric` owns its canvas, renderer, resize observer, controls, clock and added layers. `app.remove()` disposes the removed layer; `clear()` disposes all owned layers; `dispose()` releases the app. Do not re-add a disposed layer. Objects added directly to `app.scene` remain caller-owned. Custom layers implement `RelametricLayer` and advance through `update(time, delta)`; zero delta must freeze motion. See [API ownership](API.md#app-methods-and-ownership).
 
 Structural parameters generally require replacement, while supported live settings are validated before mutation. Inspect the factory's exact contract instead of assuming that every construction option works with `set()`.
 
@@ -36,9 +36,9 @@ Credentials, provider clients, SQL and tenant binding stay on the server. The br
 
 ## Adapting outcomes
 
-`examples/outcomes/model.ts` defines `OutcomeDataset`, `SourceReceipt`, the fixture loader, validators and calculations. Its domain includes accounts, sessions, checkout attempts, account-week usage, support tickets, interviews and initiatives. `scene.ts` encodes that model visually; `recipe.ts` supplies gallery companions; `demo/motif.ts` manages the homepage and record dialogs.
+`examples/outcomes/model.ts` defines `OutcomeDataset`, `SourceReceipt`, the fixture loader, validators and calculations. Its domain includes accounts, sessions, checkout attempts, account-week usage, support tickets, interviews and initiatives. `scene.ts` encodes that model visually; `recipe.ts` supplies gallery companions; `demo/relametric.ts` manages the homepage and record dialogs.
 
-Replace the fixture loader with authorized data pages and an explicit mapper. Validate source types, units, precision, unique IDs, foreign keys, observation windows and the expected join grain before calculating. Existing fixture validators are not a complete arbitrary-input schema validator. Keep qualitative counter-evidence and scenario assumptions visible. Update all synthetic labels and provenance accurately when changing the source. Follow [the detailed adaptation guide](../examples/README.md#adapt-the-motif-decision-lab).
+Replace the fixture loader with authorized data pages and an explicit mapper. Validate source types, units, precision, unique IDs, foreign keys, observation windows and the expected join grain before calculating. Existing fixture validators are not a complete arbitrary-input schema validator. Keep qualitative counter-evidence and scenario assumptions visible. Update all synthetic labels and provenance accurately when changing the source. Follow [the detailed adaptation guide](../examples/README.md#adapt-the-relametric-decision-lab).
 
 `examples/connected/` is a separate earlier application using `EntityRecord` and `OutcomeExplorer`. Do not combine its 99-record fixture with the 540-record homepage model accidentally.
 

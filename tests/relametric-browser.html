@@ -1,20 +1,20 @@
-<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RUNNING — Motif workflow checks</title>
+<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>RUNNING — Relametric workflow checks</title>
 <style>body{font:13px system-ui;background:#09110e;color:#cde3c8;margin:24px}iframe{display:block;width:1120px;height:860px;border:1px solid #496448;max-width:none}pre{white-space:pre-wrap;line-height:1.8}.passed{color:#a9dd8a}</style>
-<h1>Motif main page and decision workflows</h1><pre id="results">Loading the rebranded site…</pre><iframe id="site" title="Motif under test"></iframe>
+<h1>Relametric main page and decision workflows</h1><pre id="results">Loading the rebranded site…</pre><iframe id="site" title="Relametric under test"></iframe>
 <script type="module">
 const frame=document.getElementById('site'), results=document.getElementById('results');let passed=0;const failures=[];
 const doc=()=>frame.contentDocument,win=()=>frame.contentWindow,el=id=>doc().getElementById(id);
 const assert=(value,message)=>{if(!value)throw new Error(message)};
 async function until(predicate,timeout=15000){const start=performance.now();while(!predicate()){if(performance.now()-start>timeout)throw new Error('Timed out waiting for the site');await new Promise(resolve=>setTimeout(resolve,40))}}
-async function load(path){frame.src=path;await new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject});await until(()=>doc().body.dataset.motifReady);assert(doc().body.dataset.motifReady==='true','Source snapshots failed to load')}
+async function load(path){frame.src=path;await new Promise((resolve,reject)=>{frame.onload=resolve;frame.onerror=reject});await until(()=>doc().body.dataset.relametricReady);assert(doc().body.dataset.relametricReady==='true','Source snapshots failed to load')}
 async function check(name,work){try{await work();passed++;results.textContent+=`\nPASS ${name}`}catch(error){failures.push(name);results.textContent+=`\nFAIL ${name}: ${error.message}`}}
 function select(id,value){el(id).value=value;el(id).dispatchEvent(new (win().Event)('change',{bubbles:true}))}
 function range(value){el('scenario').value=String(value);el('scenario').dispatchEvent(new (win().Event)('input',{bubbles:true}))}
 function decision(value){doc().querySelector(`[data-decision="${value}"]`).click()}
 try{
  await load('/');results.textContent='';
- await check('Motif brand, 39 executable connector entries, complete fictional snapshots and live scene',()=>{
-  assert(doc().title.startsWith('Motif'),'Main title is not rebranded');assert(doc().querySelector('[aria-label="Motif home"]'),'Brand navigation missing');
+ await check('Relametric brand, 39 executable connector entries, complete fictional snapshots and live scene',()=>{
+  assert(doc().title.startsWith('Relametric'),'Main title is not rebranded');assert(doc().querySelector('[aria-label="Relametric home"]'),'Brand navigation missing');
   assert(el('connector-grid').children.length===39,'Catalog must show all 39 entries');assert(!el('connector-grid').textContent.includes('PLANNED'),'Unimplemented catalog entries remain');
   assert(el('source-count').textContent==='540 records','Wrong joined-source record count');assert(el('source-receipts').children.length===7,'Source receipts missing');
   assert(el('spatial-view').querySelector('canvas'),'No scene canvas');assert(el('scene-fallback').hidden,'WebGL fallback was shown unexpectedly');
@@ -44,8 +44,8 @@ try{
  await check('Investigation brief downloads actual context without performing an external action',()=>{
   el('build-brief').click();assert(el('brief-dialog').open,'Brief did not open');const text=el('brief-content').textContent;for(const phrase of ['entirely fictional','Proposed owner','Guardrail','activation','not an executed action'])assert(text.includes(phrase),`Missing ${phrase}`);
   let blob,filename;const create=win().URL.createObjectURL,click=win().HTMLAnchorElement.prototype.click;
-  win().URL.createObjectURL=value=>{blob=value;return 'blob:motif-test'};win().HTMLAnchorElement.prototype.click=function(){filename=this.download};
-  try{el('download-brief').click();assert(filename==='motif-product-investigation.md','Wrong export filename');assert(blob instanceof win().Blob,'Brief was not exported as a local Blob')}finally{win().URL.createObjectURL=create;win().HTMLAnchorElement.prototype.click=click}
+  win().URL.createObjectURL=value=>{blob=value;return 'blob:relametric-test'};win().HTMLAnchorElement.prototype.click=function(){filename=this.download};
+  try{el('download-brief').click();assert(filename==='relametric-product-investigation.md','Wrong export filename');assert(blob instanceof win().Blob,'Brief was not exported as a local Blob')}finally{win().URL.createObjectURL=create;win().HTMLAnchorElement.prototype.click=click}
   el('close-brief').click();assert(!el('brief-dialog').open,'Brief did not close');
  });
  await check('Connector search narrows actual implemented scope and clears cleanly',()=>{
@@ -60,5 +60,5 @@ try{
  });
  await check('Invalid outcome URLs fall back to a valid workflow',async()=>{await load('/?outcome=constructor');assert(doc().querySelector('[data-decision="conversion"]').getAttribute('aria-pressed')==='true','Inherited object key accepted as an outcome')});
 }catch(error){failures.push('Harness');results.textContent+=`\nFAIL Harness: ${error.stack||error}`}
-results.textContent+=`\n${failures.length?'FAILED '+failures.length:'ALL '+passed+' PRESSURE CHECKS PASSED'}`;document.title=(failures.length?'FAIL':'PASS')+' — Motif workflow checks';
+results.textContent+=`\n${failures.length?'FAILED '+failures.length:'ALL '+passed+' PRESSURE CHECKS PASSED'}`;document.title=(failures.length?'FAIL':'PASS')+' — Relametric workflow checks';
 </script></html>

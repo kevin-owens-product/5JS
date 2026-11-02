@@ -1,8 +1,8 @@
-# Motif (kevin-owens-product/5JS)
+# Relametric (kevin-owens-product/5JS)
 
 > Experimental TypeScript visualization on Three.js, with typed source adapters and example workflows linking records, evidence and decision briefs.
 
-Working brand: Motif. Rendering import: fivejs. API: createFive and four FiveLayer factories. Connector imports: motif-connectors and motif-connectors/server. Both packages are private and unpublished; use built local paths. Node 22.12+ for the core/site, 22.16+ for connectors. Browser scenes require WebGL2. Examples use fictional data, not demonstrated customer outcomes. Unrelated to Cylynx motif.gl.
+Working brand: Relametric. Rendering import: relametric. API: createRelametric and four RelametricLayer factories. Connector imports: relametric-connectors and relametric-connectors/server. Both packages are private and unpublished; use built local paths. Node 22.16+ for the core/site, 22.16+ for connectors. Browser scenes require WebGL2. Examples use fictional data, not demonstrated customer outcomes. Unrelated to Cylynx relametric.gl.
 
 ## Start here
 
@@ -30,3 +30,6 @@ Working brand: Motif. Rendering import: fivejs. API: createFive and four FiveLay
 - [Connector guides](https://kevin-owens-product.github.io/5JS/connectors/): source-specific setup and samples.
 
 These links follow main. For a pinned checkout use documentation from that revision. This index is a discovery aid, not a runtime API, MCP server or evidence of agent evaluation.
+
+- [Migration](https://github.com/kevin-owens-product/5JS/blob/main/docs/MIGRATION.md): Relametric names and compatibility aliases.
+- [Alpha candidate](https://github.com/kevin-owens-product/5JS/blob/main/docs/ALPHA_RELEASE.md): Release scope and limits.

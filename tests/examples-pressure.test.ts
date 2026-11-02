@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { BufferAttribute, Mesh } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import { examples } from '../examples/catalog.js';
 import { calculateUnitEconomics } from '../examples/business/unit-economics.js';
 import { calculateBreakEvenGrid } from '../examples/business/break-even.js';
@@ -60,8 +60,8 @@ test('portfolio rejects revenue rounded to zero before calculating margins', () 
 // slider endpoints. Across the twenty-three recipes this covers 540 distinct states.
 for (const recipe of examples.filter(example => example.category === 'Business' || example.category === 'Analytics')) {
   test(`${recipe.id}: combined min/middle/max states preserve finite data and geometry`, () => {
-    const layers: FiveLayer<object>[] = [];
-    const instance = recipe.setup({ add(layer: FiveLayer<object>) { layers.push(layer); return layer; } } as unknown as FiveApp);
+    const layers: RelametricLayer<object>[] = [];
+    const instance = recipe.setup({ add(layer: RelametricLayer<object>) { layers.push(layer); return layer; } } as unknown as RelametricApp);
     const controls = instance.controls ?? [];
     const choices = controls.map(control => [...new Set([control.min, control.min + Math.round((control.max - control.min) / control.step / 2) * control.step, control.max])]);
     let checked = 0;

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>RUNNING — 5js render pressure checks</title>
+  <title>RUNNING — relametric render pressure checks</title>
   <style>
     body { margin: 0; padding: 28px; background: #101818; color: #d6ffd7; font: 14px/1.6 ui-monospace, monospace; }
     h1 { font-size: 22px; }
@@ -17,7 +17,7 @@
   </style>
 </head>
 <body data-status="running" data-context-recovery="pending">
-  <h1>5js render pressure checks</h1>
+  <h1>relametric render pressure checks</h1>
   <p>One WebGL2 context, separately rendered maximum-size layers, 20 resource-churn cycles, and an explicit loss/restoration probe. Timings describe this run; they are not frame-rate guarantees.</p>
   <pre id="results" role="status" aria-live="polite">Loading the rendering API…</pre>
   <div id="fixture"></div>
@@ -52,9 +52,9 @@
       clearTimeout(watchdog);
       abort.abort(error);
       document.body.dataset.status = 'fail';
-      document.title = 'FAIL — 5js render pressure checks';
+      document.title = 'FAIL — relametric render pressure checks';
       results.textContent = [...lines, '', `FAIL · ${current}`, error?.stack ?? String(error)].join('\n');
-      console.error('5js render pressure failed:', error);
+      console.error('relametric render pressure failed:', error);
       tearingDown = true;
       try { app?.dispose(); } catch (cleanupError) { console.error(cleanupError); }
     }
@@ -163,8 +163,8 @@
     }
 
     try {
-      const { createFive, particleField, terrain, networkGraph, hypercube } = await bounded(import('/src/index.ts'), 'Module import');
-      app = createFive({ container: fixture, background: '#070a0e', paused: true, autoRotate: false, bloom: .4, pixelRatio: 1 });
+      const { createRelametric, particleField, terrain, networkGraph, hypercube } = await bounded(import('/src/index.ts'), 'Module import');
+      app = createRelametric({ container: fixture, background: '#070a0e', paused: true, autoRotate: false, bloom: .4, pixelRatio: 1 });
       const canvas = app.renderer.domElement;
       canvas.addEventListener('webglcontextlost', event => {
         event.preventDefault();
@@ -279,7 +279,7 @@
       finished = true;
       clearTimeout(watchdog);
       document.body.dataset.status = 'pass';
-      document.title = 'PASS — 5js render pressure checks';
+      document.title = 'PASS — relametric render pressure checks';
       results.textContent = [...lines, '', `Context recovery: ${contextRecovery.toUpperCase()}`, `ALL ${checks} RENDER PRESSURE CHECKS PASSED`].join('\n');
     } catch (error) { fail(error); }
   </script>

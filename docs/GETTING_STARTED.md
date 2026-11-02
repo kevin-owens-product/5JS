@@ -2,16 +2,16 @@
 
 ## Run the complete project
 
-Use Node.js **22.16+** for all demos, npm, and Python 3 for static-site/source-archive builds. The rendering library and website alone support Node.js 22.12+. A browser with WebGL2 is required for scenes. No API keys are needed for the supplied fictional datasets.
+Use Node.js **22.16+** and npm. Python 3 is also required for static-site/source-archive builds. A browser with WebGL2 is required for scenes. No API keys are needed for the supplied fictional datasets.
 
 ```sh
-git clone https://github.com/kevin-owens-product/5JS.git
-cd 5JS
+git clone https://github.com/kevin-owens-product/5JS.git relametric
+cd relametric
 npm ci
 npm run dev
 ```
 
-Open the address printed by Vite (normally `http://127.0.0.1:5185/`). You should see the Motif homepage. Vite may choose another port if that port is occupied.
+Open the address printed by Vite (normally `http://127.0.0.1:5185/`). You should see the Relametric homepage. Vite may choose another port if that port is occupied.
 
 1. Open **Explore the decision lab**. Choose conversion, retention, or product decisions.
 2. Select evidence, inspect the linked source records, and compare an explicit scenario assumption.
@@ -22,14 +22,14 @@ The homepage uses 540 fictional records. A displayed recovery opportunity is a m
 
 ## Use the rendering library in your app
 
-Neither `fivejs` nor `motif-connectors` has been published by this project to npm. Build the checkout, then install it by local path:
+Neither `relametric` nor `relametric-connectors` has been published by this project to npm. Build the checkout, then install it by local path:
 
 ```sh
 # In the cloned repository:
 npm run build
 
 # In your existing application (replace the absolute path):
-npm install /absolute/path/to/5JS three@0.180.0
+npm install /absolute/path/to/Relametric three@0.180.0
 ```
 
 Create a container in your application's HTML:
@@ -41,11 +41,11 @@ Create a container in your application's HTML:
 Run this TypeScript after that element mounts, using your application's bundler:
 
 ```ts
-import { createFive, networkGraph } from 'fivejs';
+import { createRelametric, networkGraph } from 'relametric';
 
 const container = document.querySelector<HTMLElement>('#visualization');
 if (!container) throw new Error('Missing visualization container');
-const app = createFive({ container, autoRotate: false, bloom: 0 });
+const app = createRelametric({ container, autoRotate: false, bloom: 0 });
 app.add(networkGraph({
   data: {
     nodes: [

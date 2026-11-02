@@ -1,5 +1,5 @@
 import { DoubleSide, Mesh, PlaneGeometry, ShaderMaterial } from 'three';
-import type { FiveLayer, TerrainOptions } from '../types.js';
+import type { RelametricLayer, TerrainOptions } from '../types.js';
 import { bounded, colorString, rejectStructural, seededRandom } from './dataMath.js';
 import { optionSnapshot, scientificColor } from './scientificMath.js';
 
@@ -9,7 +9,7 @@ const defaults: Required<TerrainOptions> = {
 };
 
 /** Animated analytic height field with shader contours; this does not model physical terrain erosion. */
-export function terrain(options: TerrainOptions = {}): FiveLayer<TerrainOptions> {
+export function terrain(options: TerrainOptions = {}): RelametricLayer<TerrainOptions> {
   const keys = Object.keys(defaults) as (keyof TerrainOptions)[];
   const config = { ...defaults, ...optionSnapshot(options, keys, 'terrain options') };
   bounded(config.resolution, 'resolution', 2, 512, true);
@@ -81,7 +81,7 @@ export function terrain(options: TerrainOptions = {}): FiveLayer<TerrainOptions>
     side: DoubleSide, wireframe: config.wireframe, toneMapped: false,
   });
   const object = new Mesh(geometry, material);
-  object.name = '5js-terrain';
+  object.name = 'relametric-terrain';
   // CPU geometry is flat; visible heights are evaluated in the vertex shader.
   object.frustumCulled = false;
   object.raycast = () => {};

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { PerspectiveCamera, Vector3 } from 'three';
-import type { FiveApp, FiveLayer, GraphData } from '../src/index.js';
+import type { RelametricApp, RelametricLayer, GraphData } from '../src/index.js';
 import community, { createCommunityData } from '../examples/data/community-network.js';
 import dependency, { createDependencyData } from '../examples/data/dependency-tree.js';
 import helix, { createDoubleHelixData } from '../examples/data/double-helix.js';
@@ -57,8 +57,8 @@ for (const { example, create, nodes } of recipes) {
       const projected = new Vector3(...node.position!).project(camera);
       assert.ok(Math.abs(projected.x) < 0.94 && Math.abs(projected.y) < 0.94, 'default camera frames every node with a margin');
     }
-    const owned: FiveLayer<any>[] = [];
-    const app = { add: (layer: FiveLayer<any>) => { owned.push(layer); return layer; } } as unknown as FiveApp;
+    const owned: RelametricLayer<any>[] = [];
+    const app = { add: (layer: RelametricLayer<any>) => { owned.push(layer); return layer; } } as unknown as RelametricApp;
     const instance = example.setup(app);
     assert.equal(owned.length, 1);
     assert.equal(owned[0].count, nodes);

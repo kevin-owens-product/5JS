@@ -43,7 +43,7 @@ const html = fileURLToPath(new URL('./index.html', import.meta.url));
 const server = createServer(async (incoming, outgoing) => {
   try {
     const url = new URL(incoming.url ?? '/', 'http://127.0.0.1:5190');
-    if (url.pathname === '/api/motif') {
+    if (url.pathname === '/api/relametric') {
       const controller = new AbortController(); incoming.once('aborted', () => controller.abort());
       const init: RequestInit & { duplex?: string } = { method: incoming.method, headers: incoming.headers as HeadersInit, signal: controller.signal };
       if (incoming.method !== 'GET' && incoming.method !== 'HEAD') { init.body = Readable.toWeb(incoming) as ReadableStream; init.duplex = 'half'; }
@@ -61,6 +61,6 @@ const server = createServer(async (incoming, outgoing) => {
   } catch { outgoing.writeHead(500); outgoing.end('The local fixture could not be loaded.'); }
 });
 server.requestTimeout = 30000;
-server.listen(5190, '127.0.0.1', () => console.log('Motif connector lab: http://127.0.0.1:5190 — real local SQLite, entirely fictional data.'));
+server.listen(5190, '127.0.0.1', () => console.log('Relametric connector lab: http://127.0.0.1:5190 — real local SQLite, entirely fictional data.'));
 function close() { server.close(() => { database.close(); process.exit(0); }); }
 process.once('SIGINT', close); process.once('SIGTERM', close);

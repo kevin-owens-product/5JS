@@ -8,8 +8,8 @@
 | Blank or zero-size canvas | Container size, mount timing, WebGL2 and browser console | Give the mounted container an explicit height. Check [requirements](COMPATIBILITY.md#runtime-and-package-requirements). |
 | Scene appears frozen | Reduced-motion preference, pause and playback speed | Reduced motion starts paused. Use playback controls if desired; do not override the user's preference globally. |
 | Layers disappear after removal | Ownership/lifecycle | `remove()` disposes the layer. Construct a replacement. |
-| Import or declaration resolution fails | Build output and import spelling | Run `npm run build` before installing the rendering package by path. Use `fivejs`, not an assumed `motif` registry package. |
-| Server connector used in browser | Entry point and bundler imports | Keep `motif-connectors/server` in server code. Use registered application operations in the browser. |
+| Import or declaration resolution fails | Build output and import spelling | Run `npm run build` before installing the rendering package by path. Use `relametric`, not an assumed `relametric` registry package. |
+| Server connector used in browser | Entry point and bundler imports | Keep `relametric-connectors/server` in server code. Use registered application operations in the browser. |
 | Connector demo fails on SQLite | Node version | Use Node 22.16+ and `npm run demo:connectors`. |
 | Unexpected totals | Grain, joins, filters, `hasMore`, `truncated` | Inspect the exact data pages; finish supported pagination or narrow the query. Do not label partial totals complete. |
 | Lost precision | Source driver and value mapping | Preserve decimal/large-integer strings. Normalization cannot recover already-rounded input. |

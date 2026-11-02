@@ -1,4 +1,4 @@
-import { networkGraph, type GraphData, type FiveLayer, type NetworkGraphOptions } from '../../src/index.js';
+import { networkGraph, type GraphData, type RelametricLayer, type NetworkGraphOptions } from '../../src/index.js';
 import { createChartLayer, type ChartBuilder, type Position } from '../shared/chart.js';
 import type { ExampleDefinition } from '../types.js';
 
@@ -76,7 +76,7 @@ const example: ExampleDefinition = {
       update(time, delta) { if (!disposed) { graph.update(time, delta); structure.update(time, delta); } },
       set(options) { graph.set(options); if (options.edgeOpacity !== undefined) { edgeOpacity = options.edgeOpacity; structure.redraw(build); } },
       dispose() { if (disposed) return; disposed = true; structure.dispose(); graph.dispose(); },
-    } satisfies FiveLayer<NetworkGraphOptions>);
+    } satisfies RelametricLayer<NetworkGraphOptions>);
     return { controls: [
       { id: 'cell-height', label: 'Cell height scale', min: 0.4, max: 1.2, step: 0.01, value: 1, apply: (value) => { layer.object.scale.y = value; } },
       { id: 'node-radius', label: 'Node radius', min: 0.01, max: 0.06, step: 0.001, value: 0.027, apply: (value) => layer.set({ nodeSize: value }) },

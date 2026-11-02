@@ -11,7 +11,7 @@ export function neuralPositions(spread=1): Position[] {
 const example:ExampleDefinition={
   id:'neural-connectome',title:'Neural signal atlas',category:'Biology',
   summary:'Interwoven axons carry light across two translucent neural hemispheres.',
-  description:'A synthetic neural atlas combines branching dendrites, curved axons, and traveling signal lights. Open the hemispheres to inspect the pathways, add cross-hemisphere bridges, or slow the pulse flow. Each node and connection is a designed motif, not a measured connectome.',
+  description:'A synthetic neural atlas combines branching dendrites, curved axons, and traveling signal lights. Open the hemispheres to inspect the pathways, add cross-hemisphere bridges, or slow the pulse flow. Each node and connection is a designed relametric, not a measured connectome.',
   tags:['Neural pathways','Branching geometry','Synthetic biology'],difficulty:'Advanced',accent:'#a0e4ee',
   camera:[.5,3.2,12.8],target:[0,0,0],bloom:.55,
   dataNote:'Synthetic 20-node bilateral graph for visualization. The ten nodes in each hemisphere form a closed neighbor ring; the bridge slider connects matching pairs across hemispheres. Dendrites are decorative branches. Tracers use arbitrary cycles per animation second and do not represent measured electrical activity, cognition, or a medical assessment.',

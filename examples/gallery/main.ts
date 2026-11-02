@@ -1,7 +1,7 @@
 import { examples, findExample } from '../catalog.js';
 import type { ExampleDefinition } from '../types.js';
 import { exampleCategories } from '../types.js';
-import type { FiveApp } from '../../src/index.js';
+import type { RelametricApp } from '../../src/index.js';
 import { cameraFor, cameraScale, downloadBlob, makeRenderer, mountExample } from './runtime.js';
 import type { MountedExample } from './runtime.js';
 import { sourceFor } from './sources.js';
@@ -28,14 +28,14 @@ const get = <T extends HTMLElement = HTMLElement>(id: string) => document.getEle
 const number = (n: number) => String(n).padStart(2, '0');
 
 document.getElementById('app')!.innerHTML = `
-<header class="topbar"><a class="brand" href="../" aria-label="Motif home">motif<span>·</span></a><span class="brand-divider"></span><a class="brand-section" href="./">Example library</a><nav aria-label="Main navigation"><a href="../">Motif home ${icon('arrow')}</a><a class="download-all" href="./5js-examples.zip" download>Download examples ${icon('down')}</a></nav></header>
+<header class="topbar"><a class="brand" href="../" aria-label="Relametric home">relametric<span>·</span></a><span class="brand-divider"></span><a class="brand-section" href="./">Example library</a><nav aria-label="Main navigation"><a href="../">Relametric home ${icon('arrow')}</a><a class="download-all" href="./relametric-examples.zip" download>Download examples ${icon('down')}</a></nav></header>
 <main id="gallery" ${standalone ? 'hidden' : ''}>
-  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE MOTIF COLLECTION · V0.1.0-ALPHA.1</div><h1>Make the next<br><span>move clearer.</span></h1><p>Explore a pattern. Follow the linked evidence.<br>Turn an interesting view into a better decision.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
+  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE RELAMETRIC COLLECTION · V0.1.0-ALPHA.2</div><h1>Make the next<br><span>move clearer.</span></h1><p>Explore a pattern. Follow the linked evidence.<br>Turn an interesting view into a better decision.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
   <section class="collection" aria-label="Example collection"><div class="collection-tools"><div class="filters" role="group" aria-label="Filter by category">${categories.map((category,i)=>`<button data-filter="${category}" aria-pressed="${i===0}" class="filter ${i===0?'selected':''}">${category}<span>${categoryCount(category)}</span></button>`).join('')}</div><label class="search">${icon('search')}<input type="search" id="search" placeholder="Find an idea…" aria-label="Search examples" autocomplete="off"><kbd>/</kbd></label></div><div class="collection-meta"><span id="result-count" role="status">${examples.length} examples</span><span>REAL RENDERS. EDITABLE RECIPES.</span></div>
   <div class="cards" id="cards">${examples.map((example,i)=>`<article class="card" data-card="${example.id}" style="--accent:${example.accent}"><a class="card-link" href="#${example.id}" aria-label="Open ${example.title}"><div class="card-image"><img id="preview-${example.id}" alt="" width="480" height="300" hidden><span class="preview-state" id="preview-state-${example.id}">Preparing live preview</span><span class="card-no">${number(i+1)}</span><span class="card-open">${icon('arrow')}</span><span class="card-discipline">${example.outcome ? 'DECISION WORKFLOW' : example.category}</span></div><div class="card-body"><div class="card-title"><h2>${example.title}</h2><span>${icon('arrow')}</span></div><p>${example.summary}</p><div class="card-tags">${example.tags.slice(0,2).map(tag=>`<span>${tag}</span>`).join('')}<span class="difficulty">${example.difficulty}</span></div></div></a></article>`).join('')}</div>
   <div class="empty" id="empty" hidden><h2>No examples match that search.</h2><p>Try “particles”, “graph”, or another category.</p><button id="clear-search">Reset filters</button></div></section>
   <section class="closing-note"><div><span class="eyebrow">BUILT TO BE TAKEN APART</span><h2>The interesting part is what you change.</h2></div><p>Every example includes the recipe that powers it, a standalone view, and a few useful controls. The downloadable project includes the shared runner and library source.</p></section>
-  <footer><span>Motif · Built on Three.js · WebGL2</span><span><a href="../LICENSE">MIT license</a> · <a href="../THIRD_PARTY_NOTICES.md">Third-party notices</a></span></footer>
+  <footer><span>Relametric · Built on Three.js · WebGL2</span><span><a href="../LICENSE">MIT license</a> · <a href="../THIRD_PARTY_NOTICES.md">Third-party notices</a></span></footer>
 </main>
 <dialog id="viewer" class="viewer ${standalone?'standalone':''}" aria-labelledby="viewer-title"><header class="viewer-header"><div><span class="eyebrow" id="viewer-category"></span><h2 id="viewer-title"></h2></div><div class="viewer-nav"><button id="previous" aria-label="Previous example">←</button><span id="viewer-index"></span><button id="next" aria-label="Next example">→</button><button id="close" aria-label="Close example">${icon('close')}</button>${standalone?'<a href="./" class="back-link">All examples ↗</a>':''}</div></header>
 <section id="outcome-heading" class="outcome-heading" aria-label="Decision context" hidden></section>
@@ -81,7 +81,7 @@ get('clear-search').addEventListener('click',()=>{category='All';get<HTMLInputEl
 document.addEventListener('keydown',event=>{if(event.key==='/'&&!get<HTMLDialogElement>('viewer').open && !(event.target instanceof HTMLInputElement)){event.preventDefault();get('search').focus();}});
 
 const dialog=get<HTMLDialogElement>('viewer');
-let app: FiveApp | undefined;
+let app: RelametricApp | undefined;
 let mounted: MountedExample | undefined;
 let active: ExampleDefinition | undefined;
 let stopStats: (()=>void)|undefined;
@@ -143,7 +143,7 @@ function show(example: ExampleDefinition) {
     stopOutcome?.(); stopOutcome=undefined;
     mounted?.dispose?.(); mounted=undefined;
     active=example;
-    document.title=`${example.title} · Motif examples`;
+    document.title=`${example.title} · Relametric examples`;
     dialog.dataset.example=example.id;dialog.dataset.category=example.category;dialog.classList.add('immersive');dialog.dataset.status='loading';
     get('viewer-category').textContent=`${example.category} / ${example.difficulty}`;
     get('viewer-title').textContent=example.title;
@@ -213,7 +213,7 @@ window.addEventListener('hashchange',route);
 get('close').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('cancel',event=>{if(standalone){event.preventDefault();location.href='./';}});
 dialog.addEventListener('click',event=>{if(event.target===dialog&&!standalone){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
-dialog.addEventListener('close',()=>{if(opening)return;cleanup();if(standalone){location.href='./';return;}history.replaceState(null,'',location.pathname+location.search);document.title='Motif — Example library';});
+dialog.addEventListener('close',()=>{if(opening)return;cleanup();if(standalone){location.href='./';return;}history.replaceState(null,'',location.pathname+location.search);document.title='Relametric — Example library';});
 get('previous').addEventListener('click',()=>{if(active)navigate(examples[(examples.indexOf(active)+examples.length-1)%examples.length].id);});
 get('next').addEventListener('click',()=>{if(active)navigate(examples[(examples.indexOf(active)+1)%examples.length].id);});
 get('play').addEventListener('click',()=>{paused=!paused;updatePlayback();});
@@ -221,13 +221,13 @@ get('reset').addEventListener('click',fitCamera);
 get<HTMLInputElement>('scene-speed').addEventListener('input',event=>{const value=Number((event.target as HTMLInputElement).value);app?.setSpeed(value);get('scene-speed-value').textContent=`${value.toFixed(2)}×`;});
 get<HTMLInputElement>('scene-bloom').addEventListener('input',event=>{const value=Number((event.target as HTMLInputElement).value);app?.setBloom(value);get('scene-bloom-value').textContent=value.toFixed(2);});
 get<HTMLInputElement>('orbit').addEventListener('change',event=>app?.setAutoRotate((event.target as HTMLInputElement).checked));
-get('capture').addEventListener('click',async()=>{if(!app||!active)return;const renderer=app;const id=active.id;const button=get<HTMLButtonElement>('capture');button.disabled=true;try{downloadBlob(await renderer.capture(),`Motif-${id}.png`);notify('PNG exported.');}catch{notify('Unable to export PNG.');}finally{button.disabled=false;}});
+get('capture').addEventListener('click',async()=>{if(!app||!active)return;const renderer=app;const id=active.id;const button=get<HTMLButtonElement>('capture');button.disabled=true;try{downloadBlob(await renderer.capture(),`Relametric-${id}.png`);notify('PNG exported.');}catch{notify('Unable to export PNG.');}finally{button.disabled=false;}});
 get('download-source').addEventListener('click',()=>{if(active)downloadBlob(new Blob([sourceFor(active.id)],{type:'text/typescript'}),`${active.id}.ts`);});
 get('copy-source').addEventListener('click',async()=>{if(!active)return;try{await navigator.clipboard.writeText(sourceFor(active.id));notify('Recipe copied. Use it inside the downloaded examples project.');}catch{const range=document.createRange();range.selectNodeContents(get('source'));const selection=getSelection();selection?.removeAllRanges();selection?.addRange(range);notify('Source selected. Press ⌘C or Ctrl+C to copy.');}});
-get('download-data').addEventListener('click',()=>{if(!active||!mounted?.readout)return;const table=mounted.readout().table;downloadBlob(new Blob(['\ufeff'+dataCsv(table,{example:active.title,notes:active.dataNote??'',controls:(mounted.controls??[]).map(control=>{const value=Number(get<HTMLInputElement>(`control-${control.id}`).value);return `${control.label}: ${control.format?.(value)??value}`;}).join('; ')})],{type:'text/csv;charset=utf-8'}),`Motif-${active.id}-data.csv`);});
+get('download-data').addEventListener('click',()=>{if(!active||!mounted?.readout)return;const table=mounted.readout().table;downloadBlob(new Blob(['\ufeff'+dataCsv(table,{example:active.title,notes:active.dataNote??'',controls:(mounted.controls??[]).map(control=>{const value=Number(get<HTMLInputElement>(`control-${control.id}`).value);return `${control.label}: ${control.format?.(value)??value}`;}).join('; ')})],{type:'text/csv;charset=utf-8'}),`Relametric-${active.id}-data.csv`);});
 get('copy-link').addEventListener('click',async()=>{try{await navigator.clipboard.writeText(location.href);notify('Example link copied.');}catch{notify('Copy the example URL from your address bar.');}});
 
-let previewApp: FiveApp|undefined;
+let previewApp: RelametricApp|undefined;
 let previewHost: HTMLElement|undefined;
 let stopped=false;
 const imageUrls:string[]=[];

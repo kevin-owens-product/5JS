@@ -42,8 +42,8 @@ test('every guide has a syntactically valid TypeScript sample using its actual r
     const imports = source.statements.filter(ts.isImportDeclaration).filter(item => ts.isStringLiteral(item.moduleSpecifier));
     const providerImport = imports.find(item => item.importClause?.namedBindings?.getText(source).includes(guide.factory));
     assert.ok(providerImport, `${guide.slug}: missing factory import`);
-    assert.equal((providerImport.moduleSpecifier as ts.StringLiteral).text, guide.runtime === 'server' ? 'motif-connectors/server' : 'motif-connectors');
-    assert.ok(!/npm install motif-connectors(?:\s|$)/.test(sample), 'The package is not published.');
+    assert.equal((providerImport.moduleSpecifier as ts.StringLiteral).text, guide.runtime === 'server' ? 'relametric-connectors/server' : 'relametric-connectors');
+    assert.ok(!/npm install relametric-connectors(?:\s|$)/.test(sample), 'The package is not published.');
   }
 });
 

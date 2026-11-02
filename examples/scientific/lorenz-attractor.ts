@@ -2,7 +2,7 @@ import {
   AdditiveBlending, BufferAttribute, BufferGeometry, Color, Group, Line,
   LineBasicMaterial, Points, ShaderMaterial,
 } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 import type { ExampleDefinition } from '../types.js';
 
 type State = readonly [number, number, number];
@@ -49,7 +49,7 @@ export function sampleLorenzTrajectory(samples = SAMPLE_COUNT, step = STEP, burn
 interface LorenzOptions { speed: number; trail: number; rotationSpeed: number }
 
 /** A custom layer follows the same ownership and lifecycle contract as built-ins. */
-export function createLorenzLayer(): FiveLayer<LorenzOptions> {
+export function createLorenzLayer(): RelametricLayer<LorenzOptions> {
   const raw = sampleLorenzTrajectory();
   const positions = new Float32Array(SAMPLE_COUNT * 3);
   const colors = new Float32Array(SAMPLE_COUNT * 3);
@@ -153,7 +153,7 @@ const example: ExampleDefinition = {
   title: 'Lorenz attractor',
   category: 'Scientific',
   summary: 'Follow a numerical trajectory through the classic butterfly attractor.',
-  description: 'Build a custom FiveLayer from Three.js geometry. Classical fourth-order Runge–Kutta integration computes 18,000 states once; a bright tail and marker replay the sampled trajectory above a faint complete path. Color follows the original z coordinate.',
+  description: 'Build a custom RelametricLayer from Three.js geometry. Classical fourth-order Runge–Kutta integration computes 18,000 states once; a bright tail and marker replay the sampled trajectory above a faint complete path. Color follows the original z coordinate.',
   tags: ['Custom layer', 'Numerical integration', 'Chaos'],
   difficulty: 'Advanced',
   accent: '#98dfff',

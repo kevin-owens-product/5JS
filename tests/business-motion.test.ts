@@ -1,14 +1,14 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { BufferAttribute, Mesh, Points, TorusGeometry } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import { examples } from '../examples/catalog.js';
 import { createChartLayer } from '../examples/shared/chart.js';
 import funnel from '../examples/business/conversion-funnel.js';
 
 test('funnel gate openings preserve population ratios even at minimum conversion', () => {
-  const layers: FiveLayer<object>[] = [];
-  const instance = funnel.setup({ add(layer: FiveLayer<object>) { layers.push(layer); return layer; } } as unknown as FiveApp);
+  const layers: RelametricLayer<object>[] = [];
+  const instance = funnel.setup({ add(layer: RelametricLayer<object>) { layers.push(layer); return layer; } } as unknown as RelametricApp);
   try {
     for (const useMinimum of [false, true]) {
       if (useMinimum) for (const control of instance.controls!) control.apply(control.min);
@@ -31,8 +31,8 @@ test('funnel gate openings preserve population ratios even at minimum conversion
 
 for (const example of examples.filter(example => example.category === 'Business')) {
   test(`${example.id}: visible flow moves, pause freezes, and motion preserves the data`, () => {
-    const layers: FiveLayer<object>[] = [];
-    const instance = example.setup({ add(layer: FiveLayer<object>) { layers.push(layer); return layer; } } as unknown as FiveApp);
+    const layers: RelametricLayer<object>[] = [];
+    const instance = example.setup({ add(layer: RelametricLayer<object>) { layers.push(layer); return layer; } } as unknown as RelametricApp);
     const values = JSON.stringify(instance.readout!());
     const attributes: BufferAttribute[] = [];
     for (const layer of layers) layer.object.traverse(object => {

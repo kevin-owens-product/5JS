@@ -1,6 +1,6 @@
 import type { ConnectorGuide } from './types.js';
 
-const localPackage = 'Build Motif Connectors in the checkout, then install that directory in your application by filesystem path. motif-connectors is a private, unpublished package; these imports refer to that local installation.';
+const localPackage = 'Build Relametric Connectors in the checkout, then install that directory in your application by filesystem path. relametric-connectors is a private, unpublished package; these imports refer to that local installation.';
 const serverAccess = 'Run this module on your application server. Derive tenant scope from authenticated access and obtain fresh provider credentials through the token callback; never send either to the visualization.';
 const pageContract = 'This sample returns a DataPage. Inspect its warnings, hasMore, nextCursor and truncated flags before treating the result as a complete population.';
 const filePrecision = 'The sample accepts primitive Arrow fields and dictionaries of supported primitives. Export decimals, timestamps and nested values as exact strings upstream, or provide an application-tested lossless decodeCell that reads raw vectors before any lossy conversion. Number() cannot restore precision.';
@@ -17,7 +17,7 @@ export const platformGuides: ConnectorGuide[] = [
       { title: 'Exact result evidence', body: 'Preserve integer and decimal strings, ordered fields and nested records alongside source provenance and a query ID.' },
     ],
     limitations: ['A page limit does not bound bytes scanned. Use maximumBytesBilled and provider-side controls as well as an approved query.', 'Opaque cursors belong to one adapter instance and query; they expire after five minutes and the registry retains at most 32 states.', 'Cancellation stops transport and polling; it does not submit a BigQuery job cancellation. The adapter is protocol-tested, not certified against your live project.'],
-    sample: { title: 'Read tenant-scoped checkout attempts', filename: 'bigquery-checkouts.ts', description: 'The authorized tenant is supplied by server authentication. The view has one row per attempt; monetary values remain exact strings.', code: `import { createBigQueryConnector, type BigQueryOptions } from 'motif-connectors/server';
+    sample: { title: 'Read tenant-scoped checkout attempts', filename: 'bigquery-checkouts.ts', description: 'The authorized tenant is supplied by server authentication. The view has one row per attempt; monetary values remain exact strings.', code: `import { createBigQueryConnector, type BigQueryOptions } from 'relametric-connectors/server';
 
 export async function readCheckoutAttempts(
   access: Pick<BigQueryOptions, 'projectId' | 'token'>,
@@ -47,7 +47,7 @@ export async function readCheckoutAttempts(
       { title: 'Traceable values', body: 'Keep positional metadata, exact decimal/integer strings and the statement handle across pages.' },
     ],
     limitations: ['SQL API access is server-only. Roles, row-access policies, warehouse budgets and statement timeouts remain application/provider responsibilities.', 'Cursors are instance-local, query-bound, limited to 32 states and expire after five minutes; they are not durable export checkpoints.', 'Transport cancellation does not cancel the Snowflake statement. Native partitions may contain more rows than the visualization requested.'],
-    sample: { title: 'Read the account-week grain', filename: 'snowflake-retention.ts', description: 'A positional TEXT binding scopes the view to the authorized tenant. No account-health score or churn prediction is invented.', code: `import { createSnowflakeConnector, type SnowflakeOptions } from 'motif-connectors/server';
+    sample: { title: 'Read the account-week grain', filename: 'snowflake-retention.ts', description: 'A positional TEXT binding scopes the view to the authorized tenant. No account-health score or churn prediction is invented.', code: `import { createSnowflakeConnector, type SnowflakeOptions } from 'relametric-connectors/server';
 
 export async function readAccountWeeks(
   access: Pick<SnowflakeOptions, 'accountUrl' | 'token'>,
@@ -56,7 +56,7 @@ export async function readAccountWeeks(
   const source = createSnowflakeConnector({
     ...access, id: 'account-weeks', source: 'Governed account-week usage',
     tokenType: 'OAUTH', warehouse: 'ANALYTICS_WH', database: 'ANALYTICS',
-    schema: 'APPROVED', role: 'MOTIF_READER',
+    schema: 'APPROVED', role: 'RELAMETRIC_READER',
   });
   return source.read({
     text: 'SELECT ACCOUNT_ID, OBSERVATION_WEEK, ACTIVE_SESSIONS, RENEWAL_DATE FROM APPROVED_ACCOUNT_WEEKS WHERE TENANT_ID = ? ORDER BY ACCOUNT_ID, OBSERVATION_WEEK',
@@ -77,7 +77,7 @@ export async function readAccountWeeks(
       { title: 'Explicit incompleteness', body: 'Retain provider truncation, source fields and statement provenance instead of presenting a capped result as a full population.' },
     ],
     limitations: ['This adapter supports bounded INLINE JSON results; external result links and arbitrary storage downloads are outside scope.', 'Whole-result caps can omit rows permanently for that statement; following every available cursor does not undo provider truncation.', 'A read timeout stops local transport/polling, not server execution. Configure warehouse permissions, budgets and query limits separately.'],
-    sample: { title: 'Read feature adoption observations', filename: 'databricks-adoption.ts', description: 'The server supplies the warehouse and tenant. The result cap is independent of the requested page size.', code: `import { createDatabricksConnector, type DatabricksOptions } from 'motif-connectors/server';
+    sample: { title: 'Read feature adoption observations', filename: 'databricks-adoption.ts', description: 'The server supplies the warehouse and tenant. The result cap is independent of the requested page size.', code: `import { createDatabricksConnector, type DatabricksOptions } from 'relametric-connectors/server';
 
 export async function readFeatureAdoption(
   access: Pick<DatabricksOptions, 'workspaceUrl' | 'warehouseId' | 'token'>,
@@ -99,15 +99,15 @@ export async function readFeatureAdoption(
     slug: 'redshift', catalogName: 'Amazon Redshift', name: 'Amazon Redshift', factory: 'redshiftConnector', monogram: 'RS', accent: '#bdabff', runtime: 'server',
     headline: 'Turn repeat-purchase data into a reviewable retention view.',
     description: 'Use your configured AWS SDK client to run a bound Redshift statement, inspect its job and page through its native results without resubmitting SQL.', outcome: 'retention',
-    prerequisites: [localPackage, 'Install @aws-sdk/client-redshift-data in the server application. Pass a RedshiftDataClient configured with the intended region, credentials and IAM permissions; Motif does not create or own that client.', 'The sample uses a Redshift Serverless workgroup and a read-authorized customer_retention view. Configure database authentication in the client/account or supply the adapter’s supported dbUser/secretArn options as appropriate.', pageContract],
+    prerequisites: [localPackage, 'Install @aws-sdk/client-redshift-data in the server application. Pass a RedshiftDataClient configured with the intended region, credentials and IAM permissions; Relametric does not create or own that client.', 'The sample uses a Redshift Serverless workgroup and a read-authorized customer_retention view. Configure database authentication in the client/account or supply the adapter’s supported dbUser/secretArn options as appropriate.', pageContract],
     capabilities: [
       { title: 'Caller-owned AWS access', body: 'Inject the real execute, describe and result command constructors into a configured SDK v3 client.' },
       { title: 'Buffered native pages', body: 'Slice a native result page into smaller DataPages, retaining remaining rows and the statement ID.' },
       { title: 'Consistency checks', body: 'Reject changed result schemas, repeated continuation tokens and inconsistent declared row totals.' },
     ],
-    limitations: ['GetStatementResult controls native page size; Motif buffers a page and rejects a native page above 100,000 rows.', 'Cast precision-sensitive integers and decimals to VARCHAR before JSON parsing; already-rounded SDK numbers cannot be repaired.', 'Exactly one clusterIdentifier or workgroupName is required. Aborting the SDK transport/poll loop does not call CancelStatement.'],
+    limitations: ['GetStatementResult controls native page size; Relametric buffers a page and rejects a native page above 100,000 rows.', 'Cast precision-sensitive integers and decimals to VARCHAR before JSON parsing; already-rounded SDK numbers cannot be repaired.', 'Exactly one clusterIdentifier or workgroupName is required. Aborting the SDK transport/poll loop does not call CancelStatement.'],
     sample: { title: 'Use official AWS command factories', filename: 'redshift-retention.ts', description: 'Pass an already configured SDK client and a tenant derived from server authorization.', code: `import { RedshiftDataClient, ExecuteStatementCommand, DescribeStatementCommand, GetStatementResultCommand } from '@aws-sdk/client-redshift-data';
-import { redshiftConnector } from 'motif-connectors/server';
+import { redshiftConnector } from 'relametric-connectors/server';
 
 export async function readRepeatPurchases(client: RedshiftDataClient, workgroupName: string, authorizedTenantId: string) {
   const source = redshiftConnector({
@@ -139,7 +139,7 @@ export async function readRepeatPurchases(client: RedshiftDataClient, workgroupN
     ],
     limitations: ['Athena result pages contain at most 1,000 rows, including the first page’s header. A requested larger DataPage can therefore be shorter.', 'ExecutionParameters use Athena SQL-literal semantics, not a generic value encoder. The sample uses a fixed authorized view and no dynamic parameters.', 'S3 access can independently expose query results. Provider access policies, scanned-byte limits and native job cancellation remain application-owned.'],
     sample: { title: 'Read an approved session-outcome view', filename: 'athena-sessions.ts', description: 'The application supplies the workgroup and SDK client. Athena’s workgroup supplies the result location.', code: `import { AthenaClient, StartQueryExecutionCommand, GetQueryExecutionCommand, GetQueryResultsCommand } from '@aws-sdk/client-athena';
-import { athenaConnector } from 'motif-connectors/server';
+import { athenaConnector } from 'relametric-connectors/server';
 
 export async function readSessionOutcomes(client: AthenaClient, workGroup: string) {
   const source = athenaConnector({
@@ -169,7 +169,7 @@ export async function readSessionOutcomes(client: AthenaClient, workGroup: strin
       { title: 'Ordered result rows', body: 'Preserve duplicate column aliases, native types and exact text projections while buffering native pages for smaller reads.' },
     ],
     limitations: ['The adapter accepts complete server-owned SQL, without parameter interpolation, prepared statements or session-mutation support.', 'Only inline tabular results are supported; spooled external-storage results and update statements are rejected.', 'Native pages above 100,000 rows fail. Read cancellation does not issue DELETE to cancel the Trino query; exact large numeric values should be projected as VARCHAR.'],
-    sample: { title: 'Read a fixed governed view', filename: 'trino-account-review.ts', description: 'The view encapsulates the approved cross-source joins and access scope. The browser never supplies the statement.', code: `import { trinoConnector, type TrinoOptions } from 'motif-connectors/server';
+    sample: { title: 'Read a fixed governed view', filename: 'trino-account-review.ts', description: 'The view encapsulates the approved cross-source joins and access scope. The browser never supplies the statement.', code: `import { trinoConnector, type TrinoOptions } from 'relametric-connectors/server';
 
 export async function readAccountReview(access: Pick<TrinoOptions, 'baseUrl' | 'user' | 'token'>) {
   const source = trinoConnector({
@@ -194,7 +194,7 @@ export async function readAccountReview(access: Pick<TrinoOptions, 'baseUrl' | '
       { title: 'Bounded snapshots', body: 'Request a lookahead row and report truncation when the selected Explore result exceeds the preview limit.' },
     ],
     limitations: ['Pivots, totals, table calculations and visualization formatting are not implemented by this adapter.', 'CSV fields remain strings; units, display labels and nonadditive measure rules belong to the Looker model and your mapping.', 'There is no public continuation cursor. Narrow the Explore query when truncated; token access and source-side execution cost still apply.'],
-    sample: { title: 'Read customer-level order evidence', filename: 'looker-orders.ts', description: 'The sample fixes a date window and customer grain in a modeled Explore. Filters use Looker filter-expression syntax.', code: `import { lookerConnector, type LookerOptions } from 'motif-connectors/server';
+    sample: { title: 'Read customer-level order evidence', filename: 'looker-orders.ts', description: 'The sample fixes a date window and customer grain in a modeled Explore. Filters use Looker filter-expression syntax.', code: `import { lookerConnector, type LookerOptions } from 'relametric-connectors/server';
 
 export async function readCustomerOrders(access: Pick<LookerOptions, 'baseUrl' | 'token'>) {
   const source = lookerConnector({ ...access, id: 'customer-orders', source: 'Governed customer order Explore' });
@@ -219,7 +219,7 @@ export async function readCustomerOrders(access: Pick<LookerOptions, 'baseUrl' |
       { title: 'Partial-error rejection', body: 'Reject errors at the response, execution or table level, including error-bearing HTTP 200 responses.' },
     ],
     limitations: ['One query and one result table are supported. Pass a table expression, not a complete EVALUATE statement.', 'TOPN previews have no stable continuation; DAX ties and provider limits can affect result size. Inspect truncation before using the full population.', 'Source JSON can lose numeric precision. Project exact decimals/large integers as text in the model or DAX; declaring a decimal field does not repair rounded values.'],
-    sample: { title: 'Read explicit DAX aliases', filename: 'power-bi-product-evidence.ts', description: 'String-backed measures remain exact. Field names match the executeQueries aliases, including brackets.', code: `import { powerBiConnector, type PowerBiOptions } from 'motif-connectors/server';
+    sample: { title: 'Read explicit DAX aliases', filename: 'power-bi-product-evidence.ts', description: 'String-backed measures remain exact. Field names match the executeQueries aliases, including brackets.', code: `import { powerBiConnector, type PowerBiOptions } from 'relametric-connectors/server';
 
 export async function readProductEvidence(access: Pick<PowerBiOptions, 'datasetId' | 'token'>) {
   const source = powerBiConnector({ ...access, id: 'product-evidence', source: 'Approved semantic-model evidence' });
@@ -242,7 +242,7 @@ export async function readProductEvidence(access: Pick<PowerBiOptions, 'datasetI
       { title: 'Cache-aware preview', body: 'Configure a positive maxAgeMinutes and mark a bounded summary result as truncated when more rows are present.' },
     ],
     limitations: ['This is cached summary data, not underlying-detail extraction. A dashboard export contains its first view only.', 'No public continuation cursor exists. Large exports can exceed the bounded response budget; narrow the published view or filters.', 'Formatting, units and freshness follow the published view and cache. Retrieval time is not the observation time or a freshness guarantee.'],
-    sample: { title: 'Read a filtered published view', filename: 'tableau-retention-summary.ts', description: 'Use a supported version supplied by server configuration. The token callback returns a Tableau session token, not an arbitrary browser credential.', code: `import { tableauConnector, type TableauOptions } from 'motif-connectors/server';
+    sample: { title: 'Read a filtered published view', filename: 'tableau-retention-summary.ts', description: 'Use a supported version supplied by server configuration. The token callback returns a Tableau session token, not an arbitrary browser credential.', code: `import { tableauConnector, type TableauOptions } from 'relametric-connectors/server';
 
 export async function readRetentionSummary(
   access: Pick<TableauOptions, 'baseUrl' | 'siteId' | 'viewId' | 'apiVersion' | 'token'>,
@@ -268,8 +268,8 @@ export async function readRetentionSummary(
     ],
     limitations: ['The public result is a bounded snapshot without a continuation cursor, even though native result pages are fetched internally.', 'Metric names, grouping grain and optional where SQL expressions are server-owned and must follow your Semantic Layer definitions and access rules.', 'Complex Arrow values require a correct application decoder. Query timeouts stop polling/transport; they do not cancel warehouse work or guarantee cache freshness.'],
     sample: { title: 'Query governed customer-level order counts', filename: 'dbt-order-evidence.ts', description: 'decodeExactCell is a required application dependency: preserve raw decimal/temporal/nested values before calling any lossy getter or Number().', code: `import { tableFromIPC } from 'apache-arrow';
-import type { ArrowCellDecoder } from 'motif-connectors';
-import { dbtSemanticConnector, type DbtSemanticOptions } from 'motif-connectors/server';
+import type { ArrowCellDecoder } from 'relametric-connectors';
+import { dbtSemanticConnector, type DbtSemanticOptions } from 'relametric-connectors/server';
 
 export async function readGovernedOrderCounts(
   access: Pick<DbtSemanticOptions, 'baseUrl' | 'environmentId' | 'token'>,
@@ -298,7 +298,7 @@ export async function readGovernedOrderCounts(
       { title: 'Native semantic names', body: 'Retain member/time-grain names and exact numeric strings, with metadata derived from the returned annotations.' },
     ],
     limitations: ['This supports a single load-result snapshot, without public offset pagination, multi-result execution or SQL API support.', 'Cube cache freshness, pre-aggregations and security context remain provider/application responsibilities; fetchedAt is retrieval time.', 'Numeric strings remain strings. Ratios and distinct counts may be nonadditive across customer or time dimensions.'],
-    sample: { title: 'Read monthly customer order evidence', filename: 'cube-customer-orders.ts', description: 'The token carries the authorized security context. Member names and the month grain are preserved in the returned schema.', code: `import { cubeConnector, type CubeOptions } from 'motif-connectors/server';
+    sample: { title: 'Read monthly customer order evidence', filename: 'cube-customer-orders.ts', description: 'The token carries the authorized security context. Member names and the month grain are preserved in the returned schema.', code: `import { cubeConnector, type CubeOptions } from 'relametric-connectors/server';
 
 export async function readMonthlyOrders(access: Pick<CubeOptions, 'baseUrl' | 'token'>) {
   const source = cubeConnector({ ...access, id: 'monthly-orders', source: 'Cube customer order model' });
@@ -322,7 +322,7 @@ export async function readMonthlyOrders(access: Pick<CubeOptions, 'baseUrl' | 't
       { title: 'Honest provenance', body: 'Label synthetic fixtures separately from live data and carry the source identity and completeness on every page.' },
     ],
     limitations: ['This is an in-memory table snapshot, not a JSON URL fetcher, streaming parser or automatic refresh mechanism.', 'A fixture label does not provide real customer evidence. Joins, units, entity grain and source authorization remain your application’s responsibility.', 'Unsafe integers, nonfinite values and unsupported objects are rejected. Existing JSON rounding cannot be reversed by changing the declared field type.'],
-    sample: { title: 'Create a fictional interview-evidence table', filename: 'json-interviews.ts', description: 'Two interviews can belong to the same account. The data contract preserves interview grain so a later view can count distinct accounts deliberately.', code: `import { jsonConnector } from 'motif-connectors';
+    sample: { title: 'Create a fictional interview-evidence table', filename: 'json-interviews.ts', description: 'Two interviews can belong to the same account. The data contract preserves interview grain so a later view can count distinct accounts deliberately.', code: `import { jsonConnector } from 'relametric-connectors';
 
 export async function readInterviewFixture() {
   const source = jsonConnector({
@@ -353,7 +353,7 @@ export async function readInterviewFixture() {
       { title: 'Bounded local pages', body: 'Apply file and decoded-row budgets, then page through a stable snapshot without losing the original truncation flag.' },
     ],
     limitations: ['The connector reads supplied text/bytes. File selection, access permissions and any remote download belong to the application.', 'All CSV cells remain strings; a type or unit must not be inferred silently from an ID such as 00001.', 'Defaults are 8 MiB/100,000 rows; configurable maxima are 32 MiB/100,000 rows, with one million decoded cells and 1,000 columns. Synchronous parsing cannot be interrupted mid-call.'],
-    sample: { title: 'Read a user-selected CSV safely', filename: 'csv-interview-upload.ts', description: 'Check the upload size before allocating its bytes. The sample keeps a 10,000-row snapshot cap and returns one page.', code: `import { csvConnector } from 'motif-connectors';
+    sample: { title: 'Read a user-selected CSV safely', filename: 'csv-interview-upload.ts', description: 'Check the upload size before allocating its bytes. The sample keeps a 10,000-row snapshot cap and returns one page.', code: `import { csvConnector } from 'relametric-connectors';
 
 export async function readInterviewCsv(file: File) {
   const maxBytes = 8 * 1024 * 1024;
@@ -381,7 +381,7 @@ export async function readInterviewCsv(file: File) {
     limitations: ['This is supplied-file reading, without object-store credentials, directory datasets, remote row-group range requests or automatic downloads.', 'Decimal, temporal and nested fields require an explicit lossless decoder or exact string projection upstream; the default rejects those types.', 'Decoding may materialize the file and synchronous WASM work cannot be interrupted. The byte/row/cell budgets apply independently of the requested page size.'],
     sample: { title: 'Read a browser-selected Parquet export', filename: 'parquet-account-weeks.ts', description: 'Serve the package’s ESM WASM asset from your application. The sample intentionally accepts only the default supported primitive field types.', code: `import initWasm, { readParquet } from 'parquet-wasm/esm';
 import { tableFromIPC } from 'apache-arrow';
-import { parquetConnector } from 'motif-connectors';
+import { parquetConnector } from 'relametric-connectors';
 
 export async function readAccountWeekParquet(file: File, wasmAssetUrl: URL) {
   if (wasmAssetUrl.origin !== location.origin) throw new Error('Use the application-served WASM asset.');
@@ -410,7 +410,7 @@ export async function readAccountWeekParquet(file: File, wasmAssetUrl: URL) {
     ],
     limitations: ['Arrow IPC is the supported input; this is not Arrow Flight, a streaming subscription or a remote-storage adapter.', 'The decoder may materialize the complete input. Defaults are 8 MiB/100,000 rows, with explicit byte, row and cell ceilings.', 'Custom native values must be decoded before lossy getters. A string produced after rounding is still inaccurate; default unsupported types fail rather than guessing.'],
     sample: { title: 'Read an Arrow IPC checkout table', filename: 'arrow-checkout-export.ts', description: 'Keep IDs as strings or Arrow INT64 and export monetary values as exact strings unless you supply a tested raw-vector decoder.', code: `import { tableFromIPC } from 'apache-arrow';
-import { arrowConnector } from 'motif-connectors';
+import { arrowConnector } from 'relametric-connectors';
 
 export async function readCheckoutArrow(file: File) {
   const maxBytes = 8 * 1024 * 1024;
@@ -429,18 +429,18 @@ export async function readCheckoutArrow(file: File) {
     slug: 'application-endpoint', catalogName: 'Application endpoint', name: 'Application endpoint', factory: 'endpointConnector', monogram: 'API', accent: '#c8f58c', runtime: 'browser',
     headline: 'Let the visualization request a decision, not a database query.',
     description: 'Read a named, authorized operation from your application and receive typed records with provenance, limits and an opaque continuation.', outcome: 'retention',
-    prerequisites: [localPackage, 'Mount createConnectorGateway from motif-connectors/server at /api/motif. Register retention.accounts with a server-owned connector/query and a required string segment parameter restricted to Growth, Scale or Enterprise.', 'Implement authorize(request, operation) using your actual session and data-access rules; bind tenant scope in the registered server query. A demo authorize callback is not production authentication.', 'Set the operation maxPageSize to at least 100. Use a same-origin authenticated application session; this browser client sends credentials: same-origin and never carries a provider token.', pageContract],
+    prerequisites: [localPackage, 'Mount createConnectorGateway from relametric-connectors/server at /api/relametric. Register retention.accounts with a server-owned connector/query and a required string segment parameter restricted to Growth, Scale or Enterprise.', 'Implement authorize(request, operation) using your actual session and data-access rules; bind tenant scope in the registered server query. A demo authorize callback is not production authentication.', 'Set the operation maxPageSize to at least 100. Use a same-origin authenticated application session; this browser client sends credentials: same-origin and never carries a provider token.', pageContract],
     capabilities: [
       { title: 'Registered operations', body: 'Send an operation name and validated business parameters instead of browser-controlled SQL, provider URLs or credentials.' },
       { title: 'Authorization on each page', body: 'The companion server gateway checks access on every request and binds opaque continuation handles to the authorized subject, operation, scope and parameters.' },
       { title: 'Validated data boundary', body: 'Validate returned schema, values, provenance, completeness and requested page size before a visualization receives the data.' },
     ],
     limitations: ['The endpoint client does not create a server, authentication system or source mapping. Mount and secure the companion gateway before using this sample.', 'Gateway cursors are short-lived, process-local handles; underlying provider cursors can expire sooner. Keep operation parameters identical while continuing.', 'A timeout aborts browser transport; source-side cancellation depends on the registered adapter. Returned completeness must still be checked before drawing population-wide conclusions.'],
-    sample: { title: 'Read an authenticated review operation', filename: 'application-retention.ts', description: 'The operation and permitted segment values must match your server registration. Call the exported function from the application after authentication.', code: `import { endpointConnector } from 'motif-connectors';
+    sample: { title: 'Read an authenticated review operation', filename: 'application-retention.ts', description: 'The operation and permitted segment values must match your server registration. Call the exported function from the application after authentication.', code: `import { endpointConnector } from 'relametric-connectors';
 
 const source = endpointConnector({
   id: 'account-review-api', source: 'Authorized account review',
-  endpoint: '/api/motif',
+  endpoint: '/api/relametric',
 });
 
 export async function readAccountReview(

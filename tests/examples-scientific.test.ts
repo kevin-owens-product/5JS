@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import { Group, Line, Points, Scene, ShaderMaterial } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import vortex from '../examples/scientific/vortex-flow.js';
 import waves from '../examples/scientific/wave-interference.js';
 import dimensions from '../examples/scientific/dimensional-dance.js';
@@ -9,15 +9,15 @@ import lorenz, { createLorenzLayer, lorenzDerivative, sampleLorenzTrajectory } f
 
 test('scientific recipes construct with a browser-free app and expose working controls', () => {
   for (const recipe of [vortex, waves, dimensions, lorenz]) {
-    const layers: FiveLayer<object>[] = [];
+    const layers: RelametricLayer<object>[] = [];
     const scene = new Scene();
     const app = {
-      add<P extends object>(layer: FiveLayer<P>) {
+      add<P extends object>(layer: RelametricLayer<P>) {
         layers.push(layer);
         scene.add(layer.object);
         return layer;
       },
-    } as FiveApp;
+    } as RelametricApp;
     const instance = recipe.setup(app);
     assert.ok(layers.length >= 1);
     assert.ok(instance.controls?.length && instance.controls.length <= 3);
@@ -36,8 +36,8 @@ test('scientific recipes construct with a browser-free app and expose working co
 });
 
 test('recipe controls reach particle uniforms and ordinary object transforms', () => {
-  let added: FiveLayer<object>;
-  const app = { add(layer: FiveLayer<object>) { added = layer; return layer; } } as FiveApp;
+  let added: RelametricLayer<object>;
+  const app = { add(layer: RelametricLayer<object>) { added = layer; return layer; } } as RelametricApp;
   const instance = waves.setup(app);
   const points = added!.object as Points;
   const material = points.material as ShaderMaterial;

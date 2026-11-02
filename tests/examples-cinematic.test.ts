@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { BufferGeometry, Material } from 'three';
 import type { Mesh, ShaderMaterial } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import neon from '../examples/cinematic/neon-landscape.js';
 import galaxies from '../examples/cinematic/twin-galaxies.js';
 import garden from '../examples/cinematic/orbital-garden.js';
@@ -11,15 +11,15 @@ import summit from '../examples/cinematic/crystal-summit.js';
 const examples = [neon, galaxies, garden, summit];
 
 function mockApp() {
-  const layers: FiveLayer<object>[] = [];
-  const app: Pick<FiveApp, 'add' | 'setBloom'> = {
-    add<P extends object>(layer: FiveLayer<P>) { layers.push(layer); layer.update(0, 0); return layer; },
+  const layers: RelametricLayer<object>[] = [];
+  const app: Pick<RelametricApp, 'add' | 'setBloom'> = {
+    add<P extends object>(layer: RelametricLayer<P>) { layers.push(layer); layer.update(0, 0); return layer; },
     setBloom(value) { assert.ok(Number.isFinite(value)); },
   };
-  return { app: app as FiveApp, layers };
+  return { app: app as RelametricApp, layers };
 }
 
-function snapshot(layers: FiveLayer<object>[]) {
+function snapshot(layers: RelametricLayer<object>[]) {
   const values: unknown[] = [];
   for (const layer of layers) layer.object.traverse(object => {
     const mesh = object as Mesh<BufferGeometry, ShaderMaterial>;

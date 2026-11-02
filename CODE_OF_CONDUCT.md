@@ -1,6 +1,6 @@
 # Community conduct
 
-5js welcomes contributors with different backgrounds and experience levels. Treat people with respect, explain technical disagreements with evidence, and help keep discussion focused on the project.
+relametric welcomes contributors with different backgrounds and experience levels. Treat people with respect, explain technical disagreements with evidence, and help keep discussion focused on the project.
 
 Harassment, threats, discriminatory language, sexualized attention, and disclosure of another person's private information are unacceptable. Do not use issues or pull requests for spam or personal attacks.
 

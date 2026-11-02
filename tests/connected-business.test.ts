@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { BufferGeometry, Material } from 'three';
 import type { Mesh, Points } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import { createConnectedData } from '../examples/connected/fixture.js';
 import checkout, { calculateCheckoutRecovery } from '../examples/business/checkout-recovery.js';
 import health, { calculateCustomerHealth } from '../examples/business/customer-health.js';
@@ -75,11 +75,11 @@ test('review capacity alters the proposed worklist without changing observed exp
 });
 
 function mount(example: typeof checkout) {
-  const layers: FiveLayer<object>[] = [];
-  const app = { add<P extends object>(layer: FiveLayer<P>) { layers.push(layer); return layer; } } as FiveApp;
+  const layers: RelametricLayer<object>[] = [];
+  const app = { add<P extends object>(layer: RelametricLayer<P>) { layers.push(layer); return layer; } } as RelametricApp;
   return { layers, instance: example.setup(app) };
 }
-function resources(layers: FiveLayer<object>[]) {
+function resources(layers: RelametricLayer<object>[]) {
   const result = new Set<BufferGeometry | Material>();
   for (const layer of layers) layer.object.traverse(object => {
     const mesh = object as Mesh;
@@ -88,7 +88,7 @@ function resources(layers: FiveLayer<object>[]) {
   });
   return result;
 }
-function positions(layers: FiveLayer<object>[]) {
+function positions(layers: RelametricLayer<object>[]) {
   const result: number[][] = [];
   for (const layer of layers) layer.object.traverse(object => {
     const points = object as Points;

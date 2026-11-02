@@ -44,7 +44,7 @@ export function shopifyConnector(options: ShopifyOptions): DataConnector<Shopify
     return query;
   }, async (query, next, limit, signal) => {
     const size = Math.min(limit, 250);
-    const document = `query MotifRead($first:Int!,$after:String,$query:String){${query.resource}(first:$first,after:$after,query:$query,sortKey:ID){edges{node{${shopifyFields[query.resource]}}}pageInfo{hasNextPage endCursor}}}`;
+    const document = `query RelametricRead($first:Int!,$after:String,$query:String){${query.resource}(first:$first,after:$after,query:$query,sortKey:ID){edges{node{${shopifyFields[query.resource]}}}pageInfo{hasNextPage endCursor}}}`;
     const result = productObject(await http(`/admin/api/${version}/graphql.json`, signal, { query: document, variables: { first: size, after: next ?? null, query: query.search ?? null } }));
     if (result.errors !== undefined && (!Array.isArray(result.errors) || result.errors.length)) throw new ConnectorError('QUERY_FAILED', 'Shopify rejected the registered query. Provider messages are withheld.');
     const connection = productObject(productObject(result.data)[query.resource]), info = productObject(connection.pageInfo);

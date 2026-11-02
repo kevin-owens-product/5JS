@@ -1,8 +1,8 @@
-# Working on Motif
+# Working on Relametric
 
 ## Read first
 
-This repository is an experimental TypeScript/Three.js project. Motif is the working brand; the rendering package/import is `fivejs`, with `createFive` and `FiveLayer`. The separate `motif-connectors` package is also private and unpublished. Do not invent registry installation commands or rename APIs to match the brand.
+This repository is an experimental TypeScript/Three.js project. Relametric is the project name; the rendering package/import is `relametric`, with `createRelametric` and `RelametricLayer`. The separate `relametric-connectors` package is also private and unpublished. Do not invent registry installation commands. Legacy createFive and Five* types are compatibility aliases; use the Relametric names in new code.
 
 Read [docs/INDEX.md](docs/INDEX.md) to select the relevant guide, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for boundaries, and [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow. Follow the checked-out source and manifests over assumptions about a newer website.
 
@@ -10,7 +10,7 @@ Read [docs/INDEX.md](docs/INDEX.md) to select the relevant guide, [docs/ARCHITEC
 
 - Rendering exports: `src/index.ts`; contracts: `src/types.ts`; lifecycle: `src/core.ts`; factories: `src/layers/`.
 - Connector contracts and adapters: `packages/connectors/src/`. Browser entry: `index.ts`; server entry: `server.ts`. Reference: `packages/connectors/README.md`.
-- Homepage: `demo/motif.ts`; shared outcome model and scenes: `examples/outcomes/`.
+- Homepage: `demo/relametric.ts`; shared outcome model and scenes: `examples/outcomes/`.
 - Earlier connected workflow: `examples/connected/` (separate fixture/contracts).
 - Recipes: `examples/catalog.ts` and category folders; authoring: `examples/README.md`.
 - Connector landing pages: `connectors/content/*.ts`; regenerate with `npm run prepare:connectors`. Never edit generated HTML as the source of truth.
@@ -18,7 +18,7 @@ Read [docs/INDEX.md](docs/INDEX.md) to select the relevant guide, [docs/ARCHITEC
 
 ## Setup and checks
 
-Use npm with the committed lockfile. Node 22.12+ supports the website/core; Node 22.16+ is needed for the connector demo/package. Python 3 is needed for source archives and package verification.
+Use npm with the committed lockfile and Node 22.16+ for all packages and demos. Python 3 is needed for source archives and package verification.
 
 ```sh
 npm ci

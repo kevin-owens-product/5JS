@@ -1,16 +1,39 @@
 {
-  "name": "motif-connectors",
-  "version": "0.1.0-alpha.1",
+  "name": "relametric-connectors",
+  "version": "0.1.0-alpha.2",
   "private": true,
-  "description": "Typed data adapters and a server operation gateway for Motif visualizations",
+  "description": "Typed data adapters and a server operation gateway for Relametric visualizations",
   "type": "module",
   "sideEffects": false,
   "license": "MIT",
-  "engines": { "node": ">=22.16.0" },
-  "exports": {
-    ".": { "types": "./dist/index.d.ts", "import": "./dist/index.js" },
-    "./server": { "types": "./dist/server.d.ts", "import": "./dist/server.js" }
+  "engines": {
+    "node": ">=22.16.0"
   },
-  "files": ["dist", "README.md", "LICENSE"],
-  "scripts": { "build": "tsc -p tsconfig.json" }
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./server": {
+      "types": "./dist/server.d.ts",
+      "import": "./dist/server.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/kevin-owens-product/5JS.git",
+    "directory": "packages/connectors"
+  },
+  "homepage": "https://kevin-owens-product.github.io/5JS/connectors/",
+  "bugs": {
+    "url": "https://github.com/kevin-owens-product/5JS/issues"
+  }
 }

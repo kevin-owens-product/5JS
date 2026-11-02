@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, CylinderGeometry, DoubleSide, Group, Mesh, MeshBasicMaterial } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 import { createChartLayer, type ChartBuilder, type Position } from '../shared/chart.js';
 import type { ExampleDefinition } from '../types.js';
 
@@ -7,7 +7,7 @@ export interface WakeSettings { turns:number; expansion:number; rotation:number 
 export function wakeRadius(fraction:number,expansion:number){return 2.1*(1+expansion*fraction);}
 function validate(input:WakeSettings){if(!Number.isFinite(input.turns)||input.turns<1||input.turns>4||!Number.isFinite(input.expansion)||input.expansion<0||input.expansion>.6||!Number.isFinite(input.rotation)||input.rotation<0||input.rotation>2)throw new RangeError('Invalid geometric wake settings.');}
 
-export function createTurbineWake():FiveLayer<WakeSettings>{
+export function createTurbineWake():RelametricLayer<WakeSettings>{
   const object=new Group(),rotor=new Group();object.name='turbineWake';rotor.name='rotor';rotor.position.set(-3.7,2.5,0);object.add(rotor);
   const bladeGeometry=new BufferGeometry();
   bladeGeometry.setAttribute('position',new BufferAttribute(new Float32Array([0,.24,0,.08,.8,.28,.07,2.1,.18,0,2.1,-.04,-.08,.8,-.16]),3));

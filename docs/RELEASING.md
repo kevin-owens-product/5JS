@@ -1,12 +1,12 @@
-# Releasing 5js
+# Releasing relametric
 
 The first milestone is a public GitHub alpha with a hosted example gallery and downloadable source. npm publication is a separate maintainer decision. Keep `private: true` until that decision is made. This checklist does not itself publish anything.
 
 ## Prepare a release candidate
 
-Choose the version and record the intended changes in [CHANGELOG.md](../CHANGELOG.md). For the first alpha, the planned version is `0.1.0-alpha.1`. Keep the manifest, lockfile, UI version text, changelog, tag, and release notes consistent. Do not reuse an existing release tag for a different commit.
+Choose the version and record the intended changes in [CHANGELOG.md](../CHANGELOG.md). For the Relametric alpha candidate, the planned version is `0.1.0-alpha.2`. Keep the manifest, lockfile, UI version text, changelog, tag, and release notes consistent. Do not reuse an existing release tag for a different commit.
 
-Work from a clean checkout of the dedicated 5js repository. Review the files that will be public: source, tests, docs, configuration, lockfile, license/notices, and selected documentation assets. Do not include enclosing workspace files, dependencies, local environment files, or generated build directories in the source commit.
+Work from a clean checkout of the dedicated relametric repository. Review the files that will be public: source, tests, docs, configuration, lockfile, license/notices, and selected documentation assets. Do not include enclosing workspace files, dependencies, local environment files, or generated build directories in the source commit.
 
 Before publishing, confirm:
 
@@ -53,10 +53,10 @@ Do not mark the gallery as published until the workflow succeeds and the public 
 
 ## Publish a GitHub prerelease
 
-1. Create an annotated version tag, such as `v0.1.0-alpha.1`, pointing to the tested commit.
+1. Create an annotated version tag, such as `v0.1.0-alpha.2`, pointing to the tested commit.
 2. Push the tag and create a GitHub release marked **prerelease**. Verify the selected tag points to that same commit.
 3. Write release notes from the relevant changelog entry. Include installation/build instructions, gallery and versioned documentation links, known limitations, and the validation performed.
-4. Attach the generated `5js-examples.zip` source project. If distributing a package tarball too, attach the exact validated tarball and explain that registry installation is not yet available.
+4. Attach the generated `relametric-examples.zip` source project. If distributing a package tarball too, attach the exact validated tarball and explain that registry installation is not yet available.
 5. Download the published attachment and verify that it corresponds to the local validated artifact. Check the release links from a fresh browser session.
 
 After publication, change the corresponding changelog heading from Unreleased to the actual version/date in a subsequent development commit, or make that edit before tagging when the release date is already settled. Keep a new Unreleased section for subsequent work. Do not rewrite the tagged commit to change the release record.

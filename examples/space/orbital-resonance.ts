@@ -1,5 +1,5 @@
 import { BufferAttribute, BufferGeometry, Group, Line, LineBasicMaterial, Mesh, MeshBasicMaterial, SphereGeometry } from 'three';
-import type { FiveLayer } from '../../src/index.js';
+import type { RelametricLayer } from '../../src/index.js';
 import { createChartLayer, type ChartBuilder, type Position } from '../shared/chart.js';
 import type { ExampleDefinition } from '../types.js';
 
@@ -67,7 +67,7 @@ const example: ExampleDefinition = {
       });
     }
     positionBodies();
-    const motion: FiveLayer<Record<string,never>> = {
+    const motion: RelametricLayer<Record<string,never>> = {
       object,kind:'orbitalResonance',count:3,
       update(_time,delta){
         if(disposed||!Number.isFinite(delta)||delta<=0)return;

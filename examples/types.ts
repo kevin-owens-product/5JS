@@ -1,5 +1,5 @@
 import type { OutcomeExplorer } from './connected/types.js';
-import type { FiveApp } from '../src/index.js';
+import type { RelametricApp } from '../src/index.js';
 
 export const exampleCategories = ['Space', 'Biology', 'Climate', 'Energy', 'Cities', 'Engineering', 'Business', 'Analytics', 'Scientific', 'Data', 'Cinematic'] as const;
 export type ExampleCategory = typeof exampleCategories[number];
@@ -46,5 +46,5 @@ export interface ExampleDefinition {
   /** Complete source-inspection/action workflow for a companion spatial recipe. */
   workbench?: string;
   dataNote?: string;
-  setup(app: FiveApp): ExampleInstance;
+  setup(app: RelametricApp): ExampleInstance;
 }

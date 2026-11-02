@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import type { BufferAttribute, BufferGeometry, Material, Mesh, ShaderMaterial } from 'three';
-import type { FiveApp, FiveLayer } from '../src/index.js';
+import type { RelametricApp, RelametricLayer } from '../src/index.js';
 import transit, { transitService } from '../examples/cities/transit-pulse.js';
 import city, { canopyHeight, cityBuildings } from '../examples/cities/urban-canopy.js';
 import chamber, { chamberField, chamberNodes } from '../examples/engineering/acoustic-chamber.js';
@@ -52,7 +52,7 @@ test('wake envelope has a fixed inlet and the stated linear radius growth',()=>{
   }
 });
 
-function snapshot(layers:FiveLayer<object>[]){
+function snapshot(layers:RelametricLayer<object>[]){
   const values:number[]=[];
   for(const layer of layers)layer.object.traverse(object=>{
     values.push(...object.position.toArray(),object.rotation.x,object.rotation.y,object.rotation.z);
@@ -69,8 +69,8 @@ function snapshot(layers:FiveLayer<object>[]){
 }
 
 for(const recipe of [transit,city,chamber,turbine])test(`${recipe.id}: motion, pause, controls and owned disposal`,()=>{
-  const layers:FiveLayer<object>[]=[];
-  const instance=recipe.setup({add(layer:FiveLayer<object>){layers.push(layer);return layer;}} as unknown as FiveApp);
+  const layers:RelametricLayer<object>[]=[];
+  const instance=recipe.setup({add(layer:RelametricLayer<object>){layers.push(layer);return layer;}} as unknown as RelametricApp);
   const initial=snapshot(layers),readout=JSON.stringify(instance.readout!());
   layers.forEach(l=>l.update(.537,.537));const moving=snapshot(layers);
   assert.notDeepEqual(moving,initial,'actual geometry or shader phase must animate');

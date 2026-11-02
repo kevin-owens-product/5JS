@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.1.0-alpha.2 — Unreleased
+
+- Rebrand the authored website, examples, connector guides and packages to Relametric. Keep the existing GitHub repository and Pages addresses.
+- Export createRelametric and Relametric types, retaining createFive and Five* public compatibility aliases. Rename the ESM artifact to dist/relametric.js.
+- Complete human and agent documentation, migration guidance and explicit public-library versus example-workflow boundaries.
+- Align both packages and CI to Node 22.16+; prepare a private, unpublished alpha candidate.
+
+Historical entries below retain the names and versions used at the time.
+
 ## Unreleased
 
 - Add a human documentation map, focused quickstart, architecture and troubleshooting guides, root agent instructions and a plain-text documentation index. Record the ecosystem/naming review and correct stale current example counts.
