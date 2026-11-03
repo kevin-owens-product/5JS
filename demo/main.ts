@@ -1,6 +1,8 @@
-import { createRelametric, particleField, networkGraph, terrain, hypercube } from '../src/index';
-import type { RelametricLayer } from '../src/types';
+import { siteHeader } from './site.js';
+import { createRelametric, particleField, networkGraph, terrain, hypercube } from '../src/index.js';
+import type { RelametricLayer } from '../src/types.js';
 import './style.css';
+import './site.css';
 
 const icons = {
   arrow: '<path d="M4 12 12 4M4 4h8v8"/>',
@@ -41,16 +43,9 @@ const state = { scene: 'particles' as SceneId, palette: 0, speed: .7, bloom: .7,
 
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="app-shell" id="app-shell">
-    <header class="topbar">
-      <a class="brand" href="../" aria-label="Relametric home"><div class="wordmark">relametric<span>·</span></div><div class="brand-rule"></div><div class="brand-description">Connected data.<br>Better decisions.</div></a>
-      <nav class="top-links" aria-label="Resources">
-        <a class="text-link" href="../examples/">Example library ${svg('arrow', 12)}</a>
-        <span class="build-badge"><span class="status-dot"></span>v0.1.0-alpha.2 · EXPERIMENTAL</span>
-        <a class="text-link" href="https://threejs.org/" target="_blank" rel="noreferrer">Built on Three.js ${svg('arrow', 12)}</a>
-        <button class="source-trigger" id="open-source">${svg('code', 13)} View code</button>
-      </nav>
-    </header>
-    <div class="workspace-top"><div class="breadcrumb"><span>Playground</span><span class="breadcrumb-slash">/</span><strong id="breadcrumb-scene">Particle field</strong></div><span class="workspace-subtitle">Explore the extraordinary. Make it your own.</span></div>
+${siteHeader('Playground', '../')}
+<div class="rm-layer-intro"><strong>Layer playground</strong> Shape particles, networks, terrain and higher-dimensional geometry. <a href="../examples/">Choose from 50 complete examples →</a><a href="../connectors/">Explore source adapters →</a></div>
+    <div class="workspace-top"><div class="breadcrumb"><span>Playground</span><span class="breadcrumb-slash">/</span><strong id="breadcrumb-scene">Particle field</strong></div><button class="source-trigger" id="open-source">${svg('code', 13)} View code</button></div>
     <main class="workspace">
       <aside class="sidebar" aria-label="Experiments">
         <div class="section-label">The experiments</div>

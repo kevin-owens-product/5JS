@@ -2,7 +2,7 @@
 
 Typed data adapters that connect Relametric visualizations to application data, databases, and warehouses. The current implementation supplies a common table format, explicit pagination and truncation, source provenance, and an application gateway for registered operations.
 
-**Relametric is the working project name.** This package is an early, private workspace package named `relametric-connectors`; it has not been published to npm, and the name is not a registry or trademark availability claim. The package carries the repository's MIT license. Public release and broad production certification remain separate work.
+**Relametric Connectors is an experimental alpha.** This package is named `relametric-connectors`; it has not been published to npm, and the name is not a registry or trademark availability claim. The package carries the repository's MIT license. Public release and broad production certification remain separate work.
 
 All **39 catalog entries now have a constrained implementation**, including JSON and the application endpoint. Grouped entries have actual factories for their constituent tools: Elasticsearch/OpenSearch, Zendesk/Intercom, dbt/Cube, and CSV/Parquet/Arrow; MySQL/MariaDB share the `mysql2` adapter. “Implemented” means the adapter and its contract tests exist. It does not mean every provider feature is supported or a live account has been certified. The [packaged catalog](./dist/catalog.js) contains the maintained coverage list; the scope tables below describe the implemented boundaries.
 

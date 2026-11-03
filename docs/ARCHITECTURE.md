@@ -46,4 +46,12 @@ Replace the fixture loader with authorized data pages and an explicit mapper. Va
 
 Connector pages are authored in `connectors/content/*.ts`, rendered through `scripts/generate-connector-pages.ts`, and generated before development/site builds. Edit the authored content, not generated `connectors/*/index.html`. The source ZIP is assembled by `scripts/package-examples.py` using explicit source boundaries. `scripts/prepare-public.mjs` copies public notices and the agent discovery index. `llms.txt` links to source documentation; it does not duplicate the reference.
 
-The static website is built into `demo-dist/`; packages build into `dist/` and `packages/connectors/dist/`. Deployment and npm publication are separate actions. Both packages remain private. [Compatibility](COMPATIBILITY.md) documents rendering constraints; [release instructions](RELEASING.md) define publication checks.
+The static website is built into `demo-dist/`; packages build into `dist/` and `packages/connectors/dist/`. Deployment and npm publication are separate actions. Both packages are publishable alpha candidates; registry publication is separate. [Compatibility](COMPATIBILITY.md) documents rendering constraints; [release instructions](RELEASING.md) define publication checks.
+
+## Connected website navigation
+
+`demo/site.ts` supplies the shared Overview / Examples / Connectors / Playground header, curated outcome journeys and validated source context. `demo/site.css` scopes the shared presentation. Connector pages render the same header statically so it remains usable before JavaScript.
+
+The homepage owns full decision workflows. The gallery discovers recipes. `/demo/playground.html?example=<id>` opens any registered recipe using the gallery runtime; `/demo/playground.html` keeps the four-layer composer. Existing `/examples/run.html?example=<id>` and gallery category/hash links remain supported. Both Playground modes expose the same global navigation.
+
+Connector guides link to related recipes with a validated `source` slug. That slug carries an adaptation context and a return link; it never opens a provider connection or changes the synthetic fixture. The scene, source viewer and controls are the same implementation in gallery, standalone and Playground.

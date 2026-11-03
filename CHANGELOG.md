@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+## 0.1.0-alpha.3 — Unreleased
+
+- Prepare both packages for public npm publication with the alpha dist-tag.
+- Update active repository and Pages links following the Relametric repository rename.
+- Build connector artifacts during packing and add a manual, dry-run-first npm workflow and maintainer runbook.
+- Add six repository-root product images, a visual README, a media kit, social preview metadata and native-share/copy-link controls.
+- Unify site navigation and outcome journeys; open all gallery recipes in Playground and carry source-guide context across handoffs.
+- Keep alpha.2 release tags and artifacts unchanged.
+
 ## 0.1.0-alpha.2 — 2026-11-02
 
 - Rebrand the authored website, examples, connector guides and packages to Relametric. Keep the existing GitHub repository and Pages addresses.

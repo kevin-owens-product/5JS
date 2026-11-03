@@ -1,16 +1,52 @@
 # Relametric
 
-An experimental TypeScript visualization library on Three.js, connecting source records, relationships and evidence to conversion, retention and product decisions. Relametric includes an interactive decision lab, 50 editable examples, a connector library, and four composable visualization layers for scientific, data and cinematic scenes.
+**Follow the data. Find the next move.**
 
-**Relametric is the new project name.** The rendering package is `relametric`, with `createRelametric` and `RelametricLayer`; data adapters live in `relametric-connectors`. Both packages are private and unpublished while the alpha release is prepared. The public GitHub repository and Pages URLs remain under `kevin-owens-product/5JS`. Legacy `createFive` and `Five*` type names remain exported as compatibility aliases. See [migration notes](https://github.com/kevin-owens-product/5JS/blob/main/docs/MIGRATION.md).
+Relametric is an open-source TypeScript toolkit for exploring the records behind a chart: customers, checkouts, product usage, interviews, and the relationships between them. Build interactive investigations for conversion, retention and product decisions, or compose your own scientific and spatial visualizations on Three.js.
 
-[Public demo (latest deployed revision)](https://kevin-owens-product.github.io/5JS/) · [Source repository](https://github.com/kevin-owens-product/5JS) · [Example gallery](https://kevin-owens-product.github.io/5JS/examples/)
+[![Relametric — connected evidence for better decisions](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-social.png)](https://kevin-owens-product.github.io/Relametric/)
 
-Start here: [Documentation map](https://github.com/kevin-owens-product/5JS/blob/main/docs/INDEX.md) · [Quickstart](https://github.com/kevin-owens-product/5JS/blob/main/docs/GETTING_STARTED.md) · [Architecture](https://github.com/kevin-owens-product/5JS/blob/main/docs/ARCHITECTURE.md) · [Agent instructions](https://github.com/kevin-owens-product/5JS/blob/main/AGENTS.md) · [Ecosystem review](https://github.com/kevin-owens-product/5JS/blob/main/docs/ECOSYSTEM_REVIEW.md).
+**50 editable examples · 44 connector factories · 45 source guides · Four rendering layers · MIT licensed**
 
-Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) · [Connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/5JS/blob/main/docs/RELEASING.md).
+**Relametric is the new project name.** The rendering package is `relametric`, with `createRelametric` and `RelametricLayer`; data adapters live in `relametric-connectors`. Both packages are prepared for npm publication but still unpublished while the alpha release is prepared. The public GitHub repository and Pages URLs now use `kevin-owens-product/Relametric`. Legacy `createFive` and `Five*` type names remain exported as compatibility aliases. See [migration notes](https://github.com/kevin-owens-product/Relametric/blob/main/docs/MIGRATION.md).
 
-![Conversion reactor example](https://raw.githubusercontent.com/kevin-owens-product/5JS/main/artifacts/business-motion-reactor.jpg)
+[Public demo (latest deployed revision)](https://kevin-owens-product.github.io/Relametric/) · [Source repository](https://github.com/kevin-owens-product/Relametric) · [Example gallery](https://kevin-owens-product.github.io/Relametric/examples/)
+
+Start here: [Documentation map](https://github.com/kevin-owens-product/Relametric/blob/main/docs/INDEX.md) · [Quickstart](https://github.com/kevin-owens-product/Relametric/blob/main/docs/GETTING_STARTED.md) · [Architecture](https://github.com/kevin-owens-product/Relametric/blob/main/docs/ARCHITECTURE.md) · [Agent instructions](https://github.com/kevin-owens-product/Relametric/blob/main/AGENTS.md) · [Ecosystem review](https://github.com/kevin-owens-product/Relametric/blob/main/docs/ECOSYSTEM_REVIEW.md).
+
+Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md) · [Connector guide](https://github.com/kevin-owens-product/Relametric/blob/main/packages/connectors/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/Relametric/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/Relametric/blob/main/docs/RELEASING.md).
+
+## One connected experience
+
+Start with an outcome on the homepage, discover a recipe in Examples, and open it in Playground with the same controls, source and exports. Connector guides link to related patterns and keep a return path to setup code. A source selection is an adaptation context; examples continue to use synthetic data until you explicitly map your own records.
+
+[![Unified Playground with a retained Stripe source context, related guides and a retention example](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-workspace.jpg)](https://kevin-owens-product.github.io/Relametric/demo/playground.html?example=source-retention&source=stripe)
+
+## See what you can build
+
+| Start with a question | Explore the evidence | Take something useful away |
+| --- | --- | --- |
+| Where do checkouts break? | Follow attempts through a conversion scene into account records and payment failures. | A scoped recovery investigation with an explicit scenario. |
+| Which customers need attention? | Compare retention observations with usage and support records. | An account review queue and the evidence behind it. |
+| What should we build next? | Connect initiatives to customer usage and interview evidence. | A product brief with a proposed owner, measure and guardrail. |
+
+### Conversion: follow the drop-off to its source
+
+[![Conversion workspace: checkout stages, account evidence and a modeled recovery scenario](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-conversion.png)](https://kevin-owens-product.github.io/Relametric/#decision-lab)
+
+### Retention: inspect the accounts behind the curve
+
+[![Retention workspace: cohort observations linked to account records](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-retention.png)](https://kevin-owens-product.github.io/Relametric/examples/run.html?example=source-retention)
+
+### Product: connect opportunities to evidence
+
+[![Product workspace: initiatives connected to usage and interview evidence](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-product.png)](https://kevin-owens-product.github.io/Relametric/examples/run.html?example=source-product)
+
+### Connect your sources with a typed contract
+
+[![Relametric connector directory with 45 source-specific guides](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-connectors.png)](https://kevin-owens-product.github.io/Relametric/connectors/)
+
+These screenshots show working examples with **synthetic data**. Scenarios are assumptions to investigate, not measured business results. Your application owns authentication, source mapping and decisions. All eight screenshots/share images live in the repository root; see the [media and sharing kit](https://github.com/kevin-owens-product/Relametric/blob/main/docs/MEDIA_KIT.md) for reusable copy and image details.
 
 ## Run Relametric locally
 
@@ -37,21 +73,21 @@ Choose **Decisions** for six recipes. **Conversion observatory** (`source-conver
 
 The preceding visual refresh redesigned **17 of the original 44 scenes**: the original ten Analytics recipes, four structured Data compositions, two Scientific scenes, and the Business break-even landscape. Analytics gained retention sails, customer hulls, three zero-baseline demand sails, a concentration weave, geographic demand terrain, and linked relationship and observation views. Data gained community envelopes, branching dependency levels, continuous helix rails, and a lattice with an explicit six-neighbor interior. Projected hypercube faces and an analytic wave mesh reveal structure in the two Scientific scenes. Break-even adds a profit cutaway, reference slices, and an exact zero-profit boundary. The other 27 original recipes were reviewed and retained; six decision recipes now sit alongside them.
 
-Every category uses the same larger interactive stage. Search or filter, open a scene, adjust its controls, and expand **How to read this scene** for units, encodings, assumptions, and the role of motion. The correlation example's **Explore a pair** control connects signed strands and a floor matrix to raw daily observations; constant variables produce undefined correlations, not zero. Source inspection and standalone views remain available. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) describes every recipe and explains how to add your own.
+Every category uses the same larger interactive stage. Search or filter, open a scene, adjust its controls, and expand **How to read this scene** for units, encodings, assumptions, and the role of motion. The correlation example's **Explore a pair** control connects signed strands and a floor matrix to raw daily observations; constant variables produce undefined correlations, not zero. Source inspection and standalone views remain available. The [example guide](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md) describes every recipe and explains how to add your own.
 
 These compositions use the four public layers, custom `RelametricLayer` implementations, and example-only helpers for tubes, ribbons, rings, surfaces, glow, and path tracers in `examples/shared/chart.ts`. The helpers do not add factories to the public library API. Tracer motion is illustrative; it does not create transactions, observations, or statistical evidence. Each recipe states which geometry encodes data and which merely connects or highlights it.
 
-The connected examples use `EntityRecord` and `OutcomeExplorer` contracts in `examples/connected/`. `buildEntityRecords()` maps the deterministic fixture into inspectable records and links; a different validated source can supply that adapter boundary. These contracts and the investigation-brief UI belong to the examples project, not the public `relametric` API. Replacing the fixture also requires appropriate source provenance, units, relationships, and updated synthetic-only UI/export labels. The [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-a-connected-workflow) explains the integration points.
+The connected examples use `EntityRecord` and `OutcomeExplorer` contracts in `examples/connected/`. `buildEntityRecords()` maps the deterministic fixture into inspectable records and links; a different validated source can supply that adapter boundary. These contracts and the investigation-brief UI belong to the examples project, not the public `relametric` API. Replacing the fixture also requires appropriate source provenance, units, relationships, and updated synthetic-only UI/export labels. The [example guide](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md#adapt-a-connected-workflow) explains the integration points.
 
-The new decision lab uses `OutcomeDataset` and `SourceReceipt` in [examples/outcomes/model.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/model.ts), shared scenes in [examples/outcomes/scene.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/scene.ts), gallery definitions in [examples/outcomes/recipe.ts](https://github.com/kevin-owens-product/5JS/blob/main/examples/outcomes/recipe.ts), and the homepage controller in [demo/relametric.ts](https://github.com/kevin-owens-product/5JS/blob/main/demo/relametric.ts). Replace its fixture loader with authorized connector pages and an explicit schema mapper, retain completeness checks, and validate join grain before calculating outcomes. The [source-adaptation guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md#adapt-the-relametric-decision-lab) describes these contracts and their limits.
+The new decision lab uses `OutcomeDataset` and `SourceReceipt` in [examples/outcomes/model.ts](https://github.com/kevin-owens-product/Relametric/blob/main/examples/outcomes/model.ts), shared scenes in [examples/outcomes/scene.ts](https://github.com/kevin-owens-product/Relametric/blob/main/examples/outcomes/scene.ts), gallery definitions in [examples/outcomes/recipe.ts](https://github.com/kevin-owens-product/Relametric/blob/main/examples/outcomes/recipe.ts), and the homepage controller in [demo/relametric.ts](https://github.com/kevin-owens-product/Relametric/blob/main/demo/relametric.ts). Replace its fixture loader with authorized connector pages and an explicit schema mapper, retain completeness checks, and validate join grain before calculating outcomes. The [source-adaptation guide](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md#adapt-the-relametric-decision-lab) describes these contracts and their limits.
 
 `npm run package:examples` creates a portable source project at `public/examples/relametric-examples.zip`. Unzip it, run `npm ci`, then `npm run dev` to explore or edit. It includes the library source, Relametric homepage, shared runner, recipes, connector source, tests and build configuration. Node.js 22.16+ is needed to run the website; Python 3 is only needed to regenerate the ZIP. `npm run build:demo` regenerates the download and includes the homepage, original playground, gallery and standalone runner in the static output.
 
 ## Relametric connector preview
 
-The independent `relametric-connectors` workspace package is private and unpublished. **All 39 catalog entries have constrained implementations through 44 factories**, covering relational/document/search databases, warehouses, CRM/commerce/support tools, product analytics, BI/semantic APIs, JSON/CSV/Arrow/Parquet and the application endpoint. Grouped catalog entries have separate factories where needed. Implemented scope is specific: for example, PostHog uses pinned named SQL Endpoints, Amplitude returns daily segmentation, and Redis reads explicit keys.
+The independent `relametric-connectors` workspace package is prepared for npm publication but still unpublished. **All 39 catalog entries have constrained implementations through 44 factories**, covering relational/document/search databases, warehouses, CRM/commerce/support tools, product analytics, BI/semantic APIs, JSON/CSV/Arrow/Parquet and the application endpoint. Grouped catalog entries have separate factories where needed. Implemented scope is specific: for example, PostHog uses pinned named SQL Endpoints, Amplitude returns daily segmentation, and Redis reads explicit keys.
 
-Browse the [live searchable connector directory](https://kevin-owens-product.github.io/5JS/connectors/) for **45 individually shareable guides** at `/connectors/<slug>/`, including [PostgreSQL](https://kevin-owens-product.github.io/5JS/connectors/postgresql/), [Stripe](https://kevin-owens-product.github.io/5JS/connectors/stripe/) and [JSON](https://kevin-owens-product.github.io/5JS/connectors/json/). MySQL and MariaDB have separate guides for their shared factory. Each page includes prerequisites, a source-specific TypeScript sample with copy/download controls, runtime and scope limits, provider documentation, related sources and a decision-workflow link. Page text and code are prerendered and readable without JavaScript; search, code tabs, copy and download enhance that static content. Guides do not execute queries or collect credentials.
+Browse the [live searchable connector directory](https://kevin-owens-product.github.io/Relametric/connectors/) for **45 individually shareable guides** at `/connectors/<slug>/`, including [PostgreSQL](https://kevin-owens-product.github.io/Relametric/connectors/postgresql/), [Stripe](https://kevin-owens-product.github.io/Relametric/connectors/stripe/) and [JSON](https://kevin-owens-product.github.io/Relametric/connectors/json/). MySQL and MariaDB have separate guides for their shared factory. Each page includes prerequisites, a source-specific TypeScript sample with copy/download controls, runtime and scope limits, provider documentation, related sources and a decision-workflow link. Page text and code are prerendered and readable without JavaScript; search, code tabs, copy and download enhance that static content. Guides do not execute queries or collect credentials.
 
 `npm run dev` and `npm run build:demo` automatically generate the directory and guide HTML from `connectors/content/*.ts` through `scripts/generate-connector-pages.ts`; run `npm run prepare:connectors` to refresh them explicitly after editing guide content. Generated HTML is ignored rather than maintained by hand. The downloadable source ZIP includes the authored content, renderer, client and generator so an extracted project can recreate the pages. These are local package guides, not an npm release announcement.
 
@@ -63,7 +99,7 @@ npm run demo:connectors
 
 Open [http://127.0.0.1:5190](http://127.0.0.1:5190). Credentials and registered queries stay on the server; the browser requests authorized operations and receives typed pages with source provenance, pagination and truncation metadata. Applications own authentication, tenant binding and provider read-only permissions.
 
-Verification includes real SQLite reads, a real DuckDB smoke check, and an Arrow/Parquet roundtrip. Other provider adapters have local driver/API protocol tests, with SDK typechecks where applicable; live cloud accounts have not been certified. The [connector guide](https://github.com/kevin-owens-product/5JS/blob/main/packages/connectors/README.md) documents every factory, supported scope, precision, pagination and cancellation limits. Onboarding, OAuth lifecycle, schema discovery, incremental synchronization and durable cursors remain application work.
+Verification includes real SQLite reads, a real DuckDB smoke check, and an Arrow/Parquet roundtrip. Other provider adapters have local driver/API protocol tests, with SDK typechecks where applicable; live cloud accounts have not been certified. The [connector guide](https://github.com/kevin-owens-product/Relametric/blob/main/packages/connectors/README.md) documents every factory, supported scope, precision, pagination and cancellation limits. Onboarding, OAuth lifecycle, schema discovery, incremental synchronization and durable cursors remain application work.
 
 ## Build and use the library
 
@@ -196,4 +232,4 @@ Construction limits (250,000 particles, 10,000 graph nodes, 100,000 edges, 512 t
 
 ## License and community
 
-Relametric is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/5JS/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/5JS/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/5JS/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.
+Relametric is licensed under [MIT](LICENSE). See [third-party notices](THIRD_PARTY_NOTICES.md) for dependencies distributed with the demo. Contributions follow the [contribution guide](https://github.com/kevin-owens-product/Relametric/blob/main/CONTRIBUTING.md) and [community conduct policy](https://github.com/kevin-owens-product/Relametric/blob/main/CODE_OF_CONDUCT.md). See [security reporting](https://github.com/kevin-owens-product/Relametric/blob/main/SECURITY.md) for private vulnerability reports and [the changelog](CHANGELOG.md) for release status.

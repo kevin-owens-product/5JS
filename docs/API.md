@@ -1,8 +1,8 @@
 # relametric API reference
 
-This reference describes the 0.1.0-alpha.2 API. The source is public on GitHub; the package is not published to npm; install a built checkout using the [local setup instructions](../README.md#build-and-use-the-library). Imports below assume that local package is installed as `relametric`.
+This reference describes the 0.1.0-alpha.3 API. The source is public on GitHub; the package is not published to npm; install a built checkout using the [local setup instructions](../README.md#build-and-use-the-library). Imports below assume that local package is installed as `relametric`.
 
-The public entry point is [src/index.ts](https://github.com/kevin-owens-product/5JS/blob/main/src/index.ts). It exports `createRelametric`, four layer factories, and their TypeScript interfaces. Gallery recipes and `examples/shared/chart.ts` are example utilities, not public package exports.
+The public entry point is [src/index.ts](https://github.com/kevin-owens-product/Relametric/blob/main/src/index.ts). It exports `createRelametric`, four layer factories, and their TypeScript interfaces. Gallery recipes and `examples/shared/chart.ts` are example utilities, not public package exports.
 
 ## Create a scene
 
@@ -232,7 +232,7 @@ function spinningCube(): RelametricLayer<{ speed: number }> {
 // app.remove(cube); // disposes it; create a new cube to add again
 ```
 
-For more involved compositions, the [example guide](https://github.com/kevin-owens-product/5JS/blob/main/examples/README.md) describes the gallery's recipe interface and example-only tubes, surfaces, labels, and particle flows. Those helpers demonstrate custom layers; they are not additional public relametric factories.
+For more involved compositions, the [example guide](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md) describes the gallery's recipe interface and example-only tubes, surfaces, labels, and particle flows. Those helpers demonstrate custom layers; they are not additional public relametric factories.
 
 ## Compatibility and limits
 
@@ -242,4 +242,4 @@ For more involved compositions, the [example guide](https://github.com/kevin-owe
 - Rendering: WebGL2, not WebGPU compute. Maximum accepted counts bound input sizes; they do not promise an interactive frame rate. Lower counts, resolution, pixel ratio, and bloom for slower devices.
 - Features not implemented: built-in picking/tooltips, arbitrary point-cloud ingestion, volumetric raymarching, streaming/LOD, and a WebGPU backend. Analytic motion and synthetic example data do not represent physical or business measurements.
 
-See the [validation instructions](../README.md#validation) for CPU/type checks and browser lifecycle checks. The [example browser harness](https://github.com/kevin-owens-product/5JS/blob/main/tests/examples-browser.html) separately verifies all gallery recipes.
+See the [validation instructions](../README.md#validation) for CPU/type checks and browser lifecycle checks. The [example browser harness](https://github.com/kevin-owens-product/Relametric/blob/main/tests/examples-browser.html) separately verifies all gallery recipes.

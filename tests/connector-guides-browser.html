@@ -57,7 +57,9 @@ await check('Code download contains source text and a TypeScript filename',async
   finally{win().URL.createObjectURL=create;win().HTMLAnchorElement.prototype.click=click}
 });
 await check('Provider, related-guide and outcome links retain context',()=>{
-  assert(el('workflow').querySelector('a').getAttribute('href')==='../../?outcome=conversion#decision-lab','Wrong outcome destination');
+  assert(el('workflow').querySelector('a[href*="outcome="]').getAttribute('href')==='../../?outcome=conversion&source=postgresql#decision-lab','Wrong outcome destination');
+  assert(el('workflow').querySelector('a[href*="playground.html"]').getAttribute('href')==='../../demo/playground.html?example=source-conversion&source=postgresql','Playground handoff lost its recipe or source');
+  assert(el('workflow').querySelector('a[href*="examples/"]').getAttribute('href')==='../../examples/?category=Decisions&source=postgresql#source-conversion','Example handoff lost its source context');
   assert(el('workflow').textContent.includes('fictional JSON snapshots'),'Fixture boundary missing');
   assert(doc().querySelectorAll('.related [data-source-card]').length===3,'Related sources missing');
   assert([...el('resources').querySelectorAll('a')].every(link=>link.protocol==='https:'),'Unsafe resource link');

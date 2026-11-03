@@ -1,0 +1,50 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>RUNNING — Unified site checks</title>
+<style>body{font:14px system-ui;background:#101b15;color:#d8ebdc}iframe{width:1100px;height:850px;border:0}pre{white-space:pre-wrap}</style>
+<h1>Connected discovery and playground</h1><pre id="results"></pre><iframe id="site" title="Relametric under test"></iframe>
+<script type="module">
+const frame=document.getElementById('site'),results=document.getElementById('results');let passed=0;const failures=[];
+const doc=()=>frame.contentDocument,win=()=>frame.contentWindow;
+function assert(value,message){if(!value)throw new Error(message)}
+async function until(fn){const start=performance.now();while(!fn()){if(performance.now()-start>20000)throw new Error('Timed out waiting for route');await new Promise(r=>setTimeout(r,50))}}
+async function load(path,ready){await new Promise(resolve=>{frame.onload=resolve;frame.src=path});await until(ready)}
+async function check(name,fn){try{await fn();passed++;results.textContent+=`PASS · ${name}\n`}catch(e){failures.push(name);results.textContent+=`FAIL · ${name}: ${e.message}\n`}}
+function navigation(active){const links=[...doc().querySelectorAll('.rm-navigation a')];assert(links.map(a=>a.textContent).join(',')==='Overview,Examples,Connectors,Playground','Inconsistent navigation');assert(links.filter(a=>a.getAttribute('aria-current')==='page').length===1,'Active navigation ambiguous');assert(doc().querySelector('.rm-navigation [aria-current]').textContent===active,'Wrong active area')}
+const ready=()=>doc().querySelector('#viewer')?.dataset.status==='ready';
+try{
+ await check('A connector opens a real example in Playground with source context',async()=>{
+  await load('/connectors/stripe/',()=>doc().querySelector('#workflow'));navigation('Connectors');
+  const link=doc().querySelector('#workflow a[href*="playground.html"]');assert(link,'No playground link');
+  await load(new URL(link.href).pathname+new URL(link.href).search,ready);navigation('Playground');
+  assert(doc().querySelector('#viewer').dataset.example==='source-retention','Wrong example');assert(doc().querySelector('#stage canvas'),'No rendered scene');
+  assert(doc().querySelector('.rm-source-context').textContent.includes('Stripe'),'Source context lost');assert(doc().querySelector('.rm-source-context').textContent.includes('synthetic'),'Fixture boundary missing');
+  assert(!doc().querySelector('#viewer').matches(':modal'),'Playground must leave global navigation accessible');
+ });
+ await check('Playground controls and source inspection work for imported examples',async()=>{
+  const speed=doc().getElementById('scene-speed');speed.value='0.5';speed.dispatchEvent(new(win().Event)('input',{bubbles:true}));assert(doc().getElementById('scene-speed-value').textContent==='0.50×','Speed control failed');
+  doc().querySelector('#source-section summary').click();assert(doc().getElementById('source').textContent.length>100,'Recipe missing');
+  doc().getElementById('next').click();await until(ready);assert(new URL(win().location.href).searchParams.get('source')==='stripe','Source lost when changing examples');
+ });
+ await check('All example pages lead to the same Playground runtime',async()=>{
+  await load('/examples/?category=Business#correlation-matrix',ready);navigation('Examples');
+  const link=doc().querySelector('#example-next a[href*="playground.html"]');assert(link,'No playground entry');
+  await load(new URL(link.href).pathname+new URL(link.href).search,ready);assert(doc().getElementById('viewer').dataset.example==='correlation-matrix','Recipe changed during handoff');
+ });
+ await check('Homepage starts the requested decision and links back into Playground',async()=>{
+  await load('/?outcome=retention&source=stripe#decision-lab',()=>doc().body.dataset.relametricReady==='true');navigation('Overview');
+  assert(doc().querySelector('[data-decision="retention"]').getAttribute('aria-pressed')==='true','Outcome ignored');
+  const href=doc().querySelector('#decision-next a').href;assert(href.includes('example=source-retention')&&href.includes('source=stripe'),'Decision handoff loses context');
+ });
+ await check('Layer playground keeps code controls and shared navigation',async()=>{
+  await load('/demo/playground.html',()=>doc().querySelector('canvas'));navigation('Playground');doc().getElementById('open-source').click();assert(!doc().getElementById('source-panel').hidden,'Code panel did not open');
+ });
+ await check('Standalone links remain valid and unknown source parameters are ignored',async()=>{
+  await load('/examples/run.html?example=source-product&source=unknown',ready);navigation('Examples');assert(!doc().querySelector('.rm-source-context'),'Unrecognized source rendered');
+ });
+ await check('Mobile Playground keeps all navigation and controls reachable',async()=>{
+  frame.style.width='390px';await load('/demo/playground.html?example=source-retention',ready);navigation('Playground');
+  assert(doc().documentElement.scrollWidth<=390,'Horizontal overflow');const header=doc().querySelector('.rm-header').getBoundingClientRect(),viewer=doc().getElementById('viewer').getBoundingClientRect();assert(viewer.top>=header.bottom-1,'Navigation overlaps workspace');assert(doc().getElementById('scene-speed'),'Controls missing');
+ });
+ results.textContent+=`\n${failures.length?'FAILED':'ALL'} ${passed} BROWSER CHECKS ${failures.length?'':'PASSED'}`;
+ document.title=failures.length?'FAIL — Unified site checks':'PASS — Unified site checks';
+}catch(e){results.textContent+=e.stack;document.title='FAIL — Unified site checks'}
+</script></html>

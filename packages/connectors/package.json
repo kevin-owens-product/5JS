@@ -1,7 +1,6 @@
 {
   "name": "relametric-connectors",
-  "version": "0.1.0-alpha.2",
-  "private": true,
+  "version": "0.1.0-alpha.3",
   "description": "Typed data adapters and a server operation gateway for Relametric visualizations",
   "type": "module",
   "sideEffects": false,
@@ -25,15 +24,29 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc -p tsconfig.json"
+    "build": "tsc -p tsconfig.json",
+    "prepack": "npm run build"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kevin-owens-product/5JS.git",
+    "url": "git+https://github.com/kevin-owens-product/Relametric.git",
     "directory": "packages/connectors"
   },
-  "homepage": "https://kevin-owens-product.github.io/5JS/connectors/",
+  "homepage": "https://kevin-owens-product.github.io/Relametric/connectors/",
   "bugs": {
-    "url": "https://github.com/kevin-owens-product/5JS/issues"
-  }
+    "url": "https://github.com/kevin-owens-product/Relametric/issues"
+  },
+  "publishConfig": {
+    "access": "public",
+    "tag": "alpha",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "author": "Kevin Owens",
+  "keywords": [
+    "relametric",
+    "data",
+    "connectors",
+    "typescript",
+    "analytics"
+  ]
 }

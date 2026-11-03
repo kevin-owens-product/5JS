@@ -18,6 +18,9 @@ files.extend(root / name for name in (
     "CONTRIBUTING.md", "SECURITY.md",
     "CODE_OF_CONDUCT.md", "CHANGELOG.md", "AGENTS.md", "llms.txt",
     "artifacts/business-motion-reactor.jpg",
+    "relametric-social.png", "relametric-overview.png", "relametric-conversion.png",
+    "relametric-retention.png", "relametric-product.png", "relametric-connectors.png",
+    "relametric-workspace.jpg", "relametric-journeys.jpg",
 ) if (root / name).exists())
 excluded_directories = {"node_modules", "dist", "demo-dist", "__pycache__", "coverage"}
 private_names = {"private", "secret", "secrets", "credentials"}

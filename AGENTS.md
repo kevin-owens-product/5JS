@@ -2,7 +2,7 @@
 
 ## Read first
 
-This repository is an experimental TypeScript/Three.js project. Relametric is the project name; the rendering package/import is `relametric`, with `createRelametric` and `RelametricLayer`. The separate `relametric-connectors` package is also private and unpublished. Do not invent registry installation commands. Legacy createFive and Five* types are compatibility aliases; use the Relametric names in new code.
+This repository is an experimental TypeScript/Three.js project. Relametric is the project name; the rendering package/import is `relametric`, with `createRelametric` and `RelametricLayer`. The separate `relametric-connectors` package is also prepared for npm publication but still unpublished. Do not invent registry installation commands. Legacy createFive and Five* types are compatibility aliases; use the Relametric names in new code.
 
 Read [docs/INDEX.md](docs/INDEX.md) to select the relevant guide, [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for boundaries, and [CONTRIBUTING.md](CONTRIBUTING.md) for the contribution workflow. Follow the checked-out source and manifests over assumptions about a newer website.
 
