@@ -58,7 +58,7 @@ test('prerendered pages expose meaningful content, code and relative navigation 
     assert.equal((html.match(/<h1>/g) ?? []).length, 1);
     assert.ok(html.includes(`href="../../?outcome=${guide.outcome}#decision-lab"`));
     assert.ok(html.includes('fictional JSON snapshots'));
-    assert.ok(html.includes('private and unpublished'));
+    assert.ok(html.includes('prepared for npm publication but still unpublished'));
     assert.ok(html.includes('id="code-source"'));
     assert.ok(html.includes('id="code-result"'));
     assert.ok(!html.includes('id="panel-source" hidden'));

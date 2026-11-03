@@ -45,7 +45,7 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
       <a class="brand" href="../" aria-label="Relametric home"><div class="wordmark">relametric<span>·</span></div><div class="brand-rule"></div><div class="brand-description">Connected data.<br>Better decisions.</div></a>
       <nav class="top-links" aria-label="Resources">
         <a class="text-link" href="../examples/">Example library ${svg('arrow', 12)}</a>
-        <span class="build-badge"><span class="status-dot"></span>v0.1.0-alpha.2 · EXPERIMENTAL</span>
+        <span class="build-badge"><span class="status-dot"></span>v0.1.0-alpha.3 · EXPERIMENTAL</span>
         <a class="text-link" href="https://threejs.org/" target="_blank" rel="noreferrer">Built on Three.js ${svg('arrow', 12)}</a>
         <button class="source-trigger" id="open-source">${svg('code', 13)} View code</button>
       </nav>

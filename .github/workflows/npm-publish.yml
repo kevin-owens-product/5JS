@@ -1,0 +1,77 @@
+name: Prepare or publish npm alpha
+
+on:
+  workflow_dispatch:
+    inputs:
+      publish:
+        description: 'Publish both packages (select the matching version tag; requires npm trusted publishers)'
+        type: boolean
+        default: false
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: npm-alpha
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: '24'
+          cache: npm
+          registry-url: https://registry.npmjs.org
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.x'
+      - name: Verify publishing identity and metadata
+        env:
+          RELAMETRIC_PUBLISH: ${{ inputs.publish }}
+        run: |
+          node scripts/verify-npm-release.mjs
+          node -e 'const [major,minor,patch]=process.argv[1].split(".").map(Number); if(major<11 || (major===11 && (minor<5 || (minor===5 && patch<1)))) process.exit(1)' "$(npm --version)"
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+      - run: npm run build
+      - run: npm run test:types
+      - run: npm run test:package
+      - run: npx --no-install playwright install --with-deps chromium
+      - run: npm run test:browser
+      - run: npm run build:demo
+      - name: Pack both validated packages
+        run: |
+          mkdir -p artifacts/npm
+          npm pack --pack-destination artifacts/npm
+          npm pack ./packages/connectors --pack-destination artifacts/npm
+          cd artifacts/npm
+          sha256sum *.tgz > SHA256SUMS
+      - name: Dry-run the exact tarballs
+        run: |
+          for file in artifacts/npm/*.tgz; do
+            npm publish "$file" --dry-run --tag alpha --access public --registry https://registry.npmjs.org
+          done
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: npm-alpha-packages
+          path: artifacts/npm/
+          if-no-files-found: error
+      - name: Publish using npm trusted publishers
+        if: inputs.publish
+        run: |
+          for file in artifacts/npm/*.tgz; do
+            npm publish "$file" --provenance --tag alpha --access public --registry https://registry.npmjs.org
+          done

@@ -5,7 +5,7 @@
 Use Node.js **22.16+** and npm. Python 3 is also required for static-site/source-archive builds. A browser with WebGL2 is required for scenes. No API keys are needed for the supplied fictional datasets.
 
 ```sh
-git clone https://github.com/kevin-owens-product/5JS.git relametric
+git clone https://github.com/kevin-owens-product/Relametric.git relametric
 cd relametric
 npm ci
 npm run dev

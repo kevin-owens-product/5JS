@@ -19,7 +19,9 @@ import { createRelametric, networkGraph } from 'relametric';
 import type { RelametricLayer } from 'relametric';
 ```
 
-The GitHub repository and Pages address remain under `kevin-owens-product/5JS`; the local checkout folder may remain `fivejs`. This release does not move those URLs. Existing example IDs and category/hash links remain stable. Historical changelog and audit documents retain the names used at their review dates.
+The repository is now `kevin-owens-product/Relametric`, and Pages uses `https://kevin-owens-product.github.io/Relametric/`. Update bookmarks and git remotes. The local checkout folder may remain `fivejs`. Existing example IDs and category/hash links remain stable. Historical release and audit documents retain their original URLs and names.
+
+The npm preparation candidate is `0.1.0-alpha.3`, distinct from the published GitHub alpha.2 tag. Both packages now have public alpha publishing configuration, but this does not mean they are already available in the registry. See [npm publication](NPM_PUBLISHING.md).
 
 ## What the alpha includes
 

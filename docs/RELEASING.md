@@ -1,10 +1,10 @@
 # Releasing relametric
 
-The first milestone is a public GitHub alpha with a hosted example gallery and downloadable source. npm publication is a separate maintainer decision. Keep `private: true` until that decision is made. This checklist does not itself publish anything.
+The first milestone is a public GitHub alpha with a hosted example gallery and downloadable source. npm publication is a separate maintainer decision. The alpha.3 manifests are prepared for npm publication; follow [the npm runbook](NPM_PUBLISHING.md) to authenticate and publish. This checklist does not itself publish anything.
 
 ## Prepare a release candidate
 
-Choose the version and record the intended changes in [CHANGELOG.md](../CHANGELOG.md). For the Relametric alpha candidate, the planned version is `0.1.0-alpha.2`. Keep the manifest, lockfile, UI version text, changelog, tag, and release notes consistent. Do not reuse an existing release tag for a different commit.
+Choose the version and record the intended changes in [CHANGELOG.md](../CHANGELOG.md). For the Relametric alpha candidate, the planned npm version is `0.1.0-alpha.3`. Keep the manifest, lockfile, UI version text, changelog, tag, and release notes consistent. Do not reuse an existing release tag for a different commit.
 
 Work from a clean checkout of the dedicated relametric repository. Review the files that will be public: source, tests, docs, configuration, lockfile, license/notices, and selected documentation assets. Do not include enclosing workspace files, dependencies, local environment files, or generated build directories in the source commit.
 
@@ -53,7 +53,7 @@ Do not mark the gallery as published until the workflow succeeds and the public 
 
 ## Publish a GitHub prerelease
 
-1. Create an annotated version tag, such as `v0.1.0-alpha.2`, pointing to the tested commit.
+1. Create an annotated version tag, such as `v0.1.0-alpha.3`, pointing to the tested commit.
 2. Push the tag and create a GitHub release marked **prerelease**. Verify the selected tag points to that same commit.
 3. Write release notes from the relevant changelog entry. Include installation/build instructions, gallery and versioned documentation links, known limitations, and the validation performed.
 4. Attach the generated `relametric-examples.zip` source project. If distributing a package tarball too, attach the exact validated tarball and explain that registry installation is not yet available.
@@ -63,7 +63,7 @@ After publication, change the corresponding changelog heading from Unreleased to
 
 ## Optional npm alpha
 
-Do this only when maintainers choose to publish to npm. Confirm the package name and owning account or organization, complete repository/license/support metadata, and validate the current registry authentication requirements. Remove the private guard deliberately and commit that change before building the npm release candidate. If this differs from an already published GitHub tag, use a new release version and tag for the changed source.
+Do this only when maintainers choose to publish to npm. Confirm the package name and owning account or organization, complete repository/license/support metadata, and validate the current registry authentication requirements. The alpha.3 preparation removes the private guard and sets public access with the alpha dist-tag. Commit and merge these changes before publishing. If this differs from an already published GitHub tag, use a new release version and tag for the changed source.
 
 Use an alpha distribution tag for the experimental release so it does not become the default stable installation. Configure trusted publication for the exact GitHub repository and release workflow when the package/account setup supports it. Keep release credentials out of source and logs. A workflow file alone does not establish the registry-side trust configuration.
 
