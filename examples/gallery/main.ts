@@ -152,7 +152,7 @@ function show(example: ExampleDefinition) {
     stopOutcome?.(); stopOutcome=undefined;
     mounted?.dispose?.(); mounted=undefined;
     active=example;
-    document.title=`${example.title} · Relametric examples`;
+    document.title=`${example.title} · Relametric ${inPlayground ? 'Playground' : 'examples'}`;
     dialog.dataset.example=example.id;dialog.dataset.category=example.category;dialog.classList.add('immersive');dialog.dataset.status='loading';
     get('viewer-category').textContent=`${example.category} / ${example.difficulty}`;
     get('viewer-title').textContent=example.title;

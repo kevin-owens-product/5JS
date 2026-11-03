@@ -44,7 +44,7 @@ try{
   frame.style.width='390px';await load('/demo/playground.html?example=source-retention',ready);navigation('Playground');
   assert(doc().documentElement.scrollWidth<=390,'Horizontal overflow');const header=doc().querySelector('.rm-header').getBoundingClientRect(),viewer=doc().getElementById('viewer').getBoundingClientRect();assert(viewer.top>=header.bottom-1,'Navigation overlaps workspace');assert(doc().getElementById('scene-speed'),'Controls missing');
  });
- results.textContent+=`\n${failures.length?'FAILED':'ALL'} ${passed}/7 UNIFIED SITE CHECKS ${failures.length?'':'PASSED'}`;
+ results.textContent+=`\n${failures.length?'FAILED':'ALL'} ${passed} BROWSER CHECKS ${failures.length?'':'PASSED'}`;
  document.title=failures.length?'FAIL — Unified site checks':'PASS — Unified site checks';
 }catch(e){results.textContent+=e.stack;document.title='FAIL — Unified site checks'}
 </script></html>
