@@ -1,6 +1,6 @@
 # Relametric documentation
 
-Relametric is an experimental TypeScript visualization project with three distinct surfaces: the `relametric` rendering library, the private `relametric-connectors` package, and application examples. Both packages are unpublished; the public website may still show the previous deployed brand until this candidate is deployed. Start with the path that matches your task.
+Relametric is an experimental TypeScript visualization project with three distinct surfaces: the `relametric` rendering library, the private `relametric-connectors` package, and application examples. Both packages remain unpublished on npm. The [GitHub alpha release](https://github.com/kevin-owens-product/5JS/releases/tag/v0.1.0-alpha.2) and Relametric website are public. Start with the path that matches your task.
 
 | Your task | Read first | Next |
 | --- | --- | --- |
