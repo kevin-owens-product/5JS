@@ -16,6 +16,12 @@ Start here: [Documentation map](https://github.com/kevin-owens-product/Relametri
 
 Documentation: [API reference](docs/API.md) · [Example guide](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md) · [Connector guide](https://github.com/kevin-owens-product/Relametric/blob/main/packages/connectors/README.md) · [Compatibility](docs/COMPATIBILITY.md) · [Contributing](https://github.com/kevin-owens-product/Relametric/blob/main/CONTRIBUTING.md) · [Release guide](https://github.com/kevin-owens-product/Relametric/blob/main/docs/RELEASING.md).
 
+## One connected experience
+
+Start with an outcome on the homepage, discover a recipe in Examples, and open it in Playground with the same controls, source and exports. Connector guides link to related patterns and keep a return path to setup code. A source selection is an adaptation context; examples continue to use synthetic data until you explicitly map your own records.
+
+[![Unified Playground with a retained Stripe source context, related guides and a retention example](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-workspace.jpg)](https://kevin-owens-product.github.io/Relametric/demo/playground.html?example=source-retention&source=stripe)
+
 ## See what you can build
 
 | Start with a question | Explore the evidence | Take something useful away |
@@ -40,7 +46,7 @@ Documentation: [API reference](docs/API.md) · [Example guide](https://github.co
 
 [![Relametric connector directory with 45 source-specific guides](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-connectors.png)](https://kevin-owens-product.github.io/Relametric/connectors/)
 
-These screenshots show working examples with **synthetic data**. Scenarios are assumptions to investigate, not measured business results. Your application owns authentication, source mapping and decisions. All six screenshots/share images live in the repository root; see the [media and sharing kit](https://github.com/kevin-owens-product/Relametric/blob/main/docs/MEDIA_KIT.md) for reusable copy and image details.
+These screenshots show working examples with **synthetic data**. Scenarios are assumptions to investigate, not measured business results. Your application owns authentication, source mapping and decisions. All eight screenshots/share images live in the repository root; see the [media and sharing kit](https://github.com/kevin-owens-product/Relametric/blob/main/docs/MEDIA_KIT.md) for reusable copy and image details.
 
 ## Run Relametric locally
 

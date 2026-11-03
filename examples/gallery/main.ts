@@ -1,3 +1,4 @@
+import { siteHeader, sourceContext, sourceNotice, sourceQuery, outcomes } from '../../demo/site.js';
 import { examples, findExample } from '../catalog.js';
 import type { ExampleDefinition } from '../types.js';
 import { exampleCategories } from '../types.js';
@@ -8,8 +9,12 @@ import { sourceFor } from './sources.js';
 import { dataCsv } from './dataExport.js';
 import { mountOutcomeUI } from './outcomes.js';
 import './style.css';
+import '../../demo/site.css';
 
-const standalone = location.pathname.endsWith('/run.html');
+const inPlayground = location.pathname.endsWith('/playground.html');
+const standalone = inPlayground || location.pathname.endsWith('/run.html');
+const chosenSource = sourceContext(new URLSearchParams(location.search));
+const galleryPath = inPlayground ? '../examples/' : './';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 const categories = ['All', 'Decisions', ...exampleCategories];
 const categoryCount = (category: string) => category === 'All' ? examples.length : examples.filter(example => category === 'Decisions' ? Boolean(example.outcome) : example.category === category).length;
@@ -28,16 +33,20 @@ const get = <T extends HTMLElement = HTMLElement>(id: string) => document.getEle
 const number = (n: number) => String(n).padStart(2, '0');
 
 document.getElementById('app')!.innerHTML = `
-<header class="topbar"><a class="brand" href="../" aria-label="Relametric home">relametric<span>·</span></a><span class="brand-divider"></span><a class="brand-section" href="./">Example library</a><nav aria-label="Main navigation"><a href="../">Relametric home ${icon('arrow')}</a><a class="download-all" href="./relametric-examples.zip" download>Download examples ${icon('down')}</a></nav></header>
+${siteHeader(inPlayground ? 'Playground' : 'Examples', '../')}
 <main id="gallery" ${standalone ? 'hidden' : ''}>
-  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE RELAMETRIC COLLECTION · V0.1.0-ALPHA.2</div><h1>Make the next<br><span>move clearer.</span></h1><p>Explore a pattern. Follow the linked evidence.<br>Turn an interesting view into a better decision.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
+  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE RELAMETRIC COLLECTION · EXPLORE → TUNE → CONNECT</div><h1>Make the next<br><span>move clearer.</span></h1><p>Explore a pattern. Follow the linked evidence.<br>Turn an interesting view into a better decision.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
+  ${sourceNotice('../', chosenSource)}
+<div class="rm-collection-actions"><a href="../demo/playground.html">Start with a rendering layer ↗</a><a href="../connectors/">Browse source adapters ↗</a><a href="./relametric-examples.zip" download>Download all examples ↓</a></div>
   <section class="collection" aria-label="Example collection"><div class="collection-tools"><div class="filters" role="group" aria-label="Filter by category">${categories.map((category,i)=>`<button data-filter="${category}" aria-pressed="${i===0}" class="filter ${i===0?'selected':''}">${category}<span>${categoryCount(category)}</span></button>`).join('')}</div><label class="search">${icon('search')}<input type="search" id="search" placeholder="Find an idea…" aria-label="Search examples" autocomplete="off"><kbd>/</kbd></label></div><div class="collection-meta"><span id="result-count" role="status">${examples.length} examples</span><span>REAL RENDERS. EDITABLE RECIPES.</span></div>
   <div class="cards" id="cards">${examples.map((example,i)=>`<article class="card" data-card="${example.id}" style="--accent:${example.accent}"><a class="card-link" href="#${example.id}" aria-label="Open ${example.title}"><div class="card-image"><img id="preview-${example.id}" alt="" width="480" height="300" hidden><span class="preview-state" id="preview-state-${example.id}">Preparing live preview</span><span class="card-no">${number(i+1)}</span><span class="card-open">${icon('arrow')}</span><span class="card-discipline">${example.outcome ? 'DECISION WORKFLOW' : example.category}</span></div><div class="card-body"><div class="card-title"><h2>${example.title}</h2><span>${icon('arrow')}</span></div><p>${example.summary}</p><div class="card-tags">${example.tags.slice(0,2).map(tag=>`<span>${tag}</span>`).join('')}<span class="difficulty">${example.difficulty}</span></div></div></a></article>`).join('')}</div>
   <div class="empty" id="empty" hidden><h2>No examples match that search.</h2><p>Try “particles”, “graph”, or another category.</p><button id="clear-search">Reset filters</button></div></section>
   <section class="closing-note"><div><span class="eyebrow">BUILT TO BE TAKEN APART</span><h2>The interesting part is what you change.</h2></div><p>Every example includes the recipe that powers it, a standalone view, and a few useful controls. The downloadable project includes the shared runner and library source.</p></section>
   <footer><span>Relametric · Built on Three.js · WebGL2</span><span><a href="../LICENSE">MIT license</a> · <a href="../THIRD_PARTY_NOTICES.md">Third-party notices</a></span></footer>
 </main>
-<dialog id="viewer" class="viewer ${standalone?'standalone':''}" aria-labelledby="viewer-title"><header class="viewer-header"><div><span class="eyebrow" id="viewer-category"></span><h2 id="viewer-title"></h2></div><div class="viewer-nav"><button id="previous" aria-label="Previous example">←</button><span id="viewer-index"></span><button id="next" aria-label="Next example">→</button><button id="close" aria-label="Close example">${icon('close')}</button>${standalone?'<a href="./" class="back-link">All examples ↗</a>':''}</div></header>
+<dialog id="viewer" class="viewer ${standalone?'standalone':''}" aria-labelledby="viewer-title"><header class="viewer-header"><div><span class="eyebrow" id="viewer-category"></span><h2 id="viewer-title"></h2></div><div class="viewer-nav"><button id="previous" aria-label="Previous example">←</button><span id="viewer-index"></span><button id="next" aria-label="Next example">→</button><button id="close" aria-label="Close example">${icon('close')}</button>${standalone?`<a href="${galleryPath}" class="back-link">All examples ↗</a>`:''}</div></header>
+<nav id="example-next" class="rm-workspace-links" aria-label="Continue with this example"></nav>
+${sourceNotice('../', chosenSource)}
 <section id="outcome-heading" class="outcome-heading" aria-label="Decision context" hidden></section>
 <div class="viewer-content"><section class="stage" aria-label="Interactive example"><div id="stage"></div><div id="entity-tooltip" class="entity-tooltip" hidden></div><div class="stage-top"><span>LIVE EXAMPLE</span><span>DRAG TO ORBIT · SCROLL TO ZOOM</span></div><div class="stage-error" id="stage-error" hidden></div><div class="stage-bottom"><button id="play" class="round-button" aria-label="Pause animation">${icon('pause')}</button><span id="fps" class="stage-stat">— FPS</span><span id="primitives" class="stage-stat"></span><div class="stage-actions"><button id="reset" aria-label="Reset camera" title="Reset camera">${icon('reset')}</button><button id="capture" aria-label="Save PNG" title="Save PNG">${icon('down')} PNG</button></div></div></section>
 <aside class="example-info"><div id="outcome-tabs" class="outcome-tabs" hidden></div><section id="record-inspector" class="record-inspector" hidden></section><span class="eyebrow">INSIDE THE EXAMPLE</span><p class="description" id="description"></p><div class="example-controls" id="example-controls"></div><div class="shared-controls"><label for="scene-speed">Playback speed <output id="scene-speed-value">1.00×</output></label><input id="scene-speed" type="range" min="0" max="2" step="0.05" value="1"><label for="scene-bloom">Bloom <output id="scene-bloom-value"></output></label><input id="scene-bloom" type="range" min="0" max="2" step="0.01"><label class="orbit-label"><input id="orbit" type="checkbox"> Auto-orbit camera</label></div><details class="methodology" id="methodology" hidden><summary>How to read this scene</summary><p class="data-note" id="data-note"></p></details><a id="workbench-link" class="standalone-link" hidden>Open the decision workspace ↗</a><a id="standalone-link" class="standalone-link" target="_blank" rel="noopener">Open standalone ${icon('arrow')}</a></aside></div>
@@ -153,7 +162,10 @@ function show(example: ExampleDefinition) {
     document.querySelector<HTMLElement>('.example-info')!.scrollTop=0;
     dialog.scrollTop=0;
     get('workbench-link').hidden=!example.workbench;if(example.workbench)get<HTMLAnchorElement>('workbench-link').href=example.workbench;
-    get<HTMLAnchorElement>('standalone-link').href=`./run.html?example=${example.id}`;
+    get<HTMLAnchorElement>('standalone-link').href=`${galleryPath}run.html?example=${example.id}${sourceQuery(chosenSource)}`;
+    const journey = outcomes.find(item => example.id === `source-${item.id}`);
+    get('example-next').innerHTML = `${inPlayground ? `<a href="${galleryPath}?category=${encodeURIComponent(example.category)}${sourceQuery(chosenSource)}#${example.id}">Back to collection →</a><a href="./playground.html">Explore rendering layers →</a>` : `<a href="../demo/playground.html?example=${example.id}${sourceQuery(chosenSource)}">Open in Playground ↗</a>`}${journey ? `<a href="../?outcome=${journey.id}${sourceQuery(chosenSource)}#decision-lab">Open decision workflow →</a>${journey.sources.map(([slug,name]) => `<a href="../connectors/${slug}/">${name} guide ↗</a>`).join('')}` : '<a href="../connectors/">Adapt a data source →</a>'}`;
+    if (example.workbench && chosenSource) { const url = new URL(example.workbench, location.href); url.searchParams.set('source', chosenSource.slug); get<HTMLAnchorElement>('workbench-link').href = url.href; }
     get('source').textContent=sourceFor(example.id);
     get<HTMLDetailsElement>('source-section').open=false;
     get<HTMLDetailsElement>('data-details').open=false;
@@ -196,24 +208,24 @@ function show(example: ExampleDefinition) {
   } finally { opening=false; }
 }
 function navigate(id:string) {
-  if(standalone){history.replaceState(null,'',`?example=${id}`);const example=findExample(id);if(example)show(example);}
+  if(standalone){history.replaceState(null,'',`?example=${id}${sourceQuery(chosenSource)}`);const example=findExample(id);if(example)show(example);}
   else if(location.hash===`#${id}`){const example=findExample(id);if(example)show(example);}
   else location.hash=id;
 }
 function route() {
   const id=standalone?new URLSearchParams(location.search).get('example'):location.hash.slice(1);
-  if(!id){if(standalone){location.replace('./');return;}if(dialog.open)dialog.close();return;}
+  if(!id){if(standalone){location.replace(galleryPath);return;}if(dialog.open)dialog.close();return;}
   const example=findExample(id);
   if(example){show(example);return;}
-  if(standalone){location.replace('./');return;}
+  if(standalone){location.replace(galleryPath);return;}
   if (dialog.open) dialog.close();
   notify('Example not found. Choose one from the collection.');
 }
 window.addEventListener('hashchange',route);
 get('close').addEventListener('click',()=>dialog.close());
-dialog.addEventListener('cancel',event=>{if(standalone){event.preventDefault();location.href='./';}});
+dialog.addEventListener('cancel',event=>{if(standalone){event.preventDefault();location.href=galleryPath;}});
 dialog.addEventListener('click',event=>{if(event.target===dialog&&!standalone){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
-dialog.addEventListener('close',()=>{if(opening)return;cleanup();if(standalone){location.href='./';return;}history.replaceState(null,'',location.pathname+location.search);document.title='Relametric — Example library';});
+dialog.addEventListener('close',()=>{if(opening)return;cleanup();if(standalone){location.href=galleryPath;return;}history.replaceState(null,'',location.pathname+location.search);document.title='Relametric — Example library';});
 get('previous').addEventListener('click',()=>{if(active)navigate(examples[(examples.indexOf(active)+examples.length-1)%examples.length].id);});
 get('next').addEventListener('click',()=>{if(active)navigate(examples[(examples.indexOf(active)+1)%examples.length].id);});
 get('play').addEventListener('click',()=>{paused=!paused;updatePlayback();});

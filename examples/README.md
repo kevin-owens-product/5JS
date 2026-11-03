@@ -348,3 +348,9 @@ Open `/tests/connected-pressure.html` to exercise linked inspection, keyboard ta
 For connected workflows, also select a chart node and a keyboard-list entry, follow linked sessions and interviews, change the cohort, pin a record, add a proposal, and inspect the downloaded Markdown brief. Confirm that its owner, evidence IDs, saved scope, measure, baseline, success criterion, and guardrail match the selected proposal. The CPU suite checks fixture integrity and useful workflow invariants, including distinct-customer counting, retained counter-evidence, filtered source validity, selection emphasis, pause, and disposal.
 
 For the homepage decision lab, verify each outcome and segment, all seven complete source receipts, record-dialog joins and Back navigation, all four retention observations, and product interview selection that retains its initiative. Export a brief for each initiative and check its owner, metric, guardrail and evidence IDs. Also check narrow screens and the readable controls/record fallback when WebGL is unavailable. The gallery harness exercises the companion scenes; it does not replace review of the full workspace interaction.
+
+## Move between discovery, sources and experimentation
+
+Use the shared navigation to move between the overview, example collection, connector guides and Playground. Every recipe can open at `../demo/playground.html?example=<id>` with its controls, source inspection and exports. The Playground without an example parameter provides the four rendering-layer experiments. Existing standalone URLs remain valid.
+
+Connector-guide links carry a known `source` slug into a related example and decision workflow. The visible source banner links back to setup code and explicitly states that the running example still uses synthetic data. Reading a source and mapping its records into an example remain application work.

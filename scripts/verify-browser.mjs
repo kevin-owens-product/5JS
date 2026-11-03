@@ -10,6 +10,7 @@ import { createServer } from 'vite';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const artifacts = resolve(root, 'artifacts/browser-checks');
 const checks = [
+  { name: 'unified-site', path: '/tests/unified-site-browser.html', timeout: 180_000 },
   { name: 'lifecycle', path: '/tests/browser.html', timeout: 60_000 },
   { name: 'examples', path: '/tests/examples-browser.html', timeout: 330_000 },
   { name: 'core-pressure', path: '/tests/core-pressure.html', timeout: 60_000 },
@@ -19,6 +20,9 @@ const checks = [
   { name: 'relametric-pressure', path: '/tests/relametric-browser.html', timeout: 120_000 },
   { name: 'render-pressure', path: '/tests/render-pressure.html', timeout: 210_000 },
 ];
+const requestedChecks = process.argv.slice(2);
+for (const name of requestedChecks) assert.ok(checks.some(check => check.name === name), `Unknown browser check: ${name}`);
+const selectedChecks = requestedChecks.length ? checks.filter(check => requestedChecks.includes(check.name)) : checks;
 await mkdir(artifacts, { recursive: true });
 let server;
 let browser;
@@ -40,7 +44,7 @@ try {
     args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--disable-dev-shm-usage'],
   });
 
-  for (const check of checks) {
+  for (const check of selectedChecks) {
     const page = await browser.newPage({ viewport: { width: 1100, height: 800 }, deviceScaleFactor: 1 });
     const messages = [];
     const pageErrors = [];

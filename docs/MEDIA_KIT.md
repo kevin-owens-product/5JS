@@ -30,6 +30,8 @@ Do not describe scenarios as measured conversion lift, retention improvement or 
 | `relametric-conversion.png` | Checkout evidence workflow, 1440×960 |
 | `relametric-retention.png` | Retention evidence workflow, 1440×960 |
 | `relametric-product.png` | Product opportunity workflow, 1440×960 |
+| `relametric-workspace.jpg` | Unified Playground with source-guide context |
+| `relametric-journeys.jpg` | Outcome journeys linking examples, Playground and sources |
 | `relametric-connectors.png` | Connector discovery screenshot, 1440×960 |
 
 These are captures of the actual application and a composed social card using the conversion capture. They contain fictional records. They are included under the repository's MIT license; retain the synthetic-data context when reusing them. No customer logo or endorsement is implied.
@@ -45,3 +47,5 @@ The homepage offers native sharing where supported and a copy-link fallback. Can
 After the preparation PR merges, deploy Pages and verify that `https://kevin-owens-product.github.io/Relametric/relametric-social.png` returns a PNG. Check previews using the target platform's sharing inspector; social crawlers may cache previous metadata. Local metadata verification does not prove a refreshed external-platform preview.
 
 For GitHub's repository preview, upload the root `relametric-social.png` in **Repository Settings → General → Social preview**. GitHub does not use the Pages Open Graph image for this setting. This manual upload is separate from committing the image. Use the same image for release announcements and attach screenshots when showing a specific workflow.
+
+The two unified-experience JPGs are browser captures: Playground at `?example=source-retention&source=stripe` and the homepage outcome section. Refresh these separately when changing navigation or journey layout.

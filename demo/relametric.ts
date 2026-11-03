@@ -1,3 +1,4 @@
+import { siteHeader, journeyCards, sourceContext, sourceNotice, sourceQuery } from './site.js';
 import { Raycaster, Vector2 } from 'three';
 import { createRelametric } from '../src/index.js';
 import { connectorSlug } from '../connectors/paths.js';
@@ -5,6 +6,8 @@ import { connectorCatalog } from '../packages/connectors/src/catalog.js';
 import { conversionModel, decisionBrief, decisionCopy, loadOutcomeDataset, palette, PERIOD, productModel, retentionModel, scopedAccounts, segments, type Decision, type OutcomeDataset, type Segment } from '../examples/outcomes/model.js';
 import { createDecisionScene, type DecisionScene } from '../examples/outcomes/scene.js';
 import './relametric.css';
+import './site.css';
+const chosenSource = sourceContext(new URLSearchParams(location.search));
 
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 const escape = (value: unknown) => String(value).replace(/[&<>"']/g, character => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[character]!);
@@ -13,12 +16,15 @@ const pct = (value: number) => `${(value * 100).toFixed(1)}%`;
 const mark = `<svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M7 26V6h10a7 7 0 0 1 0 14H7m10 0 9 6" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/></svg>`;
 const total = connectorCatalog.filter(item => item.status === 'implemented').length;
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
-<header class="site-header"><a class="relametric-brand" href="./" aria-label="Relametric home">${mark}<span>relametric</span></a><nav aria-label="Main navigation"><a href="./examples/">Examples <span>50</span></a><a href="./connectors/">Connectors <span>45 guides</span></a><a href="./demo/playground.html">Playground</a><a class="github-link" href="https://github.com/kevin-owens-product/Relametric">GitHub ↗</a></nav></header>
+${siteHeader('Overview', './')}
 <main><section class="hero"><div class="hero-copy"><p class="eyebrow"><i></i> OPEN SOURCE VISUAL INTELLIGENCE</p><h1>Find the pattern.<br><em>Move the outcome.</em></h1><p class="hero-description">Connect the numbers to the people behind them. Relametric turns data, relationships, and evidence into something you can explore—and act on.</p><div class="hero-actions"><a class="primary-link" href="#decision-lab">Explore the decision lab <span>↗</span></a><a class="secondary-link" href="./examples/">See every example →</a></div><p class="hero-footnote">TypeScript · Built on Three.js · MIT licensed · Experimental</p><div class="share-tools"><button id="share-project">Share Relametric ↗</button><button id="copy-project-link">Copy link</button><span id="share-status" role="status" aria-live="polite"></span></div></div>
 <div class="hero-map" aria-label="Source records connect through Relametric to conversion, retention, and product decisions"><div class="map-orbit orbit-a"></div><div class="map-orbit orbit-b"></div><div class="map-orbit orbit-c"></div><svg class="map-lines" viewBox="0 0 540 390" preserveAspectRatio="none" aria-hidden="true"><path d="M75 63C175 63 150 194 270 194M56 190H270M90 316C160 316 175 194 270 194M270 194C370 194 370 77 463 77M270 194H480M270 194C370 194 370 316 463 316"/></svg><span class="source-dot source-a"><b>▦</b> Customers</span><span class="source-dot source-b"><b>⌁</b> Behavior</span><span class="source-dot source-c"><b>≋</b> Evidence</span><div class="map-center">${mark}<strong>relametric</strong><small>MAKE THE CONNECTION</small></div><span class="outcome-dot outcome-a"><i></i> Conversion</span><span class="outcome-dot outcome-b"><i></i> Retention</span><span class="outcome-dot outcome-c"><i></i> Product</span><div class="map-caption">SOURCE → RELATIONSHIP → DECISION</div></div></section>
 <section class="principles" aria-label="Relametric capabilities"><div><span>01</span><strong>Connect the sources.</strong><p>Read databases, warehouses, and data tools through one typed contract.</p></div><div><span>02</span><strong>Follow the evidence.</strong><p>Move from a visual pattern to customers, sessions, checkouts, and interviews.</p></div><div><span>03</span><strong>Make a decision.</strong><p>Build an investigation with an owner, baseline, next step, and guardrail.</p></div></section>
+${journeyCards('./')}
+${sourceNotice('./', chosenSource)}
 <section class="decision-lab" id="decision-lab" aria-labelledby="lab-title"><div class="section-heading"><div><p class="eyebrow">THE DECISION LAB</p><h2 id="lab-title">A view worth doing something about.</h2></div><span class="fixture-badge">FICTIONAL DATA · LOCAL JSON CONNECTORS</span></div><div class="decision-tabs" role="group" aria-label="Choose an outcome">${(['conversion', 'retention', 'product'] as Decision[]).map((id, i) => `<button data-decision="${id}" aria-pressed="${i === 0}" style="--tab-accent:${palette[id]}"><span>0${i + 1}</span>${decisionCopy[id].short}<b>↗</b></button>`).join('')}</div>
 <div class="decision-heading"><div><p class="eyebrow" id="decision-eyebrow"></p><h3 id="decision-title"></h3><p id="decision-description"></p></div><label class="segment-label" for="segment">Account segment<select id="segment">${segments.map(segment => `<option>${segment}</option>`).join('')}</select></label></div>
+<div class="rm-workspace-links" id="decision-next"></div>
 <div class="metrics-grid" id="decision-metrics" aria-live="polite"></div>
 <div class="lab-grid"><section class="lab-view"><div class="view-toolbar"><span><i></i> CONNECTED EVIDENCE</span><div><button id="motion" aria-label="Pause scene motion">Pause motion</button><button id="camera">Reset view ↺</button></div></div><div class="spatial-view" id="spatial-view" aria-label="Interactive spatial view. Drag to orbit; select a point to inspect its record."></div><div class="scene-fallback" id="scene-fallback" hidden>3D rendering is unavailable. All records, calculations, controls, and decision briefs remain available below.</div><div class="scene-hint">DRAG TO ORBIT · SELECT A POINT TO FOLLOW ITS RECORD</div><div class="encoding" id="encoding"></div><div class="stage-readout" id="stage-readout"></div></section>
 <aside class="evidence-panel" aria-label="Source record inspector"><p class="eyebrow">THE RECORD BEHIND THE PATTERN</p><label for="initiative" id="initiative-label" hidden>Product initiative</label><select id="initiative" hidden></select><label for="record">Inspect an account</label><select id="record"></select><div id="account-evidence"></div></aside></div>
@@ -37,6 +43,7 @@ let paused = reduced, brief = '';
 const detailHistory: {table: keyof OutcomeDataset; id: string}[] = [];
 function metrics(items: [string, string, string][]) { $('decision-metrics').innerHTML = items.map(([label, value, detail]) => `<div class="metric-card"><span>${escape(label)}</span><strong>${escape(value)}</strong><small>${escape(detail)}</small></div>`).join(''); }
 function render() {
+  $('decision-next').innerHTML = `<a href="./demo/playground.html?example=source-${decision}${sourceQuery(chosenSource)}">Tune this example in Playground ↗</a><a href="./examples/?category=Decisions${sourceQuery(chosenSource)}">Compare decision examples →</a><a href="./connectors/">Choose a source →</a>`;
   const copy = decisionCopy[decision], accounts = scopedAccounts(data, segment), account = accounts.find(item => item.id === selected) ?? accounts[0]; selected = account?.id ?? '';
   document.documentElement.style.setProperty('--decision-accent', palette[decision]);
   document.querySelectorAll<HTMLButtonElement>('[data-decision]').forEach(button => button.setAttribute('aria-pressed', String(button.dataset.decision === decision)));
