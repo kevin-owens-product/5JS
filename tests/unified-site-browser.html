@@ -37,6 +37,23 @@ try{
  await check('Layer playground keeps code controls and shared navigation',async()=>{
   await load('/demo/playground.html',()=>doc().querySelector('canvas'));navigation('Playground');doc().getElementById('open-source').click();assert(!doc().getElementById('source-panel').hidden,'Code panel did not open');
  });
+ await check('Seven new examples are discoverable on overview and Playground, including mobile',async()=>{
+  const expected=['activation-pathways','payment-routing','renewal-runway','support-escalation','feature-adoption','interview-coverage','performance-friction'];
+  for(const route of ['/','/demo/playground.html']) {
+   frame.style.width='390px';await load(route,()=>doc().querySelectorAll('.rm-recipe-card').length===7);
+   const cards=[...doc().querySelectorAll('.rm-recipe-card')];
+   assert(cards.every((a,i)=>new URL(a.href).searchParams.get('example')===expected[i]),'Showcase links differ');
+   for(const image of doc().querySelectorAll('.rm-recipe-card img')) {image.loading='eager';await until(()=>image.complete);assert(image.naturalWidth>0,'Preview missing');}
+   assert(doc().documentElement.scrollWidth<=doc().documentElement.clientWidth+1,'Showcase overflows mobile width');
+  }
+  frame.style.width='1100px';
+  for(const id of expected) {
+   await load('/demo/playground.html?example='+id,ready);
+   assert(doc().getElementById('viewer').dataset.example===id,'Wrong recipe');
+   assert(doc().getElementById('source').textContent.includes('decisionRecipe'),'Recipe source missing');
+   assert(doc().querySelectorAll('#data-table tbody tr').length===5,'Snapshot groups missing');
+  }
+ });
  await check('Standalone links remain valid and unknown source parameters are ignored',async()=>{
   await load('/examples/run.html?example=source-product&source=unknown',ready);navigation('Examples');assert(!doc().querySelector('.rm-source-context'),'Unrecognized source rendered');
  });

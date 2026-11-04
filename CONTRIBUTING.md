@@ -1,6 +1,6 @@
 # Contributing to Relametric
 
-Relametric is an experimental TypeScript library built on Three.js. Contributions can improve its four public layers, its scene lifecycle, documentation, or the 50-example gallery. See the [API reference](docs/API.md) and [example guide](examples/README.md) before choosing where a change belongs.
+Relametric is an experimental TypeScript library built on Three.js. Contributions can improve its four public layers, its scene lifecycle, documentation, or the 57-example gallery. See the [API reference](docs/API.md) and [example guide](examples/README.md) before choosing where a change belongs.
 
 For task-based entry points, use [the documentation map](docs/INDEX.md). Coding agents should also read [AGENTS.md](AGENTS.md).
 

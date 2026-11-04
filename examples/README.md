@@ -1,6 +1,6 @@
 # Relametric example library
 
-Fifty editable recipes span eleven categories, including twenty-six business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. Six decision recipes connect source records to proposed investigations: three earlier workflows use a 99-record fixture, and three new companion views lead to the Relametric homepage's 540-record decision lab. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. The preceding visual refresh redesigned seventeen of the original forty-four scenes; the other twenty-seven original scenes were reviewed and retained.
+Fifty-seven editable recipes span eleven categories, including thirty-three business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. Six decision recipes connect source records to proposed investigations: three earlier workflows use a 99-record fixture, and three new companion views lead to the Relametric homepage's 540-record decision lab. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. The preceding visual refresh redesigned seventeen of the original forty-four scenes; the other twenty-seven original scenes were reviewed and retained.
 
 Relametric is the working project name and website brand. Existing library imports remain `relametric`, with `createRelametric` and `RelametricLayer` unchanged. The repository and package names have not been renamed, and neither the visualization package nor the independent `relametric-connectors` package has been published to npm.
 
@@ -33,6 +33,13 @@ For a production build, run `npm run build:demo`, then `npm run preview`; the ga
 
 | Recipe and source | Category | Learning concept |
 | --- | --- | --- |
+| [Activation pathways](business/activation-pathways.ts) | Business | Find the onboarding step where the most eligible accounts stall. |
+| [Payment routing atlas](business/payment-routing.ts) | Business | Compare failed payment attempts by route before proposing a recovery test. |
+| [Renewal runway](business/renewal-runway.ts) | Business | Plan account reviews across the next five renewal windows. |
+| [Support escalation orbit](business/support-escalation.ts) | Business | Separate support queues with high unresolved shares from high volumes. |
+| [Feature adoption terraces](analytics/feature-adoption.ts) | Analytics | Compare eligible account populations with the accounts yet to adopt. |
+| [Interview coverage prism](analytics/interview-coverage.ts) | Analytics | Expose gaps in a target interview sample before prioritizing a roadmap. |
+| [Performance friction canyon](business/performance-friction.ts) | Business | Prioritize slow-session investigations without claiming latency causes abandonment. |
 | [Checkout recovery lab](business/checkout-recovery.ts) | Business | Inspect recorded blockers and propose owner investigations with explicit recovery assumptions |
 | [Customer impact review](business/customer-health.ts) | Business | Prioritize capacity-limited customer reviews from observed abandonment and linked service evidence |
 | [Evidence to roadmap](analytics/evidence-to-roadmap.ts) | Analytics | Trace supporting, mixed, and contradicting interviews into measurable proposed tests |
@@ -331,7 +338,7 @@ The source ZIP also includes authored connector-guide content, rendering templat
 
 ## Interpretation and checks
 
-All twenty-six Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted in the original cohort example; the new retention workspace explicitly requires mature observation windows. Rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Connected proposals preserve evidence and assumptions without claiming validated impact. Tables and metric readouts update with the controls.
+All thirty-three Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted in the original cohort example; the new retention workspace explicitly requires mature observation windows. Rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Connected proposals preserve evidence and assumptions without claiming validated impact. Tables and metric readouts update with the controls.
 
 Data examples use synthetic graphs and coordinates. Vortex and wave examples use analytic visual patterns; they do not solve fluid dynamics or the wave equation. Cinematic scenes are stylized compositions.
 
@@ -339,7 +346,7 @@ The Lorenz example precomputes 18,000 trajectory samples using fourth-order Rung
 
 Run `npm run typecheck` and `npm test` after adding a recipe. CPU tests should cover useful invariants, live controls, zero-delta pause behavior, and resource disposal. Also inspect its real browser render, portrait framing, control extremes, and standalone URL.
 
-Open `/tests/examples-browser.html` to verify all 50 gallery recipes in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
+Open `/tests/examples-browser.html` to verify all 57 gallery recipes in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
 
 For visual review, open **http://127.0.0.1:5185/tests/examples-browser.html?review=1** with the development server running. After all checks pass, the page shows contact sheets made from the actual WebGL captures. Use **Previous page** and **Next page** to review 12 scenes at a time across five pages. These are default-scene captures, not screenshots of every control combination. Inspect normal viewers and portrait layouts separately for framing, labels, and useful interactions; a pixel-change assertion cannot establish visual quality.
 
@@ -354,3 +361,7 @@ For the homepage decision lab, verify each outcome and segment, all seven comple
 Use the shared navigation to move between the overview, example collection, connector guides and Playground. Every recipe can open at `../demo/playground.html?example=<id>` with its controls, source inspection and exports. The Playground without an example parameter provides the four rendering-layer experiments. Existing standalone URLs remain valid.
 
 Connector-guide links carry a known `source` slug into a related example and decision workflow. The visible source banner links back to setup code and explicitly states that the running example still uses synthetic data. Reading a source and mapping its records into an example remain application work.
+
+## Investigation scenarios
+
+Seven additional recipes use disjoint synthetic group snapshots (feature adoption counts account-feature records). Each offers group inspection, review capacity, and an assumed addressable share. Slots rank groups by affected count with equal effort assumed; neither the ranking nor the modeled count predicts business impact. Records, denominators, owners and proposed investigations are included in CSV export. `shared/decision-recipe.ts` owns their shared calculation and rendering lifecycle; recipe files own their fixtures and grain definitions. The overview and Playground expose the same seven entry points.

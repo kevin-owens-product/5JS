@@ -1,3 +1,10 @@
+import decision0 from './business/activation-pathways.js';
+import decision1 from './business/payment-routing.js';
+import decision2 from './business/renewal-runway.js';
+import decision3 from './business/support-escalation.js';
+import decision4 from './analytics/feature-adoption.js';
+import decision5 from './analytics/interview-coverage.js';
+import decision6 from './business/performance-friction.js';
 import checkoutRecovery from './business/checkout-recovery.js';
 import sourceConversion from './business/source-conversion.js';
 import sourceRetention from './analytics/source-retention.js';
@@ -51,6 +58,7 @@ import distribution from './analytics/distribution-explorer.js';
 import anomalies from './analytics/time-series-anomalies.js';
 import experiment from './analytics/ab-experiment.js';
 export const examples: ExampleDefinition[] = [
+  decision0, decision1, decision2, decision3, decision4, decision5, decision6,
   checkoutRecovery, customerHealth, evidenceRoadmap, sourceConversion, sourceRetention, sourceProduct,
   orbits, magneticField, connectome, vascular, jetStream, oceanGyres, gridDispatch, fusionChamber,
   transit, canopy, acoustics, turbine,

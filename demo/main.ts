@@ -1,4 +1,4 @@
-import { siteHeader } from './site.js';
+import { siteHeader, recipeShowcase, featuredRecipes } from './site.js';
 import { createRelametric, particleField, networkGraph, terrain, hypercube } from '../src/index.js';
 import type { RelametricLayer } from '../src/types.js';
 import './style.css';
@@ -44,13 +44,13 @@ const state = { scene: 'particles' as SceneId, palette: 0, speed: .7, bloom: .7,
 document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
   <div class="app-shell" id="app-shell">
 ${siteHeader('Playground', '../')}
-<div class="rm-layer-intro"><strong>Layer playground</strong> Shape particles, networks, terrain and higher-dimensional geometry. <a href="../examples/">Choose from 50 complete examples →</a><a href="../connectors/">Explore source adapters →</a></div>
+<div class="rm-layer-intro"><strong>Layer playground</strong> Shape particles, networks, terrain and higher-dimensional geometry. <a href="../examples/">Choose from 57 complete examples →</a><a href="../connectors/">Explore source adapters →</a></div>
     <div class="workspace-top"><div class="breadcrumb"><span>Playground</span><span class="breadcrumb-slash">/</span><strong id="breadcrumb-scene">Particle field</strong></div><button class="source-trigger" id="open-source">${svg('code', 13)} View code</button></div>
     <main class="workspace">
       <aside class="sidebar" aria-label="Experiments">
         <div class="section-label">The experiments</div>
         <nav class="scene-list" aria-label="Choose a visualization">${scenes.map((scene, i) => `<button class="scene-button ${i === 0 ? 'active' : ''}" data-scene="${scene.id}" aria-pressed="${i === 0}"><span class="scene-icon">${svg(scene.id, 23)}</span><span class="scene-copy"><span class="scene-name">${scene.name}</span><span class="scene-kicker">${scene.category}</span></span><span class="scene-index">0${i + 1}</span></button>`).join('')}</nav>
-        <div class="sidebar-note"><div class="sidebar-note-icon">${svg('spark', 20)}</div><p><strong>Less setup.<br>More imagination.</strong></p><p>Composable layers for ambitious visual ideas.</p><p class="tiny">Powered by Three.js.<br>Made to be built upon.</p></div>
+        <nav class="rm-recipe-menu" aria-label="Decision examples"><span class="section-label">Decision examples</span>${featuredRecipes.map(recipe=>`<a href="./playground.html?example=${recipe.id}">${recipe.title} ↗</a>`).join('')}</nav><div class="sidebar-note"><div class="sidebar-note-icon">${svg('spark', 20)}</div><p><strong>Less setup.<br>More imagination.</strong></p><p>Composable layers for ambitious visual ideas.</p><p class="tiny">Powered by Three.js.<br>Made to be built upon.</p></div>
       </aside>
       <section class="canvas-section" aria-label="Interactive visualization">
         <div class="viewport" id="viewport" aria-label="3D visualization. Drag to orbit; scroll to zoom."></div>
@@ -69,6 +69,7 @@ ${siteHeader('Playground', '../')}
     </main>
     <footer class="telemetry" aria-label="Live rendering statistics"><div class="metrics"><span class="metric"><span class="status-dot"></span><b id="stat-fps">—</b><span class="metric-label">FPS</span></span><span class="metric"><b id="stat-points">—</b><span class="metric-label">Points</span></span><span class="metric"><b id="stat-triangles">—</b><span class="metric-label">Triangles</span></span><span class="metric"><b id="stat-calls">—</b><span class="metric-label">Draw calls</span></span><span class="metric"><b id="stat-objects">—</b><span class="metric-label">Objects</span></span></div><span class="footer-signature">RELAMETRIC · FIND THE PATTERN.</span></footer>
   </div>
+  <div class="rm-playground-showcase">${recipeShowcase('../')}</div>
   <div class="source-panel" id="source-panel" hidden><section class="source-card" role="dialog" aria-modal="true" aria-labelledby="source-title" tabindex="-1"><header class="source-header"><div><h2 id="source-title">Small API. Big possibilities.</h2><p>Your current experiment · TypeScript</p></div><div class="source-buttons"><button class="copy-button" id="copy-source">${svg('copy', 12)}<span>Copy</span></button><button class="icon-button" id="close-source" aria-label="Close code">${svg('close', 13)}</button></div></header><pre class="source-code" id="source-scroll" tabindex="0" aria-label="TypeScript example"><code id="source-code"></code></pre><div class="source-bottom">Add a <code>&lt;div id="canvas"&gt;</code> with a defined height to your page. This example uses the local <code>relametric</code> package and its <code>three</code> peer dependency.<br>When you're done: <code>app.dispose()</code>.</div></section></div>
   <div class="toast" id="toast" role="status" hidden></div>`;
 
