@@ -1,0 +1,29 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Record overview previews</title>
+<style>body{background:#101818;color:#e0f0df;font:16px sans-serif}#stage{width:800px;height:500px}a{color:#c3f96b;display:block;margin:12px}</style>
+<h1>Record overview previews</h1><p>Record the seven synthetic scenes as silent six-second WebM loops. Download each result into public/examples/previews/.</p><button id="record">Record all previews</button><p id="status" role="status">Ready</p><div id="stage"></div><div id="downloads"></div>
+<script type="module">
+import {examples} from '../examples/catalog.ts';
+import {featuredRecipes} from '../demo/site.ts';
+import {makeRenderer,mountExample} from '../examples/gallery/runtime.ts';
+const button=document.querySelector('#record'),status=document.querySelector('#status');
+button.onclick=async()=>{
+ button.disabled=true;
+ try{
+  for(const item of featuredRecipes){
+   status.textContent='Recording '+item.title;
+   const recipe=examples.find(e=>e.id===item.id),app=makeRenderer(document.querySelector('#stage'));
+   let instance,stream;
+   try{
+    app.renderer.setPixelRatio(1);app.setBloom(recipe.bloom);instance=mountExample(recipe,app);app.resetCamera(recipe.camera,recipe.target);app.setPaused(false);
+    const canvas=app.renderer.domElement;stream=canvas.captureStream(24);
+    const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9',videoBitsPerSecond:650000});
+    const chunks=[];recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data)};
+    const finished=new Promise(resolve=>recorder.onstop=resolve);recorder.start();
+    await new Promise(resolve=>setTimeout(resolve,6000));recorder.stop();await finished;
+    const link=document.createElement('a');link.href=URL.createObjectURL(new Blob(chunks,{type:'video/webm'}));link.download=item.id+'.webm';link.textContent='Download '+item.title;document.querySelector('#downloads').append(link);
+   }finally{stream?.getTracks().forEach(track=>track.stop());instance?.dispose();app.dispose()}
+  }
+  status.textContent='All seven previews ready';
+ }catch(error){status.textContent=String(error);button.disabled=false}
+};
+</script></html>

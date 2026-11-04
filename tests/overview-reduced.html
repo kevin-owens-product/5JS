@@ -1,0 +1,5 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><base href="/"><title>Reduced motion overview fixture</title><div id="app"></div><script type="module">
+const original=window.matchMedia.bind(window);
+window.matchMedia=query=>query==='(prefers-reduced-motion: reduce)'?{matches:true,media:query,addEventListener(){},removeEventListener(){}}:original(query);
+await import('/demo/relametric.ts');
+</script></html>
