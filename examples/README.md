@@ -346,7 +346,7 @@ The Lorenz example precomputes 18,000 trajectory samples using fourth-order Rung
 
 Run `npm run typecheck` and `npm test` after adding a recipe. CPU tests should cover useful invariants, live controls, zero-delta pause behavior, and resource disposal. Also inspect its real browser render, portrait framing, control extremes, and standalone URL.
 
-Open `/tests/examples-browser.html` to verify all 57 gallery recipes in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
+Open `/tests/examples-browser.html` to verify all 57 gallery recipes and four foundation experiments in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
 
 For visual review, open **http://127.0.0.1:5185/tests/examples-browser.html?review=1** with the development server running. After all checks pass, the page shows contact sheets made from the actual WebGL captures. Use **Previous page** and **Next page** to review 12 scenes at a time across five pages. These are default-scene captures, not screenshots of every control combination. Inspect normal viewers and portrait layouts separately for framing, labels, and useful interactions; a pixel-change assertion cannot establish visual quality.
 
@@ -358,7 +358,7 @@ For the homepage decision lab, verify each outcome and segment, all seven comple
 
 ## Move between discovery, sources and experimentation
 
-Use the shared navigation to move between the overview, example collection, connector guides and Playground. Every recipe can open at `../demo/playground.html?example=<id>` with its controls, source inspection and exports. The Playground without an example parameter provides the four rendering-layer experiments. Existing standalone URLs remain valid.
+Use the shared navigation to move between the overview, example collection, connector guides and Playground. Every recipe can open at `../demo/playground.html?example=<id>` with its controls, source inspection and exports. The Playground without an example parameter opens Particle field in the same workspace used by all 57 recipes. The searchable library includes four foundation experiments and 57 recipes, with consistent selection, session-local settings, history, and Explore / Data & evidence / Code views. Existing standalone URLs remain valid.
 
 Connector-guide links carry a known `source` slug into a related example and decision workflow. The visible source banner links back to setup code and explicitly states that the running example still uses synthetic data. Reading a source and mapping its records into an example remain application work.
 

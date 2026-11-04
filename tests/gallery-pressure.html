@@ -30,6 +30,27 @@ await check('Reset filters clears category and query from the URL',async()=>{
  search('unmatchable-zxy');el('clear-search').click();assert(selected()==='All'&&el('search').value==='','Reset failed');
  const p=new URL(win().location.href).searchParams;assert(!p.has('category')&&!p.has('q'),'Reset left stale URL state');
 });
+await check('Sorting survives shared URLs and resets with discovery filters',async()=>{
+ const sort=el('example-sort');sort.value='title';sort.dispatchEvent(new (win().Event)('change',{bubbles:true}));
+ const titles=()=>Array.from(el('cards').querySelectorAll('.card-title h2'),node=>node.textContent);
+ assert(titles().join('|')===[...titles()].sort((a,b)=>a.localeCompare(b)).join('|'),'Cards are not sorted alphabetically');
+ const url=win().location.pathname+win().location.search;await load(url,false);
+ assert(el('example-sort').value==='title'&&titles()[0]==='A/B experiment','Reload lost the ordering');
+ doc().querySelector('[data-filter="Business"]').click();search('activation');
+ assert(el('result-count').textContent==='1 example','Sort broke combined category and search');
+ el('reset-discovery').click();
+ const params=new URL(win().location.href).searchParams;
+ assert(el('example-sort').value==='featured'&&!params.has('sort')&&!params.has('q')&&!params.has('category'),'Clear left stale discovery state');
+ assert(el('cards').firstElementChild.dataset.card==='activation-pathways','Curated order was not restored');
+});
+await check('Mobile library keeps search, sorting and cards within the viewport',async()=>{
+ frame.style.width='375px';await wait(100);
+ assert(doc().documentElement.scrollWidth<=doc().documentElement.clientWidth+1,'Library overflows horizontally');
+ for(const id of ['search','example-sort','cards']){
+  const r=el(id).getBoundingClientRect();assert(r.left>=0&&r.right<=375,'Discovery control overflows: '+id);
+ }
+ frame.style.width='1100px';
+});
 await check('Unknown example URLs cannot leave a different scene open',async()=>{
  await open('fusion-chamber');win().location.hash='missing-pressure-example';await until(()=>!el('toast').hidden,'Missing-route feedback absent');
  await until(()=>!el('viewer').open&&el('stage').querySelectorAll('canvas').length===0,'A stale scene remains under an invalid URL',1000);
