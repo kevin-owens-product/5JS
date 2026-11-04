@@ -1,4 +1,4 @@
-import { siteHeader, sourceContext, sourceNotice, sourceQuery, outcomes } from '../../demo/site.js';
+import { siteHeader, sourceContext, sourceNotice, sourceQuery, outcomes, featuredRecipes } from '../../demo/site.js';
 import { examples as galleryExamples } from '../catalog.js';
 import type { ExampleDefinition } from '../types.js';
 import { exampleCategories } from '../types.js';
@@ -12,6 +12,7 @@ import './style.css';
 import '../../demo/site.css';
 import { foundations, foundationSource, isFoundation, workspaceSidebar, bindWorkspace } from '../../demo/workspace.js';
 import '../../demo/workspace.css';
+import '../../demo/discovery.css';
 
 const inPlayground = location.pathname.endsWith('/playground.html');
 const examples = inPlayground ? [...foundations, ...galleryExamples] : galleryExamples;
@@ -19,6 +20,8 @@ const findExample = (id:string) => examples.find(example=>example.id===id);
 const sourceFor = (id:string) => foundationSource(id) ?? recipeSource(id);
 if(inPlayground)document.body.classList.add('studio-page');
 const standalone = inPlayground || location.pathname.endsWith('/run.html');
+if(!standalone)document.body.classList.add('collection-page');
+const staticPreviews = new Set(featuredRecipes.map(recipe=>recipe.id));
 const chosenSource = sourceContext(new URLSearchParams(location.search));
 const galleryPath = inPlayground ? '../examples/' : './';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -41,12 +44,12 @@ const number = (n: number) => String(n).padStart(2, '0');
 document.getElementById('app')!.innerHTML = `
 ${siteHeader(inPlayground ? 'Playground' : 'Examples', '../')}
 <main id="gallery" ${standalone ? 'hidden' : ''}>
-  <section class="intro"><div><div class="eyebrow"><span class="live-dot"></span>THE RELAMETRIC COLLECTION · EXPLORE → TUNE → CONNECT</div><h1>Make the next<br><span>move clearer.</span></h1><p>Explore a pattern. Follow the linked evidence.<br>Turn an interesting view into a better decision.</p></div><div class="intro-side"><span class="big-number">${number(examples.length)}</span><span class="intro-caption">RUNNABLE EXPERIMENTS<br>${exampleCategories.length} DOMAINS TO EXPLORE</span><div class="discipline-line"><i></i><i></i><i></i><i></i><i></i></div></div></section>
+  <section class="intro"><div><div class="eyebrow">THE EXPERIMENT LIBRARY</div><h1>Start with a question.<br><span>Find a way to explore it.</span></h1><p>Browse ${galleryExamples.length} editable recipes across ${exampleCategories.length} domains. Every example opens in the same workspace, with live controls, inspectable source, and a view you can make your own.</p></div><a class="collection-start" href="../demo/playground.html"><span>NEW TO RELAMETRIC?</span><strong>Start with the foundations <b>→</b></strong><p>Particles, networks, terrain and higher-dimensional geometry.</p></a></section>
   ${sourceNotice('../', chosenSource)}
-<div class="rm-collection-actions"><a href="../demo/playground.html">Start with a rendering layer ↗</a><a href="../connectors/">Browse source adapters ↗</a><a href="./relametric-examples.zip" download>Download all examples ↓</a></div>
-  <section class="collection" aria-label="Example collection"><div class="collection-tools"><div class="filters" role="group" aria-label="Filter by category">${categories.map((category,i)=>`<button data-filter="${category}" aria-pressed="${i===0}" class="filter ${i===0?'selected':''}">${category}<span>${categoryCount(category)}</span></button>`).join('')}</div><label class="search">${icon('search')}<input type="search" id="search" placeholder="Find an idea…" aria-label="Search examples" autocomplete="off"><kbd>/</kbd></label></div><div class="collection-meta"><span id="result-count" role="status">${examples.length} examples</span><span>REAL RENDERS. EDITABLE RECIPES.</span></div>
-  <div class="cards" id="cards">${examples.map((example,i)=>`<article class="card" data-card="${example.id}" style="--accent:${example.accent}"><a class="card-link" href="../demo/playground.html?example=${example.id}${sourceQuery(chosenSource)}" aria-label="Open ${example.title}"><div class="card-image"><img id="preview-${example.id}" alt="" width="480" height="300" hidden><span class="preview-state" id="preview-state-${example.id}">Preparing live preview</span><span class="card-no">${number(i+1)}</span><span class="card-open">${icon('arrow')}</span><span class="card-discipline">${example.outcome ? 'DECISION WORKFLOW' : example.category}</span></div><div class="card-body"><div class="card-title"><h2>${example.title}</h2><span>${icon('arrow')}</span></div><p>${example.summary}</p><div class="card-tags">${example.tags.slice(0,2).map(tag=>`<span>${tag}</span>`).join('')}<span class="difficulty">${example.difficulty}</span></div></div></a></article>`).join('')}</div>
-  <div class="empty" id="empty" hidden><h2>No examples match that search.</h2><p>Try “particles”, “graph”, or another category.</p><button id="clear-search">Reset filters</button></div></section>
+<div class="rm-collection-actions"><a href="../demo/playground.html">Open the workspace →</a><a href="../connectors/">Connect your data →</a><a href="./relametric-examples.zip" download>Download all examples ↓</a></div>
+  <section class="collection" aria-label="Example collection"><aside class="collection-sidebar"><h2>Browse collections</h2><div class="filters" role="group" aria-label="Filter by category">${categories.map((category,i)=>`<button data-filter="${category}" aria-pressed="${i===0}" class="filter ${i===0?'selected':''}">${category}<span>${categoryCount(category)}</span></button>`).join('')}</div><div class="collection-sidebar-note"><strong>Built to be explored.</strong><p>All recipes include editable TypeScript. Business examples use synthetic records and explicit assumptions.</p></div></aside><div class="collection-results"><div class="collection-tools"><label class="search">${icon('search')}<input type="search" id="search" placeholder="Search names, questions, and techniques…" aria-label="Search examples" autocomplete="off"><kbd>/</kbd></label><label class="collection-sort">Sort by<select id="example-sort"><option value="featured">Curated order</option><option value="title">Name A–Z</option><option value="category">Domain</option></select></label></div><div class="collection-meta"><div><strong id="current-collection">All examples</strong><span id="result-count" role="status">${examples.length} examples</span></div><button id="reset-discovery">Clear filters</button></div>
+  <div class="cards" id="cards">${examples.map((example,i)=>`<article class="card" data-card="${example.id}" style="--accent:${example.accent}"><a class="card-link" href="../demo/playground.html?example=${example.id}${sourceQuery(chosenSource)}" aria-label="Open ${example.title}"><div class="card-image"><img id="preview-${example.id}" alt="" width="480" height="300" ${staticPreviews.has(example.id)?`src="../examples/previews/${example.id}.jpg" loading="lazy"`:'hidden'}><span class="preview-state" id="preview-state-${example.id}" ${staticPreviews.has(example.id)?'hidden':''}>Preparing live preview</span><span class="card-no">${number(i+1)}</span><span class="card-open">${icon('arrow')}</span><span class="card-discipline">${example.outcome ? 'DECISION WORKFLOW' : example.category}</span></div><div class="card-body"><div class="card-title"><h2>${example.title}</h2><span>${icon('arrow')}</span></div><p>${example.summary}</p><div class="card-tags">${example.tags.slice(0,2).map(tag=>`<span>${tag}</span>`).join('')}<span class="difficulty">${example.difficulty}</span></div><div class="card-action">Open workspace <span aria-hidden="true">→</span></div></div></a></article>`).join('')}</div>
+  <div class="empty" id="empty" hidden><h2>No examples match that search.</h2><p>Try “particles”, “graph”, or another category.</p><button id="clear-search">Reset filters</button></div></div></section>
   <section class="closing-note"><div><span class="eyebrow">BUILT TO BE TAKEN APART</span><h2>The interesting part is what you change.</h2></div><p>Every example includes the recipe that powers it, a standalone view, and a few useful controls. The downloadable project includes the shared runner and library source.</p></section>
   <footer><span>Relametric · Built on Three.js · WebGL2</span><span><a href="../LICENSE">MIT license</a> · <a href="../THIRD_PARTY_NOTICES.md">Third-party notices</a></span></footer>
 </main>
@@ -64,6 +67,9 @@ ${sourceNotice('../', chosenSource)}
 const requestedCategory = new URLSearchParams(location.search).get('category');
 let category = categories.includes(requestedCategory ?? '') ? requestedCategory! : 'All';
 get<HTMLInputElement>('search').value = new URLSearchParams(location.search).get('q') ?? '';
+const sortSelect=get<HTMLSelectElement>('example-sort');
+const validSort=(value:string|null)=>['title','category'].includes(value??'')?value!:'featured';
+sortSelect.value=validSort(new URLSearchParams(location.search).get('sort'));
 let toastTimer: ReturnType<typeof setTimeout>;
 function notify(message: string) { clearTimeout(toastTimer); const toast=get('toast'); (get<HTMLDialogElement>('viewer').open?get('viewer'):document.body).append(toast);toast.textContent=message;toast.hidden=false;toastTimer=setTimeout(()=>toast.hidden=true,3500); }
 function filter(syncUrl = true) {
@@ -74,11 +80,18 @@ function filter(syncUrl = true) {
     document.querySelector<HTMLElement>(`[data-card="${example.id}"]`)!.hidden=!matches;
     if(matches) count++;
   }
+  const sorted=[...examples];
+  if(sortSelect.value==='title')sorted.sort((a,b)=>a.title.localeCompare(b.title));
+  if(sortSelect.value==='category')sorted.sort((a,b)=>a.category.localeCompare(b.category)||a.title.localeCompare(b.title));
+  for(const example of sorted)get('cards').append(document.querySelector(`[data-card="${example.id}"]`)!);
+  get('current-collection').textContent=category==='All'?'All examples':category;
+  get('reset-discovery').hidden=category==='All'&&!query&&sortSelect.value==='featured';
   get('result-count').textContent=`${count} ${count===1?'example':'examples'}`;
   get('empty').hidden=count>0;
   if (syncUrl && !standalone) {
     const url = new URL(location.href);
     if (category === 'All') url.searchParams.delete('category'); else url.searchParams.set('category', category);
+    if(sortSelect.value==='featured')url.searchParams.delete('sort');else url.searchParams.set('sort',sortSelect.value);
     const search = get<HTMLInputElement>('search').value.trim();
     if (search) url.searchParams.set('q', search); else url.searchParams.delete('q');
     if (url.href !== location.href) history.replaceState(null, '', url);
@@ -87,15 +100,18 @@ function filter(syncUrl = true) {
 }
 filter();
 get('search').addEventListener('input',()=>filter());
+sortSelect.addEventListener('change',()=>filter());
+get('reset-discovery').addEventListener('click',()=>get('clear-search').click());
 window.addEventListener('popstate',()=>{
   const params=new URLSearchParams(location.search), requested=params.get('category');
   category=categories.includes(requested??'')?requested!:'All';
   get<HTMLInputElement>('search').value=params.get('q')??'';
+  sortSelect.value=validSort(params.get('sort'));
   filter(false);
   if(inPlayground)route();
 });
 document.querySelectorAll<HTMLButtonElement>('[data-filter]').forEach(button=>button.addEventListener('click',()=>{category=button.dataset.filter!;filter();}));
-get('clear-search').addEventListener('click',()=>{category='All';get<HTMLInputElement>('search').value='';filter();});
+get('clear-search').addEventListener('click',()=>{category='All';get<HTMLInputElement>('search').value='';sortSelect.value='featured';filter();});
 document.addEventListener('keydown',event=>{if(event.key==='/'&&!get<HTMLDialogElement>('viewer').open && !(event.target instanceof HTMLInputElement)){event.preventDefault();get('search').focus();}});
 
 const dialog=get<HTMLDialogElement>('viewer');
@@ -292,6 +308,7 @@ async function previews() {
     previewApp.renderer.setPixelRatio(1);
     for(const example of examples) {
       if(stopped)break;
+      if(staticPreviews.has(example.id))continue;
       let instance:MountedExample|undefined;
       try {
         previewApp.setBloom(example.bloom);
