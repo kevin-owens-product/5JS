@@ -1,4 +1,4 @@
-import { siteHeader, journeyCards, sourceContext, sourceNotice, sourceQuery } from './site.js';
+import { siteHeader, journeyCards, recipeShowcase, sourceContext, sourceNotice, sourceQuery } from './site.js';
 import { Raycaster, Vector2 } from 'three';
 import { createRelametric } from '../src/index.js';
 import { connectorSlug } from '../connectors/paths.js';
@@ -21,6 +21,7 @@ ${siteHeader('Overview', './')}
 <div class="hero-map" aria-label="Source records connect through Relametric to conversion, retention, and product decisions"><div class="map-orbit orbit-a"></div><div class="map-orbit orbit-b"></div><div class="map-orbit orbit-c"></div><svg class="map-lines" viewBox="0 0 540 390" preserveAspectRatio="none" aria-hidden="true"><path d="M75 63C175 63 150 194 270 194M56 190H270M90 316C160 316 175 194 270 194M270 194C370 194 370 77 463 77M270 194H480M270 194C370 194 370 316 463 316"/></svg><span class="source-dot source-a"><b>▦</b> Customers</span><span class="source-dot source-b"><b>⌁</b> Behavior</span><span class="source-dot source-c"><b>≋</b> Evidence</span><div class="map-center">${mark}<strong>relametric</strong><small>MAKE THE CONNECTION</small></div><span class="outcome-dot outcome-a"><i></i> Conversion</span><span class="outcome-dot outcome-b"><i></i> Retention</span><span class="outcome-dot outcome-c"><i></i> Product</span><div class="map-caption">SOURCE → RELATIONSHIP → DECISION</div></div></section>
 <section class="principles" aria-label="Relametric capabilities"><div><span>01</span><strong>Connect the sources.</strong><p>Read databases, warehouses, and data tools through one typed contract.</p></div><div><span>02</span><strong>Follow the evidence.</strong><p>Move from a visual pattern to customers, sessions, checkouts, and interviews.</p></div><div><span>03</span><strong>Make a decision.</strong><p>Build an investigation with an owner, baseline, next step, and guardrail.</p></div></section>
 ${journeyCards('./')}
+${recipeShowcase('./')}
 ${sourceNotice('./', chosenSource)}
 <section class="decision-lab" id="decision-lab" aria-labelledby="lab-title"><div class="section-heading"><div><p class="eyebrow">THE DECISION LAB</p><h2 id="lab-title">A view worth doing something about.</h2></div><span class="fixture-badge">FICTIONAL DATA · LOCAL JSON CONNECTORS</span></div><div class="decision-tabs" role="group" aria-label="Choose an outcome">${(['conversion', 'retention', 'product'] as Decision[]).map((id, i) => `<button data-decision="${id}" aria-pressed="${i === 0}" style="--tab-accent:${palette[id]}"><span>0${i + 1}</span>${decisionCopy[id].short}<b>↗</b></button>`).join('')}</div>
 <div class="decision-heading"><div><p class="eyebrow" id="decision-eyebrow"></p><h3 id="decision-title"></h3><p id="decision-description"></p></div><label class="segment-label" for="segment">Account segment<select id="segment">${segments.map(segment => `<option>${segment}</option>`).join('')}</select></label></div>
@@ -169,7 +170,7 @@ $('copy-project-link').addEventListener('click', copyProjectLink);
 $('share-project').addEventListener('click', async () => {
   if (!navigator.share) { await copyProjectLink(); return; }
   try {
-    await navigator.share({ title: 'Relametric — Follow the data. Find the next move.', text: 'Open-source TypeScript visualizations for connected evidence. Explore 50 examples and 45 connector guides.', url: shareUrl });
+    await navigator.share({ title: 'Relametric — Follow the data. Find the next move.', text: 'Open-source TypeScript visualizations for connected evidence. Explore 57 examples and 45 connector guides.', url: shareUrl });
     $('share-status').textContent = 'Share dialog completed.';
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') return;

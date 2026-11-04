@@ -6,18 +6,18 @@
 
 Relametric is an open-source TypeScript toolkit for connected-data visualization on Three.js. Explore the records behind a chart, connect quantitative signals to customer evidence, and build an investigation for conversion, retention or product decisions.
 
-Short repository description: **Interactive visualizations for connected evidence. 50 examples, 44 connector factories, and workflows for conversion, retention and product decisions.**
+Short repository description: **Interactive visualizations for connected evidence. 57 examples, 44 connector factories, and workflows for conversion, retention and product decisions.**
 
 ## Ready-to-adapt launch copy
 
-> Meet Relametric: an open-source TypeScript toolkit for exploring the records behind a chart. Follow checkout drop-offs, investigate retention, and connect product opportunities to usage and interview evidence. Start with 50 editable examples and 45 connector guides. Experimental alpha, MIT licensed. Demo data is synthetic.
+> Meet Relametric: an open-source TypeScript toolkit for exploring the records behind a chart. Follow checkout drop-offs, investigate retention, and connect product opportunities to usage and interview evidence. Start with 57 editable examples and 45 connector guides. Experimental alpha, MIT licensed. Demo data is synthetic.
 >
 > Try it: https://kevin-owens-product.github.io/Relametric/
 > Source: https://github.com/kevin-owens-product/Relametric
 
 Short social post:
 
-> Follow the data. Find the next move. Relametric connects interactive visualizations to the records behind them. 50 editable examples, 45 connector guides, TypeScript + Three.js. Open-source alpha; synthetic demos. https://kevin-owens-product.github.io/Relametric/
+> Follow the data. Find the next move. Relametric connects interactive visualizations to the records behind them. 57 editable examples, 45 connector guides, TypeScript + Three.js. Open-source alpha; synthetic demos. https://kevin-owens-product.github.io/Relametric/
 
 Do not describe scenarios as measured conversion lift, retention improvement or customer results. Cloud adapter protocol tests are not live-account certification. npm publication is still pending; do not announce registry availability before verification.
 
