@@ -165,14 +165,17 @@
     }
 
     try {
-      const [{ createRelametric }, { examples }, { mountExample }, { exampleCategories }, { sourceFor }] = await bounded(Promise.all([
+      const [{ createRelametric }, { examples: recipes }, { mountExample }, { exampleCategories }, { sourceFor: recipeSource }, { foundations, foundationSource }] = await bounded(Promise.all([
         import('/src/index.ts'),
         import('/examples/catalog.ts'),
         import('/examples/gallery/runtime.ts'),
         import('/examples/types.ts'),
         import('/examples/gallery/sources.ts'),
+        import('/demo/workspace.ts'),
       ]), 'Module imports', 15_000);
 
+      const examples=[...foundations,...recipes];
+      const sourceFor=id=>foundationSource(id)??recipeSource(id);
       total = examples.length;
       assert(examples.length >= 47, `Expected at least 47 recipes; found ${examples.length}.`);
       const ids = new Set();
@@ -243,7 +246,9 @@
           motionProof = ` · motion ${movingPixels} pixels; pause verified`;
         }
         const controls = mounted.controls ?? [];
-        assert(controls.length >= 1 && controls.length <= 3, `${current}: expected one to three live controls.`);
+        // Foundations retain the original appearance palette in addition to their scene controls.
+        const maxControls = foundations.includes(example) ? 4 : 3;
+        assert(controls.length >= 1 && controls.length <= maxControls, `${current}: expected one to ${maxControls} live controls.`);
         const controlIds = new Set();
         for (const control of controls) {
           assert(typeof control.id === 'string' && control.id.length > 0 && !controlIds.has(control.id), `${current}: empty or repeated control ID ${control.id}.`);

@@ -30,7 +30,7 @@ Do not describe scenarios as measured conversion lift, retention improvement or 
 | `relametric-conversion.png` | Checkout evidence workflow, 1440×960 |
 | `relametric-retention.png` | Retention evidence workflow, 1440×960 |
 | `relametric-product.png` | Product opportunity workflow, 1440×960 |
-| `relametric-workspace.jpg` | Unified Playground with source-guide context |
+| `relametric-workspace.jpg` | Unified Playground with the shared experiment library and inspector |
 | `relametric-journeys.jpg` | Outcome journeys linking examples, Playground and sources |
 | `relametric-connectors.png` | Connector discovery screenshot, 1440×960 |
 
@@ -48,4 +48,4 @@ After the preparation PR merges, deploy Pages and verify that `https://kevin-owe
 
 For GitHub's repository preview, upload the root `relametric-social.png` in **Repository Settings → General → Social preview**. GitHub does not use the Pages Open Graph image for this setting. This manual upload is separate from committing the image. Use the same image for release announcements and attach screenshots when showing a specific workflow.
 
-The two unified-experience JPGs are browser captures: Playground at `?example=source-retention&source=stripe` and the homepage outcome section. Refresh these separately when changing navigation or journey layout.
+The two unified-experience JPGs are browser captures: Playground at `?example=activation-pathways` and the homepage outcome section. Refresh these separately when changing navigation or journey layout.

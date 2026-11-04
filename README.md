@@ -20,7 +20,7 @@ Documentation: [API reference](docs/API.md) · [Example guide](https://github.co
 
 Start with an outcome on the homepage, discover a recipe in Examples, and open it in Playground with the same controls, source and exports. Connector guides link to related patterns and keep a return path to setup code. A source selection is an adaptation context; examples continue to use synthetic data until you explicitly map your own records.
 
-[![Unified Playground with a retained Stripe source context, related guides and a retention example](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-workspace.jpg)](https://kevin-owens-product.github.io/Relametric/demo/playground.html?example=source-retention&source=stripe)
+[![Unified Playground with a searchable experiment library, consistent selection, and shared controls](https://raw.githubusercontent.com/kevin-owens-product/Relametric/main/relametric-workspace.jpg)](https://kevin-owens-product.github.io/Relametric/demo/playground.html?example=activation-pathways)
 
 ## See what you can build
 

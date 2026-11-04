@@ -21,7 +21,7 @@ try{
  });
  await check('Playground controls and source inspection work for imported examples',async()=>{
   const speed=doc().getElementById('scene-speed');speed.value='0.5';speed.dispatchEvent(new(win().Event)('input',{bubbles:true}));assert(doc().getElementById('scene-speed-value').textContent==='0.50×','Speed control failed');
-  doc().querySelector('#source-section summary').click();assert(doc().getElementById('source').textContent.length>100,'Recipe missing');
+  doc().querySelector('[data-workspace-view=source]').click();assert(doc().getElementById('source').textContent.length>100,'Recipe missing');
   doc().getElementById('next').click();await until(ready);assert(new URL(win().location.href).searchParams.get('source')==='stripe','Source lost when changing examples');
  });
  await check('All example pages lead to the same Playground runtime',async()=>{
@@ -35,17 +35,19 @@ try{
   const href=doc().querySelector('#decision-next a').href;assert(href.includes('example=source-retention')&&href.includes('source=stripe'),'Decision handoff loses context');
  });
  await check('Layer playground keeps code controls and shared navigation',async()=>{
-  await load('/demo/playground.html',()=>doc().querySelector('canvas'));navigation('Playground');doc().getElementById('open-source').click();assert(!doc().getElementById('source-panel').hidden,'Code panel did not open');
+  await load('/demo/playground.html',ready);navigation('Playground');assert(doc().getElementById('viewer').dataset.example==='particles','Default experiment changed');doc().querySelector('[data-workspace-view=source]').click();assert(doc().getElementById('source-section').open&&doc().getElementById('source').textContent.includes('particleField'),'Foundation source missing');
  });
  await check('Seven new examples are discoverable on overview and Playground, including mobile',async()=>{
   const expected=['activation-pathways','payment-routing','renewal-runway','support-escalation','feature-adoption','interview-coverage','performance-friction'];
-  for(const route of ['/','/demo/playground.html']) {
-   frame.style.width='390px';await load(route,()=>doc().querySelectorAll('.rm-recipe-card').length===7);
-   const cards=[...doc().querySelectorAll('.rm-recipe-card')];
-   assert(cards.every((a,i)=>new URL(a.href).searchParams.get('example')===expected[i]),'Showcase links differ');
-   for(const image of doc().querySelectorAll('.rm-recipe-card img')) {image.loading='eager';await until(()=>image.complete);assert(image.naturalWidth>0,'Preview missing');}
-   assert(doc().documentElement.scrollWidth<=doc().documentElement.clientWidth+1,'Showcase overflows mobile width');
-  }
+  frame.style.width='390px';await load('/',()=>doc().querySelectorAll('.rm-recipe-card').length===7);
+  const cards=[...doc().querySelectorAll('.rm-recipe-card')];
+  assert(cards.every((a,i)=>new URL(a.href).searchParams.get('example')===expected[i]),'Showcase links differ');
+  for(const image of doc().querySelectorAll('.rm-recipe-card img')) {image.loading='eager';await until(()=>image.complete);assert(image.naturalWidth>0,'Preview missing');}
+  assert(doc().documentElement.scrollWidth<=doc().documentElement.clientWidth+1,'Showcase overflows mobile width');
+  await load('/demo/playground.html',ready);
+  doc().getElementById('studio-toggle').click();
+  assert(doc().body.classList.contains('studio-library-open'),'Mobile library did not open');
+  for(const id of expected)assert(doc().querySelector(`[data-experiment="${id}"]`),'New experiment absent from common library');
   frame.style.width='1100px';
   for(const id of expected) {
    await load('/demo/playground.html?example='+id,ready);
@@ -54,12 +56,57 @@ try{
    assert(doc().querySelectorAll('#data-table tbody tr').length===5,'Snapshot groups missing');
   }
  });
+ await check('Foundations and recipes reuse one canvas and preserve settings through browser history',async()=>{
+  frame.style.width='1100px';await load('/demo/playground.html?example=particles&source=stripe',ready);
+  const canvas=doc().querySelector('#stage canvas'),library=doc().querySelector('.studio-library');
+  const slider=doc().getElementById('control-turbulence');slider.value='1.25';slider.dispatchEvent(new(win().Event)('input',{bubbles:true}));
+  for(const id of ['network','terrain','hypercube','activation-pathways','feature-adoption']){
+   doc().querySelector(`[data-experiment="${id}"]`).click();await until(ready);
+   assert(doc().querySelector('#stage canvas')===canvas,'Switch replaced the shared renderer');
+   assert(doc().querySelector('.studio-library')===library,'Switch reloaded the application');
+   assert(doc().querySelector('[data-experiment][aria-current=true]').dataset.experiment===id,'Active item mismatch');
+   assert(new URL(win().location.href).searchParams.get('source')==='stripe','Source context lost');
+  }
+  doc().querySelector('[data-experiment=particles]').click();await until(ready);
+  assert(doc().getElementById('control-turbulence').value==='1.25','Switch lost settings');
+  win().history.back();await until(()=>ready()&&doc().getElementById('viewer').dataset.example==='feature-adoption');
+  win().history.forward();await until(()=>ready()&&doc().getElementById('viewer').dataset.example==='particles');
+  assert(doc().getElementById('control-turbulence').value==='1.25','History lost settings');
+  doc().getElementById('studio-reset').click();assert(doc().getElementById('control-turbulence').value==='0.6','Reset did not restore authored settings');
+ });
+ await check('Search and collections provide an accessible empty state without losing the scene',async()=>{
+  const input=doc().getElementById('studio-search');input.value='no-such-experiment';input.dispatchEvent(new(win().Event)('input',{bubbles:true}));
+  assert(!doc().getElementById('studio-empty').hidden,'Empty feedback missing');
+  assert(doc().getElementById('viewer').dataset.example==='particles','Search replaced scene');
+  doc().getElementById('studio-clear').click();
+  const filter=doc().getElementById('studio-filter');filter.value='Business';filter.dispatchEvent(new(win().Event)('change',{bubbles:true}));
+  assert(doc().querySelector('[data-experiment=particles]').hidden,'Collection includes foundation');
+  assert(!doc().querySelector('[data-experiment=activation-pathways]').hidden,'Collection excludes matching recipe');
+  doc().querySelector('[data-experiment=activation-pathways]').click();await until(ready);
+  doc().querySelector('[data-workspace-view=data]').click();
+  assert(doc().getElementById('data-details').open,'Data records not expanded');
+  assert(doc().querySelector('.viewer-content').getBoundingClientRect().height===0,'Data view still includes canvas');
+  doc().querySelector('[data-workspace-view=source]').click();assert(doc().getElementById('source').textContent.includes('decisionRecipe'),'Wrong source');
+  doc().querySelector('[data-workspace-view=view]').click();assert(doc().getElementById('stage').getBoundingClientRect().width>200,'Explore did not restore canvas');
+ });
+ await check('Gallery cards use canonical workspace links while legacy hash links remain supported',async()=>{
+  await load('/examples/?category=Business',()=>doc().querySelector('.card-link'));
+  const link=doc().querySelector('[data-card=activation-pathways] .card-link');
+  assert(new URL(link.href).pathname==='/demo/playground.html','Gallery opens a second UI');
+  await load(new URL(link.href).pathname+new URL(link.href).search,ready);
+  assert(doc().querySelector('.studio-library'),'Gallery handoff missed workspace');
+ });
+ await check('Unknown workspace routes recover to a valid experiment with an explanation',async()=>{
+  await load('/demo/playground.html?example=unknown',ready);
+  assert(new URL(win().location.href).searchParams.get('example')==='particles','Unknown URL kept stale route');
+  assert(doc().getElementById('toast').textContent.includes('not found'),'Recovery message missing');
+ });
  await check('Standalone links remain valid and unknown source parameters are ignored',async()=>{
   await load('/examples/run.html?example=source-product&source=unknown',ready);navigation('Examples');assert(!doc().querySelector('.rm-source-context'),'Unrecognized source rendered');
  });
  await check('Mobile Playground keeps all navigation and controls reachable',async()=>{
   frame.style.width='390px';await load('/demo/playground.html?example=source-retention',ready);navigation('Playground');
-  assert(doc().documentElement.scrollWidth<=390,'Horizontal overflow');const header=doc().querySelector('.rm-header').getBoundingClientRect(),viewer=doc().getElementById('viewer').getBoundingClientRect();assert(viewer.top>=header.bottom-1,'Navigation overlaps workspace');assert(doc().getElementById('scene-speed'),'Controls missing');
+  assert(doc().documentElement.scrollWidth<=390,'Horizontal overflow');const header=doc().querySelector('.rm-header').getBoundingClientRect(),viewer=doc().getElementById('viewer').getBoundingClientRect();assert(viewer.top>=header.bottom-1,'Navigation overlaps workspace');assert(doc().getElementById('scene-speed'),'Controls missing');doc().getElementById('studio-toggle').click();doc().querySelector('[data-experiment=activation-pathways]').click();await until(ready);assert(!doc().body.classList.contains('studio-library-open'),'Mobile library did not dismiss');assert(doc().activeElement.id==='viewer-title','Focus left in hidden navigation');
  });
  results.textContent+=`\n${failures.length?'FAILED':'ALL'} ${passed} BROWSER CHECKS ${failures.length?'':'PASSED'}`;
  document.title=failures.length?'FAIL — Unified site checks':'PASS — Unified site checks';
