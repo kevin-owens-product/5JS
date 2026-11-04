@@ -108,6 +108,26 @@ try{
   frame.style.width='390px';await load('/demo/playground.html?example=source-retention',ready);navigation('Playground');
   assert(doc().documentElement.scrollWidth<=390,'Horizontal overflow');const header=doc().querySelector('.rm-header').getBoundingClientRect(),viewer=doc().getElementById('viewer').getBoundingClientRect();assert(viewer.top>=header.bottom-1,'Navigation overlaps workspace');assert(doc().getElementById('scene-speed'),'Controls missing');doc().getElementById('studio-toggle').click();doc().querySelector('[data-experiment=activation-pathways]').click();await until(ready);assert(!doc().body.classList.contains('studio-library-open'),'Mobile library did not dismiss');assert(doc().activeElement.id==='viewer-title','Focus left in hidden navigation');
  });
+ await check('Overview previews play only in view and share accessible pause controls',async()=>{
+  frame.style.width='1100px';await load('/',()=>doc().querySelectorAll('video[data-preview-src]').length===8);
+  const hero=doc().querySelector('.hero-preview video'),cards=[...doc().querySelectorAll('.rm-recipe-card video')],buttons=[...doc().querySelectorAll('[data-preview-motion]')];
+  await until(()=>hero.currentTime>0.1,'Hero preview did not animate');
+  assert(cards.every(video=>!video.hasAttribute('src')),'Offscreen previews loaded eagerly');
+  buttons[0].click();assert([...doc().querySelectorAll('video')].every(video=>video.paused),'Pause left a preview running');
+  assert(buttons.every(button=>button.textContent==='Play previews'&&button.getAttribute('aria-pressed')==='false'),'Controls disagree');
+  buttons[1].click();await until(()=>!hero.paused,'Playback did not resume');
+  doc().querySelector('.rm-recipes').scrollIntoView();
+  await until(()=>hero.paused&&cards.some(video=>video.currentTime>0),'Visibility did not transfer playback');
+  const active=cards.find(video=>video.currentTime>0);active.dispatchEvent(new(win().Event)('error'));
+  assert(!active.classList.contains('is-playing'),'Failed media hides its still fallback');
+ });
+ await check('Reduced motion leaves preview media unloaded until explicit play',async()=>{
+  await load('/tests/overview-reduced.html',()=>doc().querySelectorAll('[data-preview-motion]').length===2);
+  await new Promise(resolve=>setTimeout(resolve,200));
+  const videos=[...doc().querySelectorAll('video[data-preview-src]')];
+  assert(videos.every(video=>video.paused&&!video.hasAttribute('src')),'Reduced motion auto-loaded a loop');
+  doc().querySelector('[data-preview-motion]').click();await until(()=>videos[0].currentTime>0,'Explicit play failed with reduced motion');
+ });
  results.textContent+=`\n${failures.length?'FAILED':'ALL'} ${passed} BROWSER CHECKS ${failures.length?'':'PASSED'}`;
  document.title=failures.length?'FAIL — Unified site checks':'PASS — Unified site checks';
 }catch(e){results.textContent+=e.stack;document.title='FAIL — Unified site checks'}
