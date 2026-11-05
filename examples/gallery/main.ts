@@ -272,11 +272,14 @@ function navigate(id:string) {
 function route() {
   let id=standalone?new URLSearchParams(location.search).get('example'):location.hash.slice(1);
   if(inPlayground&&!id)id='particles';
-  if(!id){if(standalone){location.replace(galleryPath);return;}if(dialog.open)dialog.close();return;}
+  if(!id){if(standalone){location.replace(galleryPath);return;}if(dialog.open){cleanup();dialog.close();}return;}
   const example=findExample(id);
   if(example){show(example);return;}
   if(inPlayground){history.replaceState(null,'',`?example=particles${sourceQuery(chosenSource)}`);show(foundations[0]);notify('Experiment not found. Showing Particle field.');return;}
   if(standalone){location.replace(galleryPath);return;}
+  // Release immediately: the native close event is queued and can be delayed
+  // while thumbnail rendering is busy. An invalid route must not keep a scene.
+  cleanup();
   if (dialog.open) dialog.close();
   notify('Example not found. Choose one from the collection.');
 }
@@ -284,7 +287,7 @@ window.addEventListener('hashchange',route);
 get('close').addEventListener('click',()=>dialog.close());
 dialog.addEventListener('cancel',event=>{if(standalone){event.preventDefault();location.href=galleryPath;}});
 dialog.addEventListener('click',event=>{if(event.target===dialog&&!standalone){const r=dialog.getBoundingClientRect();if(event.clientX<r.left||event.clientX>r.right||event.clientY<r.top||event.clientY>r.bottom)dialog.close();}});
-dialog.addEventListener('close',()=>{if(opening)return;cleanup();if(standalone){location.href=galleryPath;return;}history.replaceState(null,'',location.pathname+location.search);document.title='Relametric — Example library';});
+dialog.addEventListener('close',()=>{if(opening||dialog.open)return;cleanup();if(standalone){location.href=galleryPath;return;}history.replaceState(null,'',location.pathname+location.search);document.title='Relametric — Example library';});
 get('previous').addEventListener('click',()=>{if(active)navigate(examples[(examples.indexOf(active)+examples.length-1)%examples.length].id);});
 get('next').addEventListener('click',()=>{if(active)navigate(examples[(examples.indexOf(active)+1)%examples.length].id);});
 get('play').addEventListener('click',()=>{paused=!paused;updatePlayback();});
