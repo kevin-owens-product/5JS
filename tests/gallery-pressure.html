@@ -52,8 +52,18 @@ await check('Mobile library keeps search, sorting and cards within the viewport'
  frame.style.width='1100px';
 });
 await check('Unknown example URLs cannot leave a different scene open',async()=>{
- await open('fusion-chamber');win().location.hash='missing-pressure-example';await until(()=>!el('toast').hidden,'Missing-route feedback absent');
+ await open('fusion-chamber');win().location.hash='missing-pressure-example';await until(()=>!el('toast').hidden&&el('toast').textContent.includes('Example not found'),'Missing-route feedback absent');
  await until(()=>!el('viewer').open&&el('stage').querySelectorAll('canvas').length===0,'A stale scene remains under an invalid URL',1000);
+});
+await check('A queued close event cannot dispose a reopened scene',async()=>{
+ await open('fusion-chamber');
+ el('viewer').close();
+ // Reopen in the same task, before the native close event is delivered.
+ win().dispatchEvent(new (win().Event)('hashchange'));
+ await wait(100);
+ assert(el('viewer').open&&el('viewer').dataset.status==='ready','Reopened dialog was lost');
+ assert(el('stage').querySelectorAll('canvas').length===1,'Late close disposed the new canvas');
+ assert(win().location.hash==='#fusion-chamber','Late close erased the new route');
 });
 await check('History back and forward restore the actual scene',async()=>{
  await open('orbital-resonance');await open('jet-stream');win().history.back();await until(()=>el('viewer')?.dataset.example==='orbital-resonance'&&el('viewer')?.dataset.status==='ready','Back did not restore orbital scene');
