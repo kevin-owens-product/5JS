@@ -35,3 +35,5 @@ These links follow main. For a pinned checkout use documentation from that revis
 - [Alpha candidate](https://github.com/kevin-owens-product/Relametric/blob/main/docs/ALPHA_RELEASE.md): Release scope and limits.
 
 - [npm publication](https://github.com/kevin-owens-product/Relametric/blob/main/docs/NPM_PUBLISHING.md): alpha.3 preparation, first publish and trusted publishing.
+
+- [100-recipe collection](https://github.com/kevin-owens-product/Relametric/blob/main/examples/README.md#observation-driven-investigations-43-recipes): 43 new synthetic investigations, eight encodings, typed fixtures, fixed scales, reference controls and source adaptation boundaries. Four foundation experiments are additional to the 100 recipes.

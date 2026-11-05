@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+### 100-recipe collection
+
+- Added 43 observation-driven investigations across nine domains, bringing the gallery to 100 recipes plus four foundation experiments.
+- Added eight shared spatial encodings, explicit synthetic fixtures, fixed-scale comparisons, observation/series/reference controls, and evidence tables with CSV export.
+- Added domain discovery cards to the overview and 43 captured previews to the gallery; all entries open the existing Playground runtime.
+- Documented source adaptation, review-reference assumptions, preview regeneration and interpretation limits.
+
+
 ## 0.1.0-alpha.3 — Unreleased
 
 - Prepare both packages for public npm publication with the alpha dist-tag.

@@ -16,7 +16,7 @@ Relametric (`relametric`) is an alpha library. This page distinguishes implement
 
 The `@webgpu/types` reference in the declarations supports dependency typing; it does not indicate a WebGPU rendering backend. Three.js remains external to the library bundle, while the static demo bundles its own runtime dependencies.
 
-The local desktop browser checks have exercised all four layers and all 57 gallery recipes. That result is not a verified Safari, Firefox, mobile-device, or GPU compatibility matrix. Record the browser version, OS, GPU/backend, recipe, viewport, and relevant controls when reporting a new environment. Do not infer support solely from a browser's name or nominal WebGL2 availability; device limits and graphics drivers can affect results.
+The local desktop browser checks have exercised all four layers and all 100 gallery recipes (104 experiments including the foundations) using Chromium with SwiftShader. That result is not a verified Safari, Firefox, mobile-device, or GPU compatibility matrix. Record the browser version, OS, GPU/backend, recipe, viewport, and relevant controls when reporting a new environment. Do not infer support solely from a browser's name or nominal WebGL2 availability; device limits and graphics drivers can affect results.
 
 ## Application integration and cleanup
 

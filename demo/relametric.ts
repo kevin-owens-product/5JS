@@ -1,6 +1,6 @@
 import { bindPreviewMotion } from './preview-motion.js';
 import workspacePreview from '../relametric-workspace.jpg';
-import { siteHeader, journeyCards, recipeShowcase, sourceContext, sourceNotice, sourceQuery } from './site.js';
+import { siteHeader, journeyCards, recipeShowcase, observatoryShowcase, sourceContext, sourceNotice, sourceQuery } from './site.js';
 import { Raycaster, Vector2 } from 'three';
 import { createRelametric } from '../src/index.js';
 import { connectorSlug } from '../connectors/paths.js';
@@ -23,10 +23,11 @@ document.querySelector<HTMLDivElement>('#app')!.innerHTML = `
 ${siteHeader('Overview', './')}
 <main><section class="hero"><div class="hero-copy"><p class="eyebrow"><i></i> THE VISUAL EXPLORATION WORKSPACE</p><h1>Explore the data.<br><em>Find your next move.</em></h1><p class="hero-description">Explore connected evidence, test an assumption, and inspect the records behind the view. One workspace for business decisions, scientific systems, and creative experiments.</p><div class="hero-actions"><a class="primary-link" href="./demo/playground.html?example=source-conversion">Open the workspace <span>↗</span></a><a class="secondary-link" href="./examples/">See every example →</a></div><p class="hero-footnote">TypeScript · Built on Three.js · MIT licensed · Experimental</p><div class="share-tools"><button id="share-project">Share Relametric ↗</button><button id="copy-project-link">Copy link</button><span id="share-status" role="status" aria-live="polite"></span></div></div>
 <div class="hero-preview"><a class="product-preview" href="./demo/playground.html?example=activation-pathways" aria-label="Explore Activation pathways in the workspace"><div class="product-preview-bar"><span><i></i> RELAMETRIC WORKSPACE</span><span>EXPLORE · DATA · CODE</span></div><div class="preview-media hero-preview-media"><img src="${workspacePreview}" width="1280" height="720" alt="Relametric workspace with a searchable experiment library, activation scene and adjustable parameters"><video data-preview-src="./examples/previews/activation-pathways.mp4" muted loop playsinline preload="none" aria-hidden="true" tabindex="-1"></video></div><div class="product-preview-caption"><div><span>START AN INVESTIGATION</span><strong>Where does activation stall?</strong></div><b aria-hidden="true">→</b></div></a><div class="preview-toolbar"><span>Recorded scene · Synthetic snapshot</span><button type="button" data-preview-motion aria-pressed="false">Play previews</button></div></div></section>
-<div class="overview-facts" aria-label="Explore Relametric"><a href="./examples/"><strong>57</strong><span>editable recipes</span></a><a href="./demo/playground.html"><strong>4</strong><span>foundation experiments</span></a><a href="./connectors/"><strong>45</strong><span>source guides</span></a><a href="https://github.com/kevin-owens-product/Relametric"><strong>MIT</strong><span>open source · TypeScript</span></a></div>
+<div class="overview-facts" aria-label="Explore Relametric"><a href="./examples/"><strong>100</strong><span>editable recipes</span></a><a href="./demo/playground.html"><strong>4</strong><span>foundation experiments</span></a><a href="./connectors/"><strong>45</strong><span>source guides</span></a><a href="https://github.com/kevin-owens-product/Relametric"><strong>MIT</strong><span>open source · TypeScript</span></a></div>
 <section class="principles" aria-label="Relametric capabilities"><div><span>01</span><strong>Connect the sources.</strong><p>Read databases, warehouses, and data tools through one typed contract.</p></div><div><span>02</span><strong>Follow the evidence.</strong><p>Move from a visual pattern to customers, sessions, checkouts, and interviews.</p></div><div><span>03</span><strong>Make a decision.</strong><p>Build an investigation with an owner, baseline, next step, and guardrail.</p></div></section>
 ${journeyCards('./')}
 ${recipeShowcase('./')}
+${observatoryShowcase('./')}
 ${sourceNotice('./', chosenSource)}
 <section class="decision-lab" id="decision-lab" aria-labelledby="lab-title"><div class="section-heading"><div><p class="eyebrow">THE DECISION LAB</p><h2 id="lab-title">A view worth doing something about.</h2></div><span class="fixture-badge">FICTIONAL DATA · LOCAL JSON CONNECTORS</span></div><div class="decision-tabs" role="group" aria-label="Choose an outcome">${(['conversion', 'retention', 'product'] as Decision[]).map((id, i) => `<button data-decision="${id}" aria-pressed="${i === 0}" style="--tab-accent:${palette[id]}"><span>0${i + 1}</span>${decisionCopy[id].short}<b>↗</b></button>`).join('')}</div>
 <div class="decision-heading"><div><p class="eyebrow" id="decision-eyebrow"></p><h3 id="decision-title"></h3><p id="decision-description"></p></div><label class="segment-label" for="segment">Account segment<select id="segment">${segments.map(segment => `<option>${segment}</option>`).join('')}</select></label></div>
@@ -178,7 +179,7 @@ $('copy-project-link').addEventListener('click', copyProjectLink);
 $('share-project').addEventListener('click', async () => {
   if (!navigator.share) { await copyProjectLink(); return; }
   try {
-    await navigator.share({ title: 'Relametric — Follow the data. Find the next move.', text: 'Open-source TypeScript visualizations for connected evidence. Explore 57 examples and 45 connector guides.', url: shareUrl });
+    await navigator.share({ title: 'Relametric — Follow the data. Find the next move.', text: 'Open-source TypeScript visualizations for connected evidence. Explore 100 examples and 45 connector guides.', url: shareUrl });
     $('share-status').textContent = 'Share dialog completed.';
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') return;

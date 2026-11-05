@@ -16,7 +16,7 @@ Open the address printed by Vite (normally `http://127.0.0.1:5185/`). You should
 1. Open **Explore the decision lab**. Choose conversion, retention, or product decisions.
 2. Select evidence, inspect the linked source records, and compare an explicit scenario assumption.
 3. Export an investigation brief. It should retain the selected scope, evidence, owner, measure, and guardrail. It is a local file, not a task sent to another system.
-4. Open `/examples/` to explore the 57 recipes, or `/connectors/` for source-specific code.
+4. Open `/examples/` to explore the 100 recipes, or `/connectors/` for source-specific code.
 
 The homepage uses 540 fictional records. A displayed recovery opportunity is a modeled scenario, not measured revenue improvement. The earlier connected recipes use a separate 99-record fixture.
 

@@ -128,6 +128,32 @@ try{
   assert(videos.every(video=>video.paused&&!video.hasAttribute('src')),'Reduced motion auto-loaded a loop');
   doc().querySelector('[data-preview-motion]').click();await until(()=>videos[0].currentTime>0,'Explicit play failed with reduced motion');
  });
+ await check('All 43 additions are reachable from nine responsive overview collections',async()=>{
+  frame.style.width='390px';await load('/',()=>doc().querySelectorAll('.rm-domain').length===9);
+  assert(doc().documentElement.scrollWidth<=390,'Domain overview overflows');
+  const links=[...doc().querySelectorAll('.rm-domain details a')];
+  assert(links.length===43&&new Set(links.map(a=>a.href)).size===43,'Missing or duplicate investigation links');
+  assert(doc().querySelector('.overview-facts').textContent.includes('100'),'Wrong recipe total');
+  for(const detail of doc().querySelectorAll('.rm-domain details'))detail.open=true;
+  assert(doc().documentElement.scrollWidth<=390,'Expanded domain lists overflow');
+  const first=doc().querySelector('.rm-domain-cover');first.scrollIntoView();
+  await until(()=>first.querySelector('img').naturalWidth>0);assert(first.querySelector('img').naturalWidth===960,'Missing actual scene preview');
+ });
+ await check('New observations use shared controls, evidence, code and mobile layout',async()=>{
+  await load('/demo/playground.html?example=api-tail-latency',ready);navigation('Playground');
+  assert(doc().querySelectorAll('[data-experiment]').length===104,'Workspace does not expose all experiments');
+  for(const [id,value] of [['control-series','1'],['control-period','0'],['control-reference','1.5']]){
+   const input=doc().getElementById(id);input.value=value;input.dispatchEvent(new(win().Event)('input',{bubbles:true}));
+  }
+  doc().querySelector('[data-workspace-view=data]').click();
+  const rows=doc().querySelectorAll('#data-table tbody tr');assert(rows.length===1,'Series selection did not scope evidence');
+  assert(rows[0].textContent.includes('api-tail-latency-01'),'Wrong series ID');
+  assert(rows[0].children[6].textContent==='0','First-observation delta must be zero');
+  assert(rows[0].children[7].textContent==='900','Reference did not update');
+  assert(doc().documentElement.scrollWidth<=390,'Evidence overflows the page');
+  doc().querySelector('[data-workspace-view=source]').click();assert(doc().getElementById('source').textContent.includes('export const fixture'),'Actual fixture source missing');
+  doc().querySelector('[data-workspace-view=view]').click();assert(doc().querySelector('#stage canvas'),'Canvas missing after tab switch');
+ });
  results.textContent+=`\n${failures.length?'FAILED':'ALL'} ${passed} BROWSER CHECKS ${failures.length?'':'PASSED'}`;
  document.title=failures.length?'FAIL — Unified site checks':'PASS — Unified site checks';
 }catch(e){results.textContent+=e.stack;document.title='FAIL — Unified site checks'}

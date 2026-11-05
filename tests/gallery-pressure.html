@@ -16,7 +16,7 @@ async function open(id){win().location.hash=id;await until(()=>el('viewer')?.dat
 await load('/examples/?category=Space');
 await check('Category changes survive refresh and share links',async()=>{
  doc().querySelector('[data-filter="Energy"]').click();
- assert(selected()==='Energy'&&el('result-count').textContent==='2 examples','Energy filter failed');
+ assert(selected()==='Energy'&&el('result-count').textContent==='6 examples','Energy filter failed');
  assert(new URL(win().location.href).searchParams.get('category')==='Energy','URL retained the old category');
  const url=win().location.pathname+win().location.search;await load(url);assert(selected()==='Energy','Reload lost the category');
 });

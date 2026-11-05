@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><meta charset="utf-8"><title>Relametric observation preview</title>
+<style>html,body,#scene{margin:0;width:100%;height:100%;overflow:hidden;background:#070a0e}</style><div id="scene" aria-label="Synthetic observation scene"></div>
+<script type="module">
+import { createRelametric } from '/src/index.ts';
+import { findExample } from '/examples/catalog.ts';
+import { mountExample } from '/examples/gallery/runtime.ts';
+const example=findExample(new URLSearchParams(location.search).get('example'));
+if(!example)throw new Error('Unknown recipe');
+const app=createRelametric({container:document.getElementById('scene'),background:'#070a0e',paused:true,pixelRatio:1,bloom:example.bloom});
+app.resetCamera(example.camera,example.target);
+const mounted=mountExample(example,app,true);
+requestAnimationFrame(()=>requestAnimationFrame(()=>{document.body.dataset.ready='true';}));
+window.addEventListener('pagehide',()=>{mounted.dispose();app.dispose();},{once:true});
+</script>
