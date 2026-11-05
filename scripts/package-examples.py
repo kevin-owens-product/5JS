@@ -14,15 +14,7 @@ required_files = [root / name for name in (
 )]
 files = list(required_files)
 # Curated public scene previews used by the overview and Playground.
-files.extend(root / name for name in (
-    "public/examples/previews/activation-pathways.jpg",
-    "public/examples/previews/payment-routing.jpg",
-    "public/examples/previews/renewal-runway.jpg",
-    "public/examples/previews/support-escalation.jpg",
-    "public/examples/previews/feature-adoption.jpg",
-    "public/examples/previews/interview-coverage.jpg",
-    "public/examples/previews/performance-friction.jpg",
-) if (root / name).exists())
+files.extend(sorted((root / "public/examples/previews").glob("*.jpg")))
 files.extend(sorted((root / "public/examples/previews").glob("*.mp4")))
 files.extend(root / name for name in (
     "LICENSE.md", "LICENSE.txt", "NOTICE", "NOTICE.md",

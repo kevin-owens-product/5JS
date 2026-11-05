@@ -12,7 +12,7 @@ const artifacts = resolve(root, 'artifacts/browser-checks');
 const checks = [
   { name: 'unified-site', path: '/tests/unified-site-browser.html', timeout: 180_000 },
   { name: 'lifecycle', path: '/tests/browser.html', timeout: 60_000 },
-  { name: 'examples', path: '/tests/examples-browser.html', timeout: 330_000 },
+  { name: 'examples', path: '/tests/examples-browser.html', timeout: 600_000 },
   { name: 'core-pressure', path: '/tests/core-pressure.html', timeout: 60_000 },
   { name: 'gallery-pressure', path: '/tests/gallery-pressure.html', timeout: 300_000 },
   { name: 'connected-pressure', path: '/tests/connected-pressure.html', timeout: 300_000 },
@@ -39,12 +39,14 @@ try {
   const address = server.httpServer?.address();
   assert.ok(address && typeof address !== 'string', 'Vite must listen on a local TCP port.');
   const origin = `http://127.0.0.1:${address.port}`;
-  browser = await chromium.launch({
-    headless: true,
-    args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--disable-dev-shm-usage'],
-  });
 
   for (const check of selectedChecks) {
+    // Isolate software-GPU state across independent suites. Each suite still
+    // verifies repeated mounts and resource cleanup in its own browser.
+    browser = await chromium.launch({
+      headless: true,
+      args: ['--use-gl=angle', '--use-angle=swiftshader', '--enable-unsafe-swiftshader', '--disable-dev-shm-usage'],
+    });
     const page = await browser.newPage({ viewport: { width: 1100, height: 800 }, deviceScaleFactor: 1 });
     const messages = [];
     const pageErrors = [];
@@ -62,7 +64,7 @@ try {
       assert.equal(pageErrors.length, 0, `${check.name}: uncaught browser error(s): ${pageErrors.join('\n')}`);
       if (check.name === 'examples') {
         const counts = results.match(/ALL (\d+)\/(\d+) EXAMPLE BROWSER CHECKS PASSED/);
-        assert.ok(counts && Number(counts[1]) >= 47 && counts[1] === counts[2], 'Every gallery recipe must pass.');
+        assert.ok(counts && Number(counts[1]) >= 104 && counts[1] === counts[2], 'Every gallery recipe must pass.');
       } else if (check.name.endsWith('-pressure')) {
         assert.match(results, /ALL \d+(?:\/\d+)?(?: (?:CORE|RENDER))? PRESSURE CHECKS PASSED/);
       } else {
@@ -78,6 +80,8 @@ try {
         console.error(`Could not capture ${check.name} diagnostics: ${captureError.message}`);
       });
       await page.close();
+      await browser.close();
+      browser = undefined;
     }
     summaries.push({ name: check.name, passed: !error, ...(error && { error: error.message }) });
     console.log(`${error ? 'FAIL' : 'PASS'} · ${check.name}\n${results}`);

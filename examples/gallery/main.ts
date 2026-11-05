@@ -1,3 +1,4 @@
+import { observatories } from '../observatories.js';
 import { siteHeader, sourceContext, sourceNotice, sourceQuery, outcomes, featuredRecipes } from '../../demo/site.js';
 import { examples as galleryExamples } from '../catalog.js';
 import type { ExampleDefinition } from '../types.js';
@@ -21,7 +22,7 @@ const sourceFor = (id:string) => foundationSource(id) ?? recipeSource(id);
 if(inPlayground)document.body.classList.add('studio-page');
 const standalone = inPlayground || location.pathname.endsWith('/run.html');
 if(!standalone)document.body.classList.add('collection-page');
-const staticPreviews = new Set(featuredRecipes.map(recipe=>recipe.id));
+const staticPreviews = new Set([...featuredRecipes, ...observatories].map(recipe=>recipe.id));
 const chosenSource = sourceContext(new URLSearchParams(location.search));
 const galleryPath = inPlayground ? '../examples/' : './';
 const reducedMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;

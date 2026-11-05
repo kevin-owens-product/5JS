@@ -82,7 +82,7 @@
 
     // All catalog scenes include PNG readbacks and every control extreme on software GPUs.
     // Keep per-operation guards; allow five minutes for the complete catalog.
-    const watchdog = setTimeout(() => fail(new Error('The complete browser verification exceeded its 300-second limit.')), 300_000);
+    const watchdog = setTimeout(() => fail(new Error('The complete browser verification exceeded its 540-second limit.')), 540_000);
     window.addEventListener('error', event => fail(event.error ?? new Error(event.message)));
     window.addEventListener('unhandledrejection', event => fail(event.reason));
 
@@ -177,7 +177,7 @@
       const examples=[...foundations,...recipes];
       const sourceFor=id=>foundationSource(id)??recipeSource(id);
       total = examples.length;
-      assert(examples.length >= 47, `Expected at least 47 recipes; found ${examples.length}.`);
+      assert(examples.length >= 104, `Expected at least 100 recipes plus four foundations; found ${examples.length}.`);
       const ids = new Set();
       const categories = new Map(exampleCategories.map(category => [category, 0]));
       for (const example of examples) {

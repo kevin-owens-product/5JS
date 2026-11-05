@@ -1,8 +1,8 @@
 # Relametric example library
 
-Fifty-seven editable recipes span eleven categories, including thirty-three business and analytics examples and twelve Space, Biology, Climate, Energy, Cities, and Engineering scenes. Six decision recipes connect source records to proposed investigations: three earlier workflows use a 99-record fixture, and three new companion views lead to the Relametric homepage's 540-record decision lab. The collection also covers particles, higher-dimensional geometry, graph data, terrain, and custom Three.js layers. Each recipe powers both its gallery preview and its interactive viewer. The preceding visual refresh redesigned seventeen of the original forty-four scenes; the other twenty-seven original scenes were reviewed and retained.
+One hundred editable recipes span eleven categories, including forty-nine Business and Analytics examples. Four additional foundation experiments introduce the rendering layers. The collection combines connected decision workflows, 43 observation-driven domain investigations, scientific illustrations, graph data, terrain and custom Three.js scenes. Every recipe uses the shared gallery and Playground runtime, with editable source and documented controls.
 
-Relametric is the working project name and website brand. Existing library imports remain `relametric`, with `createRelametric` and `RelametricLayer` unchanged. The repository and package names have not been renamed, and neither the visualization package nor the independent `relametric-connectors` package has been published to npm.
+Relametric is the working project name and website brand. Existing library imports remain `relametric`, with `createRelametric` and `RelametricLayer` unchanged. The repository is named Relametric; neither the visualization package nor the independent `relametric-connectors` package has been published to npm.
 
 ## Run locally
 
@@ -25,7 +25,7 @@ Open one recipe directly with `/examples/run.html?example=id`, for example:
 http://127.0.0.1:5185/examples/run.html?example=orbital-garden
 ```
 
-The gallery supports category filters, text search, keyboard navigation, live controls, pause, camera reset, PNG capture, and source inspection. **Decisions** filters six workflows across Business and Analytics; it is a collection filter, not a twelfth category. The three `source-*` recipes include **Open the decision workspace**, linking to their full homepage workflow. Every category uses the same larger stage, including scenes with metrics and tables. Expand **How to read this scene** to inspect units, encodings, and assumptions; the earlier linked-record workflows keep these settings under **Scenario & display**. Reduced-motion preferences start animation paused. Rendering requires WebGL2.
+The gallery supports category filters, text search, keyboard navigation, live controls, pause, camera reset, PNG capture, and source inspection. **Decisions** filters the six connected workflows across Business and Analytics; it is a collection filter, not a twelfth category. The three `source-*` recipes include **Open the decision workspace**, linking to their full homepage workflow. Every category uses the same larger stage, including scenes with metrics and tables. Expand **How to read this scene** to inspect units, encodings, and assumptions; the earlier linked-record workflows keep these settings under **Scenario & display**. Reduced-motion preferences start animation paused. Rendering requires WebGL2.
 
 For a production build, run `npm run build:demo`, then `npm run preview`; the gallery remains at `/examples/`.
 
@@ -33,6 +33,49 @@ For a production build, run `npm run build:demo`, then `npm run preview`; the ga
 
 | Recipe and source | Category | Learning concept |
 | --- | --- | --- |
+| [Checkout device river](business/checkout-device-river.ts) | Business | Which device journeys have lower checkout completion? |
+| [Trial value clock](business/trial-value-clock.ts) | Business | Which trial cohorts take longest to reach their first useful result? |
+| [Renewal engagement radar](business/renewal-engagement-radar.ts) | Business | Where is seat engagement thinning before renewal? |
+| [Expansion signal bridges](business/expansion-signal-bridges.ts) | Business | Which accounts approach purchased capacity without proven expansion intent? |
+| [Refund reason ridges](business/refund-reason-ridges.ts) | Business | Which refund reasons need product or service investigation? |
+| [Pricing plan observatory](business/pricing-plan-observatory.ts) | Business | Which pricing plans diverge between first and current completion? |
+| [Delivery promise orbits](business/delivery-promise-orbits.ts) | Business | Which fulfillment lanes repeatedly miss the customer promise? |
+| [Service handoff matrix](business/service-handoff-matrix.ts) | Business | Which handoffs delay a customer reaching a specialist? |
+| [Search zero-result terrain](analytics/search-zero-results.ts) | Analytics | Which search intents repeatedly fail to find a useful result? |
+| [Research coverage map](analytics/research-confidence-map.ts) | Analytics | Which research themes lack documented evidence coverage? |
+| [Feature depth braids](analytics/feature-depth-braids.ts) | Analytics | Which features have repeat use rather than one-off adoption? |
+| [Experiment guardrail bridge](analytics/experiment-guardrail-bridge.ts) | Analytics | Which experiment variants need performance review before rollout? |
+| [Notification fatigue coils](analytics/notification-fatigue.ts) | Analytics | Which notification programs have rising opt-out shares? |
+| [Accessibility friction atlas](analytics/accessibility-friction.ts) | Analytics | Which audited tasks have unresolved accessibility blockers? |
+| [Instrumentation drift matrix](analytics/instrumentation-drift.ts) | Analytics | Where does event schema drift threaten a product decision? |
+| [Cohort return compass](analytics/cohort-return-compass.ts) | Analytics | Which fully observed acquisition cohorts have weaker seven-day return? |
+| [API tail-latency ridges](engineering/api-tail-latency.ts) | Engineering | Which endpoint tails worsen while aggregate latency hides the problem? |
+| [Deployment error braids](engineering/deploy-error-braids.ts) | Engineering | Which services show error-rate changes across a deployment window? |
+| [Queue backpressure towers](engineering/queue-backpressure.ts) | Engineering | Which worker queues exceed an illustrative age budget? |
+| [Build critical-path bridges](engineering/build-critical-path.ts) | Engineering | Which build stages merit caching or dependency investigation? |
+| [Cache efficiency orbits](engineering/cache-efficiency-orbits.ts) | Engineering | Which cache namespaces lose effectiveness under changing workload? |
+| [Pipeline freshness coils](data/pipeline-freshness.ts) | Data | Which data products become stale before consumers notice? |
+| [Join coverage radar](data/join-coverage-radar.ts) | Data | Which joins lose the evidence needed to connect a customer journey? |
+| [Query cost landscape](data/query-cost-landscape.ts) | Data | Which query families scan more data than their review reference? |
+| [Schema contract constellation](data/schema-contract-constellation.ts) | Data | Which producer contracts accumulate validation failures? |
+| [Watershed rainfall ribbons](climate/watershed-rainfall.ts) | Climate | Which fictional catchments receive concentrated rainfall across observations? |
+| [Urban heat observatory](climate/urban-heat-observatory.ts) | Climate | Which sampled surfaces remain warmer across an illustrative heat episode? |
+| [Soil moisture compass](climate/soil-moisture-compass.ts) | Climate | Which soil plots dry below an illustrative study reference? |
+| [Air sensor divergence](climate/air-sensor-divergence.ts) | Climate | Which fictional sensors diverge between first and current observations? |
+| [Battery cycle atlas](energy/battery-cycle-atlas.ts) | Energy | Which illustrative battery packs lose usable capacity across cycle checkpoints? |
+| [Solar curtailment ridges](energy/solar-curtailment.ts) | Energy | Which sites lose generation opportunity during congested intervals? |
+| [Charging demand orbits](energy/charging-demand-orbits.ts) | Energy | Which charging hubs sustain high occupied-time shares? |
+| [Grid reserve bridges](energy/grid-reserve-bridges.ts) | Energy | Which fictional zones fall below an illustrative reserve reference? |
+| [Transit transfer braids](cities/transit-transfer-braids.ts) | Cities | Which interchange journeys have repeated transfer misses? |
+| [Water leakage ridges](cities/water-leakage-ridges.ts) | Cities | Which districts show a persistent water-balance gap? |
+| [Permit backlog matrix](cities/permit-backlog-matrix.ts) | Cities | Which permit queues hold the oldest open work? |
+| [Public space access compass](cities/public-space-access.ts) | Cities | Which fictional neighborhoods lack nearby public space? |
+| [Assay response ribbons](biology/assay-response-ribbons.ts) | Biology | Which synthetic assay traces show different response timing? |
+| [Habitat observation orbits](biology/habitat-observation-orbits.ts) | Biology | Which survey habitats show lower recorded detection intensity? |
+| [Bioreactor oxygen coils](biology/bioreactor-oxygen-coils.ts) | Biology | Which fictional reactors cross an illustrative oxygen review reference? |
+| [Telescope signal ridges](space/telescope-signal-ridges.ts) | Space | Which observation targets have weak signal relative to noise? |
+| [Satellite link bridges](space/satellite-link-bridges.ts) | Space | Which modeled ground links deserve a closer margin review? |
+| [Mission power matrix](space/mission-power-matrix.ts) | Space | Which instrument loads approach a fictional review reference? |
 | [Activation pathways](business/activation-pathways.ts) | Business | Find the onboarding step where the most eligible accounts stall. |
 | [Payment routing atlas](business/payment-routing.ts) | Business | Compare failed payment attempts by route before proposing a recovery test. |
 | [Renewal runway](business/renewal-runway.ts) | Business | Plan account reviews across the next five renewal windows. |
@@ -203,7 +246,7 @@ The four Data scenes retain their explicit synthetic graph topology and existing
 
 ## Reading the domain scenes
 
-The twelve Space, Biology, Climate, Energy, Cities, and Engineering recipes use synthetic or idealized models, not measured datasets. Each recipe's `dataNote`, legend, metrics, and table explain its assumptions and units. Readouts describe the implemented geometry or calculation; they do not establish scientific validation. Tracer density, glow, and playback speed are presentation choices unless an encoding explicitly states otherwise.
+The Space, Biology, Climate, Energy, Cities, and Engineering recipes use synthetic or idealized models, not measured datasets. Each recipe's `dataNote`, legend, metrics, and table explain its assumptions and units. Readouts describe the implemented geometry or calculation; they do not establish scientific validation. Tracer density, glow, and playback speed are presentation choices unless an encoding explicitly states otherwise.
 
 Space scenes prescribe orbital periods and twisted stellar loops: ellipse parameters advance uniformly, rather than following a gravity solver, and the stellar curve uses `r = L sin²θ` plus an authored twist. Biology scenes build a synthetic bilateral graph and a transport tree. The tree conserves flow at each split and uses `radius ∝ sqrt(flow)` so branch cross-sectional area encodes flow; decorative terminal loops have fixed width. Neither scene represents anatomical or patient data.
 
@@ -253,7 +296,7 @@ const example: ExampleDefinition = {
   setup(app) {
     const field = app.add(particleField({
       count: 20_000, mode: 'wave', radius: 4, seed: 42,
-      speed: .4, colorA: '#a9f5bd', colorB: '#357fce',
+      speed: .4, colorA: '#a9f5bd', colorB: '#3100fce',
     }));
     return { controls: [{
       id: 'speed', label: 'Wave speed',
@@ -338,7 +381,7 @@ The source ZIP also includes authored connector-guide content, rendering templat
 
 ## Interpretation and checks
 
-All thirty-three Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted in the original cohort example; the new retention workspace explicitly requires mature observation windows. Rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Connected proposals preserve evidence and assumptions without claiming validated impact. Tables and metric readouts update with the controls.
+All forty-nine Business and Analytics recipes use explicit synthetic fixtures. They are reusable visualization and calculation examples, not evidence about a real company. Units, grain, denominators, and scenario assumptions are described in each recipe. Business values are USD where stated. Cohort cells for unobserved ages are omitted in the original cohort example; the new retention workspace explicitly requires mature observation windows. Rule-based segments are not machine-learned clusters; demand envelopes are scenarios, not statistical confidence intervals; observed A/B differences are not causal or significance conclusions. Connected proposals preserve evidence and assumptions without claiming validated impact. Tables and metric readouts update with the controls.
 
 Data examples use synthetic graphs and coordinates. Vortex and wave examples use analytic visual patterns; they do not solve fluid dynamics or the wave equation. Cinematic scenes are stylized compositions.
 
@@ -346,9 +389,9 @@ The Lorenz example precomputes 18,000 trajectory samples using fourth-order Rung
 
 Run `npm run typecheck` and `npm test` after adding a recipe. CPU tests should cover useful invariants, live controls, zero-delta pause behavior, and resource disposal. Also inspect its real browser render, portrait framing, control extremes, and standalone URL.
 
-Open `/tests/examples-browser.html` to verify all 57 gallery recipes and four foundation experiments in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
+Open `/tests/examples-browser.html` to verify all 100 gallery recipes and four foundation experiments in WebGL2. The harness checks nonempty PNG pixels; minimum, midpoint, and maximum values for each control; analytical readouts; and geometry/texture cleanup. Every recipe also receives a positive-delta update that must visibly change its rendered pixels, followed by a zero-delta update that must leave the rendered image identical. Presentation motion must preserve its readout data.
 
-For visual review, open **http://127.0.0.1:5185/tests/examples-browser.html?review=1** with the development server running. After all checks pass, the page shows contact sheets made from the actual WebGL captures. Use **Previous page** and **Next page** to review 12 scenes at a time across five pages. These are default-scene captures, not screenshots of every control combination. Inspect normal viewers and portrait layouts separately for framing, labels, and useful interactions; a pixel-change assertion cannot establish visual quality.
+For visual review, open **http://127.0.0.1:5185/tests/examples-browser.html?review=1** with the development server running. After all checks pass, the page shows contact sheets made from the actual WebGL captures. Use **Previous page** and **Next page** to review 12 scenes at a time across nine pages. These are default-scene captures, not screenshots of every control combination. Inspect normal viewers and portrait layouts separately for framing, labels, and useful interactions; a pixel-change assertion cannot establish visual quality.
 
 Open `/tests/connected-pressure.html` to exercise linked inspection, keyboard tabs and focus, scoped brief exports, selection reconciliation, cleanup, a 375px layout, and empty-state recovery. It runs in the CI browser suite. The empty-state check uses an explicitly injected fixture because the authored production filter combinations all contain records.
 
@@ -358,10 +401,24 @@ For the homepage decision lab, verify each outcome and segment, all seven comple
 
 ## Move between discovery, sources and experimentation
 
-Use the shared navigation to move between the overview, example collection, connector guides and Playground. Every recipe can open at `../demo/playground.html?example=<id>` with its controls, source inspection and exports. The Playground without an example parameter opens Particle field in the same workspace used by all 57 recipes. The searchable library includes four foundation experiments and 57 recipes, with consistent selection, session-local settings, history, and Explore / Data & evidence / Code views. Existing standalone URLs remain valid.
+Use the shared navigation to move between the overview, example collection, connector guides and Playground. Every recipe can open at `../demo/playground.html?example=<id>` with its controls, source inspection and exports. The Playground without an example parameter opens Particle field in the same workspace used by all 100 recipes. The searchable library includes four foundation experiments and 100 recipes, with consistent selection, session-local settings, history, and Explore / Data & evidence / Code views. Existing standalone URLs remain valid.
 
 Connector-guide links carry a known `source` slug into a related example and decision workflow. The visible source banner links back to setup code and explicitly states that the running example still uses synthetic data. Reading a source and mapping its records into an example remain application work.
 
 ## Investigation scenarios
 
 Seven additional recipes use disjoint synthetic group snapshots (feature adoption counts account-feature records). Each offers group inspection, review capacity, and an assumed addressable share. Slots rank groups by affected count with equal effort assumed; neither the ranking nor the modeled count predicts business impact. Records, denominators, owners and proposed investigations are included in CSV export. `shared/decision-recipe.ts` owns their shared calculation and rendering lifecycle; recipe files own their fixtures and grain definitions. The overview and Playground expose the same seven entry points.
+
+## Observation-driven investigations (43 recipes)
+
+The gallery now contains **100 recipes plus four foundation experiments**. The 43 additions cover Business (8), Analytics (8), Engineering (5), Data (4), Climate (4), Energy (4), Cities (4), Biology (3), and Space (3). The overview groups them by domain; every link opens the same Playground, data table, source viewer and CSV export.
+
+Each new module exports a typed `fixture` with six explicit observations per series, units, period labels, an illustrative review reference, the aggregation grain, a source description, an owner and a proposed investigation. These are synthetic teaching fixtures, including all scientific scenes. They are not live connectors, forecasts, regulatory thresholds or medical/operational guidance. Evidence labels identify synthetic groups; they are not links to real customer records. A percentage must retain the stated denominator when adapted. Percentiles, medians and rates cannot be summed across series.
+
+The shared [observatory helper](shared/observatory.ts) supports eight encodings: ridges, braids, orbital islands, coils, comparison bridges, a time-series matrix, radial spokes and a change constellation. Each recipe states its mapping under **How to read this scene**. Color identifies a series; coral marks a reference breach. Interpolation connects observations without inventing samples; animated tracers never change data. References select records for investigation and do not predict improvement.
+
+Controls select an observation, isolate a series and adjust the reference from 0.5× to 1.5×. The geometric scale stays fixed while filtering and changing references. Data exports include all six observations, the selected value, its delta from the first observation, the current reference and the investigation owner. The table retains the entire available series even when an earlier observation is selected; it is an exploration tool, not a backtest. Current-period review flags do not use later observations.
+
+To adapt a fixture: read an authorized source on the server, validate grain and completeness, calculate the documented metric, then replace the explicit values and provenance. Preserve missing intervals rather than filling them with zero; this helper requires six complete nonnegative observations, so incomplete or signed data needs an explicit model extension. Follow [the architecture boundaries](../docs/ARCHITECTURE.md) for credentials and source contracts.
+
+The static JPEGs for the 43 additions are captured from the actual recipe renderer, avoiding 43 extra thumbnail renders on gallery startup. Regenerate them using `node scripts/capture-observatories.mjs`; it starts its own local Vite server and writes the preview assets. The source ZIP includes the images. The existing seven animated overview previews retain their reduced-motion and pause behavior.
